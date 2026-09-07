@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/quarto-contrib/videojs/video.min.js"></script>
+<link href="../../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.42">
+
+  <meta name="author" content="Florian Shkurti">
+  <title>CSC2626 - Fall 2024 – CSC2626 Imitation Learning for Robotics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2f366650f320edcfcf53d73c80250a32.css">
+  <link rel="stylesheet" href="../style.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+<meta property="og:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2024">
+<meta property="og:description" content="Week 5: Learning Reward Functions">
+<meta property="og:site_name" content="CSC2626 - Fall 2024">
+<meta name="twitter:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2024">
+<meta name="twitter:description" content="Week 5: Learning Reward Functions">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">CSC2626 Imitation Learning for Robotics</h1>
+  <p class="subtitle">Week 5: Learning Reward Functions</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Florian Shkurti 
+</div>
+</div>
+</div>
+
+</section>
+<section id="todays-agenda" class="slide level2">
+<h2>Today’s agenda</h2>
+<ul>
+<li>Learning linear rewards from trajectory demonstrations in 2D</li>
+<li>Learning nonlinear rewards from trajectory demonstrations in 2D<br>
+</li>
+<li>Guided cost learning in any D</li>
+<li>Updating distributions over reward parameters using preference elicitation</li>
+<li>Human-robot dialog with uncertainty quantification</li>
+</ul>
+
+<aside><div>
+<p>Acknowledgments:<br>
+Today’s slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao</p>
+</div></aside></section>
+<section id="maximum-entropy-inverse-reinforcement-learning" class="slide level2">
+<h2>Maximum Entropy Inverse Reinforcement Learning</h2>
+<p>Ziebart, Maas, Bagnell and Dey</p>
+<p>Presented by Sergio Casas</p>
+</section>
+<section id="imitation-learning-approaches" class="slide level2">
+<h2>Imitation Learning approaches</h2>
+<p>• In Imitation Learning, we want to learn to <strong>predict the behavior an expert agent would choose.</strong></p>
+<p>• So far, we have seen two main paradigms to tackle this problem</p>
+
+<img data-src="images/imitation-learning.png" class="r-stretch"></section>
+<section id="imitation-learning-approaches-1" class="slide level2">
+<h2>Imitation Learning approaches</h2>
+<p>• In Imitation Learning, we want to learn to <strong>predict the behavior an expert agent would choose.</strong></p>
+<p>• Today, we introduce a third paradigm: <strong>Inverse Reinforcement Learning (IRL)</strong></p>
+
+<img data-src="images/imitation-learning2.png" class="r-stretch"></section>
+<section id="basic-principle" class="slide level2">
+<h2>Basic Principle</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li>IRL reduces the imitation problem to:
+<ul>
+<li><strong>Recovering a reward function</strong> given a set of demonstrations.</li>
+<li>Solving the MDP using RL to recover the policy, conditioned on our learned reward.</li>
+</ul></li>
+<li>IRL assumes that the reward function provides the most concise and transferable definition of the task</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/basic-principle.png"></p>
+</div></div>
+</section>
+<section id="background-ng-russell-2000-abbeel-ng-2004" class="slide level2">
+<h2>Background [Ng &amp; Russell 2000, Abbeel &amp; Ng 2004]</h2>
+<ul>
+<li>More formally, we want to find a reward function R* that explains the expert behavior such that:</li>
+</ul>
+<p><span class="math display">\[
+\mathbb{E} \left[ \sum_{t} R^{*}(s_{t}) \mid \pi^{*} \right] \geq \mathbb{E} \left[ \sum_{t} R^{*}(s_{t}) \mid \pi \right] \quad \forall \pi
+\]</span></p>
+<ul>
+<li>IRL Challenges:
+<ul>
+<li>Assumes we know the expert policy <span class="math inline">\(\pi^*\)</span>, but we only observe sample trajectories</li>
+<li>Assumes optimality of the expert</li>
+<li>Assumes we can enumerate all policies</li>
+<li>Reward function ambiguity (eg. R=0 is a solution)</li>
+</ul></li>
+</ul>
+</section>
+<section id="background-ng-russell-2000-abbeel-ng-2004-1" class="slide level2">
+<h2>Background [Ng &amp; Russell 2000, Abbeel &amp; Ng 2004]</h2>
+<div class="small-math">
+<ul>
+<li>We define feature expectations (or feature counts) as:</li>
+</ul>
+<p><span class="math display">\[
+\mathbf{f}_{\pi} = \mathbb{E} \left[ \sum_{t} \mathbf{f}_{s_t} \mid \pi \right]
+\]</span></p>
+<ul>
+<li>Let the reward be a linear function of the state features:</li>
+</ul>
+<p><span class="math display">\[
+R(s) = \theta^{\top} \mathbf{f}_s
+\]</span></p>
+<ul>
+<li>Therefore, we can calculate the expected reward of a policy as:</li>
+</ul>
+<p><span class="math display">\[
+\mathbb{E} \left[ \sum_{t} R(s_t) \mid \pi \right] =
+\mathbb{E} \left[ \sum_{t} \theta^{\top} \mathbf{f}_{s_t} \mid \pi \right] =
+\theta^{\top} \mathbb{E} \left[ \sum_{t} \mathbf{f}_{s_t} \mid \pi \right] =
+\theta^{\top} \mathbf{f}_{\pi}
+\]</span></p>
+</div>
+</section>
+<section id="background-ng-russell-2000-abbeel-ng-2004-2" class="slide level2">
+<h2>Background [Ng &amp; Russell 2000, Abbeel &amp; Ng 2004]</h2>
+<div class="small-math">
+<ul>
+<li>We can also define the feature counts of a trajectory <span class="math inline">\(\tau\)</span> :</li>
+</ul>
+<p><span class="math display">\[
+f_{\tau} = \sum_{s_t \in \tau} f_{s_t}
+\]</span></p>
+<ul>
+<li>And the expected empirical feature count from <span class="math inline">\(m\)</span> sample trajectories of a policy:</li>
+</ul>
+<p><span class="math display">\[
+\tilde{f}_{\pi} = \frac{1}{m} \sum_i f_{\tau_i}
+\]</span></p>
+<ul>
+<li>Finally, we can obtain an unbiased estimate of the expected reward of a policy as:</li>
+</ul>
+<p><span class="math display">\[
+\mathbb{E} \left[ \sum_t R(s_t) \mid \pi \right] \approx \theta^\top \tilde{f}_{\pi}
+\]</span></p>
+</div>
+</section>
+<section id="background-ng-russell-2000-abbeel-ng-2004-3" class="slide level2">
+<h2>Background [Ng &amp; Russell 2000, Abbeel &amp; Ng 2004]</h2>
+<ul>
+<li>Therefore, we can rewrite our inequality as:</li>
+</ul>
+<p><span class="math display">\[
+\theta^{*\top} f_{\pi^*} \geq \theta^{*\top} f_{\pi}
+\]</span></p>
+<p>which can in turn be <strong>approximated</strong> when having a dataset <span class="math inline">\(D\)</span> of expert demonstrated trajectories <span class="math inline">\(D\)</span> as:</p>
+<p><span class="math display">\[
+\theta^{*\top} f_D \geq \theta^{*\top} f_{\pi} \quad \text{where} \quad f_D = \tilde{f}_{\pi^*}
+\]</span></p>
+<ul>
+<li>By sampling expert trajectories to compute the feature count estimate, we <strong>tackle the challenge of the partial observability</strong> of the expert policy.</li>
+</ul>
+</section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+<ul>
+<li><p>Let’s recap the IRL Challenges:</p>
+<ul>
+<li><p><span class="green">Assumes we know the expert policy <span class="math inline">\(\pi^*\)</span></span></p></li>
+<li><p><span class="green">Assumes optimality of the expert</span></p></li>
+<li><p><span class="green">Assumes we can enumerate all policies</span></p></li>
+<li><p><span class="red">Reward function ambiguity (e.g.&nbsp;R=0 is a solution)</span></p></li>
+</ul></li>
+</ul>
+</section>
+<section id="maximum-entropy-principle" class="slide level2">
+<h2>Maximum Entropy Principle</h2>
+<div class="absolute" style="top: 70px; right: 0px; ">
+<p><span class="math display">\[
+H(p) = -\int_x p(x)\log p(x)dx
+\]</span></p>
+</div>
+<p><br></p>
+<p><span class="math display">\[
+p(x) = ?
+\qquad
+\begin{cases}
+\underset{p(x)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
+\text{subject to} \int_a^b p(x)dx = 1
+\qquad
+\end{cases}
+\]</span></p>
+</section>
+<section id="maximum-entropy-principle-1" class="slide level2">
+<h2>Maximum Entropy Principle</h2>
+<p><br></p>
+<p><span class="math display">\[
+p(x) = ?
+\qquad
+\begin{cases}
+\underset{p(x)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
+\text{subject to} &amp; \int_x p(x)dx = 1 \\[0.5em]
+&amp; \mathbb{E}_{x \sim p(x)}[x] = \frac{1}{|D|} \sum_{x_i \in D} x_i = \hat{\mu} \\[0.5em]
+&amp; \mathbb{V}_{x \sim p(x)}[x] = \frac{1}{|D|} \sum_{x_i \in D} (x_i - \hat{\mu})^2 = \hat{\sigma}^2
+\end{cases}
+\]</span></p>
+</section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-1" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+<p><span class="math display">\[
+p(\tau|\theta) = ?
+\qquad
+\begin{cases}
+\underset{p(\tau|\theta)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
+\text{subject to} &amp; \sum_{\tau} p(\tau|\theta) = 1 \\[0.5em]
+&amp; \mathbb{E}_{\tau \sim p(\tau|\theta)}[\mathbf{f}_{\tau}] = \frac{1}{|D|} \sum_{\tau \in D} \mathbf{f}_{\tau}
+\end{cases}
+\]</span></p>
+<div class="red-annotation right-align">
+<p><strong>Assumption:</strong> Trajectories (states and action sequences) here are discrete</p>
+</div>
+</section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-2" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+<ul>
+<li><p>Applying the principle of maximum entropy <strong>breaks the ambiguity of the reward function.</strong></p></li>
+<li><p>Leads us to a distribution over behaviors constrained to match feature expectations of the demonstrations while <strong>having no preference to any particular path that fits this constraint.</strong></p></li>
+</ul>
+</section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-3" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+<p><span class="math display">\[
+p(\tau|\theta) = \frac{\exp(\theta^{\top}\mathbf{f}_{\tau})}{Z(\theta)}
+\qquad
+\begin{cases}
+\underset{p(\tau|\theta)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
+\text{subject to} &amp; \sum_{\tau} p(\tau|\theta) = 1 \\[0.5em]
+&amp; \mathbb{E}_{\tau \sim p(\tau|\theta)}[\mathbf{f}_{\tau}] = \frac{1}{|D|} \sum_{\tau \in D} \mathbf{f}_{\tau}
+\end{cases}
+\]</span></p>
+<p><span class="small-math">Linear Reward Function</span></p>
+<p><span class="math inline">\(R_{\theta}(\tau) = \theta^{\top}\mathbf{f}_{\tau}\)</span></p>
+</section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-4" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+<div class="small-math">
+<p><span class="math display">\[
+\left.
+\begin{aligned}
+p(\tau \mid \theta) &amp;= \frac{\exp\!\bigl(\theta^\top \mathbf{f}_\tau\bigr)}{Z(\theta)} \\[8pt]
+\textbf{Linear Reward Function}\\
+R_\theta(\tau) &amp;= \theta^\top \mathbf{f}_\tau
+\end{aligned}
+\right\}
+\qquad
+p(\tau \mid \theta) \;=\; p(x_0)\,
+\prod_{t=0}^{T-1} p(x_{t+1}\!\mid\!x_t,u_t)\,\pi_\theta(u_t\!\mid\!x_t)
+\;=\; \frac{\exp\!\bigl(R_\theta(\tau)\bigr)}{Z(\theta)}
+\]</span></p>
+</div>
+</section>
+<section id="maximum-entropy-principle-ziebart-et-al.-2008" class="slide level2">
+<h2>Maximum Entropy Principle [Ziebart et al.&nbsp;2008]</h2>
+
+<img data-src="images/maximum-entropy1.png" class="r-stretch"></section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-5" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+
+<img data-src="images/maximum-entropy2.png" class="r-stretch"></section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-6" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+
+<img data-src="images/maximum-entropy3.png" class="r-stretch"></section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-7" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+
+<img data-src="images/maximum-entropy4.png" class="r-stretch"></section>
+<section id="maximum-entropy-irl-ziebart-et-al.-2008-8" class="slide level2">
+<h2>Maximum Entropy IRL [Ziebart et al.&nbsp;2008]</h2>
+
+<img data-src="images/maximum-entropy5.png" class="r-stretch"></section>
+<section id="state-visitation-distribution" class="slide level2">
+<h2>State visitation distribution</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li><p>The exponential growth of paths with the MDPs time horizon makes enumeration-based approaches infeasible.</p></li>
+<li><p>The authors proposed a <strong>DP algorithm similar to value iteration</strong> to compute the state visitation distribution efficiently.</p></li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/algo1.png"></p>
+</div></div>
+</section>
+<section id="learning-from-demonstrations-ziebart-et-al.-2008" class="slide level2">
+<h2>Learning from demonstrations [Ziebart et al.&nbsp;2008]</h2>
+<ul>
+<li><p>As we have seen, maximizing the entropy subject to the feature counts constraint is equivalent to maximize the likelihood of the demonstrated trajectories D with an exponential family as our path distribution: <span class="math display">\[
+\theta^{*} = \arg\max_{\theta} L(\theta) = \arg\max_{\theta} \sum_{\tilde{\tau} \in D} \log P(\tilde{\tau} \mid \theta, T)
+\]</span></p></li>
+<li><p>For deterministic MDPs, this function is convex and can be optimized using gradient descent:</p></li>
+</ul>
+<p><span class="math display">\[
+\nabla L(\theta) =
+\underbrace{\tilde{\mathbf{f}}}
+- \sum_{\tau} P(\tau \mid \theta, T) \mathbf{f}_{\tau} =
+\tilde{\mathbf{f}} -
+\underbrace{\sum_{s_i} \mu_{s_i}} \mathbf{f}_{s_i}
+\]</span></p>
+<div class="small-math absolute" style="left: 200px; bottom: 30px; ">
+<p>In practice we use empirical, sample-based<br>
+expectations of the expert agent</p>
+</div>
+<div class="small-math absolute" style="bottom: 30px; right: 200px; ">
+<p>State visitation distribution</p>
+</div>
+</section>
+<section id="maxent-high-level-algorithm" class="slide level2">
+<h2>MaxEnt high-level algorithm</h2>
+
+<img data-src="images/high-level-algo.png" class="r-stretch"></section>
+<section id="application-driver-route-modelling" class="slide level2">
+<h2>Application: Driver Route Modelling</h2>
+<ul>
+<li>Interested in <strong>predicting driver behavior</strong> and <strong>route recommendation</strong></li>
+<li>Pittsburgh’s <strong>road network as an MDP</strong>
+<ul>
+<li><span class="math inline">\(&gt;\)</span> 300,000 states or road segments</li>
+<li><span class="math inline">\(&gt;\)</span> 900,000 actions or transitions at intersections</li>
+</ul></li>
+<li>Destination is represented as an absorbing state with zero-cost. Thus, trips with different destinations will have slightly different MDPs</li>
+<li><strong>Assumption: the reward weights are independent of the goal state.</strong> A single reward weight is then learned from many MDPs that only differ in the goal</li>
+</ul>
+</section>
+<section id="application-driver-route-modelling-1" class="slide level2">
+<h2>Application: Driver Route Modelling</h2>
+<ul>
+<li>Dataset
+<ul>
+<li>GPS data from &gt;100,000 miles and 3,000 hours of taxi trips</li>
+<li>Fit the sparse GPS data to the road network using a particle filter</li>
+<li>Segmented the traces into 13,000 trips using a time-based threshold to determine stops</li>
+</ul></li>
+<li>Path features (low dimensional, 22 counts)
+<ul>
+<li>Road type: from interstate to local road</li>
+<li>Speed: from high speed to low speed</li>
+<li>Lanes: from single-lane to many-lanes</li>
+<li>Transitions: straight, left, right, hard left, hard right</li>
+</ul></li>
+</ul>
+</section>
+<section id="application-driver-route-modelling-2" class="slide level2">
+<h2>Application: Driver Route Modelling</h2>
+<div class="small-math">
+<ul>
+<li><strong>Maximize the probability of demonstrated paths</strong> using MaxEnt IRL*</li>
+<li>Baselines:
+<ul>
+<li><strong>Time-based</strong>: Based on expected time travels. Weights the cost of a unit distance of road to be inversely proportional to the speed of the road.</li>
+<li><strong>Max-margin</strong> [Ratliff et al.&nbsp;2006]: Model capable of predicting new paths, but incapable of density estimation. Directly measures disagreement between the expert and learned policy</li>
+<li><strong>Action-based</strong> [Ramachandran et al.&nbsp;2007, Neu et al.&nbsp;2007]: The choice of an action is distributed according to the future expected reward of the best policy after taking that action. Suffers from label bias (local distribution of probability mass):</li>
+</ul></li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/driver-route-modelling.png"></p>
+</div><div class="column" style="width:50%;">
+<p>MaxEnt: paths 1, 2, 3 will have 33% probability</p>
+<p>Action-based: 50% path 3, 25% paths 1 and 2</p>
+</div></div>
+<p>*applied to a “fixed class of reasonably good paths” instead of the full training set</p>
+</div>
+</section>
+<section id="application-driver-route-modelling-3" class="slide level2">
+<h2>Application: Driver Route Modelling</h2>
+
+<img data-src="images/driver-route-table.png" class="r-stretch"><ul>
+<li><strong>Matching</strong>: Average percentage of distance matching</li>
+<li><strong>90% Match</strong>: Percentage of examples with at least 90% matching distance</li>
+<li><strong>Log Prob:</strong> Average log probability</li>
+</ul>
+</section>
+<section id="application-driver-route-modelling-4" class="slide level2">
+<h2>Application: Driver Route Modelling</h2>
+<ul>
+<li>Learned costs:
+<ul>
+<li>Additionally, learned a fixed per edge cost of 1.4 seconds to penalize roads composed of many short paths</li>
+</ul></li>
+</ul>
+
+<img data-src="images/driver-route-diagram.png" class="r-stretch"></section>
+<section id="application-driver-route-modelling-5" class="slide level2">
+<h2>Application: Driver Route Modelling</h2>
+<ul>
+<li><strong>Predicting destination</strong>: so far we have only described situations where the driver intended destination is known. We can use Bayes rule to predict destination* given our current model.</li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><br></p>
+<p><span class="math display">\[
+P(\text{dest} \mid \tilde{\tau}_{A \rightarrow B}) \propto P(\tilde{\tau}_{A \rightarrow B} \mid \text{dest}) \, P(\text{dest})
+\]</span></p>
+<p><span class="math display">\[
+\propto \frac{\sum_{\tau_{B \rightarrow \text{dest}}} e^{\theta^{\top} f_{\tau}}}{\sum_{\tau_{A \rightarrow \text{dest}}} e^{\theta^{\top} f_{\tau}}} \, P(\text{dest})
+\]</span></p>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-right">
+<figure>
+<p><img data-src="images/driver-route-graph.png" class="quarto-figure quarto-figure-right"></p>
+</figure>
+</div>
+</div></div>
+<p>*posed as a multiclass classification problem over 5 possible destinations</p>
+</section>
+<section id="reflections" class="slide level2">
+<h2>Reflections</h2>
+<div class="green">
+<ul>
+<li>Solves the reward ambiguity problem by applying the Maximum Entropy theorem, i.e.&nbsp;using path distributions in the exponential family</li>
+<li>SOTA performance and guarantees a t the time for linear reward functions</li>
+</ul>
+</div>
+<div class="red">
+<ul>
+<li>Derivations assume linear reward function</li>
+<li>MaxEnt IRL requires to know the environment dynamics T (model-given)</li>
+<li>Need to solve full RL problem at each iteration. Only reasonable for small MDPs, i.e.&nbsp;low-dimensional state-action spaces</li>
+</ul>
+</div>
+</section>
+<section id="todays-agenda-1" class="slide level2">
+<h2>Today’s agenda</h2>
+<ul>
+<li><p><span class="grey-text">Learning linear rewards from trajectory demonstrations in 2D</span></p></li>
+<li><p>Learning nonlinear rewards from trajectory demonstrations in 2D</p></li>
+<li><p>Guided cost learning in any D</p></li>
+<li><p>Updating distributions over reward parameters using preference elicitation</p></li>
+<li><p>Human-robot dialog with uncertainty quantification</p></li>
+</ul>
+
+<aside><div>
+<p>Acknowledgments:<br>
+Today’s slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao</p>
+</div></aside></section>
+<section id="large-scale-cost-function-learning-for-path-planning-using-deep-inverse-reinforcement-learning" class="slide level2">
+<h2>Large scale cost function learning for path planning using deep inverse reinforcement learning</h2>
+<p><strong>Wulfmeier et. al (IJRR 2017)</strong></p>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="images/deep-irl-title.png" class="r-stretch"></section>
+<section id="deep-maximum-entropy-irl-wulfmeier-et-al.-2017" class="slide level2">
+<h2>Deep Maximum Entropy IRL [Wulfmeier et al.&nbsp;2017]</h2>
+
+<img data-src="images/deep-maxent-irl.png" class="r-stretch"></section>
+<section id="benchmarking" class="slide level2">
+<h2>Benchmarking</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="line-block">• Reward function FCN:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• Two hidden layers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• ReLU activation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• 1x1 filter weights</div>
+<p>• Evaluation metric: expected value difference</p>
+<p>• Compared against Linear MaxEnt, GPIRL, NPB-FIRL</p>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/benchmarking.png"></p>
+<figcaption>ObjectWorld</figcaption>
+</figure>
+</div>
+</div></div>
+</section>
+<section id="benchmarking-1" class="slide level2">
+<h2>Benchmarking</h2>
+<div>
+
+</div>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/benchmarking-1.png" height="500"></p>
+<figcaption>ObjectWorld</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/benchmarking-2.png"></p>
+<figcaption>BinaryWorld</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proposed-network-architectures" class="slide level2">
+<h2>Proposed Network Architectures</h2>
+
+<img data-src="images/network_architectures.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="large-scale-demonstration" class="slide level2">
+<h2>Large-scale Demonstration</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<ul>
+<li>13 drivers</li>
+<li><span class="math inline">\(&gt;\)</span> 25,000 trajectories 12m-15m long</li>
+</ul>
+<p><br></p>
+<ul>
+<li><strong>Goal:</strong> reward map given features
+<ul>
+<li>Steepness</li>
+<li>Corner cases (underpasses, stairs)</li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:60%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/large_scale_demo.png"></p>
+<figcaption>Mobile research platform: a modified GEM golf cart</figcaption>
+</figure>
+</div>
+</div></div>
+</section>
+<section id="network-input-data" class="slide level2">
+<h2>Network Input Data</h2>
+
+<img data-src="images/network_input_data.png" class="r-stretch"></section>
+<section id="evaluation" class="slide level2">
+<h2>Evaluation</h2>
+<ul>
+<li>No absolute ground truth</li>
+<li>Compared against manual cost functions</li>
+<li>Metrics:
+<ul>
+<li>NLL – negative log-likelihood</li>
+<li>MHD – Hausdorff distance</li>
+<li>FNR – False negative rate</li>
+<li>FPR – False positive rate</li>
+</ul></li>
+</ul>
+
+<img data-src="images/evaluation_metrics.png" class="r-stretch"></section>
+<section id="robustness-to-systematic-noise" class="slide level2">
+<h2>Robustness to Systematic Noise</h2>
+
+<img data-src="images/robustness_noise.png" class="r-stretch"></section>
+<section id="pretraining" class="slide level2">
+<h2>Pretraining</h2>
+
+<img data-src="images/pretraining.png" class="r-stretch"></section>
+<section id="limitations" class="slide level2">
+<h2>Limitations</h2>
+<ul>
+<li>Does not address velocity profiles</li>
+<li>Does not consider temporal consistency between consecutive cost maps
+<ul>
+<li>Possibly introduce RNNs or temporal convolutions</li>
+</ul></li>
+</ul>
+</section>
+<section id="todays-agenda-2" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="grey-text">
+<p>• Learning linear rewards from trajectory demonstrations in 2D</p>
+<p>• Learning nonlinear rewards from trajectory demonstrations in 2D</p>
+</div>
+<p>• Guided cost learning in any D</p>
+<p>• Updating distributions over reward parameters using preference elicitation</p>
+<p>• Human-robot dialog with uncertainty quantification</p>
+
+<aside><div>
+<p>Acknowledgments:<br>
+Today’s slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao</p>
+</div></aside></section>
+<section id="guided-cost-learning-finn-levine-abbeel-et-al.-2016" class="slide level2">
+<h2>Guided Cost Learning [Finn, Levine, Abbeel et al.&nbsp;2016]</h2>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><span class="math display">\[
+p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
+\]</span></p>
+<p>Nonlinear Reward Function</p>
+<p>Learned Features</p>
+</div><div class="column" style="width:5%;">
+<p><img data-src="images/long-bracket.png"></p>
+</div><div class="column small-math" style="width:60%;">
+<p><span class="math inline">\(p(\tau|\theta) = p(x_0) \prod_{t=0}^{T-1} \underbrace{p(x_{t+1}|x_t, u_t)} \pi_{\theta}(u_t|x_t) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}\)</span></p>
+<div class="red-annotation center-align">
+<p>True and stochastic dynamics (unknown)</p>
+</div>
+<p><br> Log-likelihood of observed dataset D of trajectories</p>
+<p><span class="math display">\[
+L(\theta) = \frac{1}{|D|} \sum_{\tau \in D} \log p(\tau|\theta) = \frac{1}{|D|} \sum_{\tau \in D} -c_{\theta}(\tau) - \log Z(\theta)
+\]</span></p>
+<div class="fragment">
+<p><img data-src="images/guided-cost-learning.png"></p>
+</div>
+</div></div>
+</section>
+<section id="approximating-the-gradient-of-the-log-likelihood" class="slide level2">
+<h2><span class="medium">Approximating the gradient of the log-likelihood</span></h2>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><span class="math display">\[
+p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
+\]</span></p>
+<p>Nonlinear Reward Function</p>
+<p>Learned Features</p>
+</div><div class="column" style="width:5%;">
+<p><img data-src="images/long-bracket.png" height="400"></p>
+</div><div class="column" style="width:60%;">
+<p><span class="math display">\[
+\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}
+\]</span></p>
+<div class="red-annotation right-align">
+<p>How do you approximate this expectation?</p>
+<div class="fragment">
+<p>Idea #1: sample from <span class="math inline">\(p(\tau | \theta)\)</span><br>
+(can you do this)</p>
+</div>
+</div>
+</div></div>
+</section>
+<section id="approximating-the-gradient-of-the-log-likelihood-1" class="slide level2">
+<h2><span class="medium">Approximating the gradient of the log-likelihood</span></h2>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><span class="math display">\[
+p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
+\]</span></p>
+<p>Nonlinear Reward Function</p>
+<p>Learned Features</p>
+</div><div class="column" style="width:5%;">
+<p><img data-src="images/long-bracket.png" height="400"></p>
+</div><div class="column" style="width:60%;">
+<p><span class="math display">\[
+\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}
+\]</span></p>
+<div class="red-annotation right-align">
+<p>How do you approximate this expectation?</p>
+<p>Idea #1: sample from <span class="math inline">\(p(\tau | \theta)\)</span><br>
+(don’t know the dynamics)</p>
+<div class="fragment">
+<p>Idea #2: sample from an easier distribution <span class="math inline">\(q(\tau | \theta)\)</span><br>
+that approximates <span class="math inline">\(p(\tau | \theta)\)</span></p>
+<p><strong>Importance Sampling</strong><br>
+see Relative Entropy Inverse RL by Boularias, Kober, Peters</p>
+</div>
+</div>
+</div></div>
+</section>
+<section id="importance-sampling" class="slide level2">
+<h2>Importance Sampling</h2>
+<p>How to estimate properties/statistics of one distribution (p) given samples from another distribution (q)</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/importance_sampling_concept.png"></p>
+</div><div class="column" style="width:50%;">
+<p><span class="math display">\[
+\begin{align}
+\mathbb{E}_{x \sim p(x)}[f(x)] &amp;= \int f(x)p(x)\,dx \\
+&amp;= \int \frac{q(x)}{q(x)} f(x)p(x)\,dx \\
+&amp;= \int f(x)p(x)\frac{q(x)}{q(x)}\,dx \\
+&amp;= \mathbb{E}_{x\sim q(x)}\left[ f(x)\frac{p(x)}{q(x)}\right] \\
+&amp;= \mathbb{E}_{x\sim q(x)}[f(x)w(x)]
+\end{align}
+\]</span></p>
+</div></div>
+<div class="red-annotation">
+<p>Weights = likelihood ratio, i.e.&nbsp;how to reweigh samples to obtain statistics of p from samples of q</p>
+</div>
+</section>
+<section id="importance-sampling-pitfalls-and-drawbacks" class="slide level2">
+<h2><span class="medium">Importance Sampling: Pitfalls and Drawbacks</span></h2>
+<p>What can go wrong?</p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><img data-src="images/importance_sampling_concept.png"></p>
+</div><div class="column small-math" style="width:35%;">
+<p><span class="math display">\[
+\begin{align}
+\mathbb{E}_{x \sim p(x)}[f(x)] &amp;= \int f(x)p(x)\,dx \\
+&amp;= \int \frac{q(x)}{q(x)} f(x)p(x)\,dx \\
+&amp;= \int f(x)p(x)\frac{q(x)}{q(x)}\,dx \\
+&amp;= \mathbb{E}_{x\sim q(x)}\left[ f(x)\frac{p(x)}{q(x)}\right] \\
+&amp;= \mathbb{E}_{x\sim q(x)}[f(x)w(x)]
+\end{align}
+\]</span></p>
+</div><div class="column red-annotation" style="width:25%;">
+<p><strong>Problem #1:</strong><br>
+If q(x) = 0 but f(x)p(x) &gt; 0<br>
+for x in non-measure-zero<br>
+set then there is estimation bias</p>
+<p><br></p>
+<div class="fragment">
+<p><strong>Problem #2:</strong><br>
+Weights measure mismatch between q(x) and p(x). If mismatch is large then some weights will dominate. If x lives in high dimensions a single weight may dominate</p>
+</div>
+<p><br></p>
+<div class="fragment">
+<p><strong>Problem #3:</strong><br>
+Variance of estimator is high if (q – fp)(x) is high</p>
+</div>
+</div></div>
+<div class="fragment absolute small-math" style="left: 0px; bottom: 0px; ">
+<p>For more info see:<br>
+#1, #3: Monte Carlo theory, methods, and examples, Art Owen, chapter 9<br>
+#2: Bayesian reasoning and machine learning, David Barber, chapter 27.6 on importance sampling</p>
+</div>
+</section>
+<section id="importance-sampling-1" class="slide level2">
+<h2>Importance Sampling</h2>
+<p>What is the best approximating distribution q?</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/importance_sampling_concept.png"></p>
+</div><div class="column" style="width:50%;">
+<p><span class="math display">\[
+\begin{align}
+\mathbb{E}_{x \sim p(x)}[f(x)] &amp;= \int f(x)p(x)\,dx \\
+&amp;= \int \frac{q(x)}{q(x)} f(x)p(x)\,dx \\
+&amp;= \int f(x)p(x)\frac{q(x)}{q(x)}\,dx \\
+&amp;= \mathbb{E}_{x\sim q(x)}\left[ f(x)\frac{p(x)}{q(x)}\right] \\
+&amp;= \mathbb{E}_{x\sim q(x)}[f(x)w(x)]
+\end{align}
+\]</span></p>
+</div></div>
+<p>Best approximation <span class="math inline">\(q(x) \propto f(x)p(x)\)</span></p>
+</section>
+<section id="importance-sampling-2" class="slide level2">
+<h2>Importance Sampling</h2>
+<p><strong>How does this connect back to partition function estimation?</strong></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/importance_sampling_concept.png"></p>
+</div><div class="column" style="width:50%;">
+<p><span class="math display">\[
+\begin{align}
+Z(\theta) &amp;= \sum_{\tau} \exp(-c_{\theta}(\tau)) \\
+&amp;= \sum_{\tau} \exp(-c_{\theta}(\tau)) \\
+&amp;= \sum_{\tau} \frac{q(\tau|\theta)}{q(\tau|\theta)} \exp(-c_{\theta}(\tau)) \\
+&amp;= \mathbb{E}_{\tau \sim q(\tau|\theta)} \left[ \frac{\exp(-c_{\theta}(\tau))}{q(\tau|\theta)} \right]
+\end{align}
+\]</span></p>
+</div></div>
+<div class="fragment">
+<p>Best approximation <span class="math inline">\(q(\tau | \theta) \propto exp(-c_{\theta} (\tau))\)</span></p>
+</div>
+<div class="fragment">
+<div class="red-annotation absolute" style="bottom: 30px; right: 80px; ">
+<p><img data-src="images/redcircle.png" width="100"></p>
+<p>Cost function estimate changes at each gradient step<br>
+Therefore the best approximating distribution should change as well</p>
+</div>
+</div>
+</section>
+<section id="approximating-the-gradient-of-the-log-likelihood-2" class="slide level2">
+<h2><span class="medium">Approximating the gradient of the log-likelihood</span></h2>
+<div class="columns">
+<div class="column" style="width:35%;">
+<p><span class="math display">\[
+p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
+\]</span></p>
+<p>Nonlinear Reward Function</p>
+<p>Learned Features</p>
+</div><div class="column" style="width:5%;">
+<p><img data-src="images/long-bracket.png" height="400"></p>
+</div><div class="column" style="width:60%;">
+<p><span class="math display">\[
+\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}
+\]</span></p>
+<div class="red-annotation right-align">
+<p>How do you approximate this expectation?</p>
+<p>Idea #1: sample from <span class="math inline">\(p(\tau | \theta)\)</span><br>
+(don’t know the dynamics)</p>
+<p>Idea #2: sample from an easier distribution <span class="math inline">\(q(\tau | \theta)\)</span><br>
+that approximates <span class="math inline">\(p(\tau | \theta)\)</span></p>
+<p><img data-src="images/importance-sampling.png" height="80"><br>
+</p>
+<div class="fragment">
+<p><img data-src="images/adaptive-importance-sampling.png" height="80"></p>
+</div>
+</div>
+</div></div>
+</section>
+<section id="guided-cost-learning" class="slide level2">
+<h2>Guided Cost Learning</h2>
+<p>How do you select q?</p>
+<p><br><br></p>
+<p>How do you adapt it as the cost c changes?</p>
+</section>
+<section id="guided-cost-learning-the-punchline" class="slide level2">
+<h2>Guided Cost Learning: the punchline</h2>
+<p>How do you select q?</p>
+<p><br><br></p>
+<p>How do you adapt it as the cost c changes?</p>
+<div class="red-annotation">
+<p>Given a fixed cost function c, the distribution of trajectories that Guided Policy Search computes is close to <span class="math inline">\(\frac{\exp(-c(\tau))}{Z}\)</span></p>
+<p>i.e.&nbsp;it is good for importance sampling of the partition function Z</p>
+</div>
+</section>
+<section id="recall-finite-horizon-lqr" class="slide level2">
+<h2>Recall: Finite-Horizon LQR</h2>
+<p><span class="math inline">\(P_0 = Q\)</span></p>
+<p>// <span class="math inline">\(n\)</span> is the # of steps left</p>
+<p>for <span class="math inline">\(n = 1 \dots N\)</span></p>
+<p><span class="math inline">\(K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A\)</span></p>
+<p><span class="math inline">\(P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)\)</span></p>
+<p>Optimal control for time <span class="math inline">\(t = N - n\)</span> is <span class="math inline">\(u_t = K_t x_t\)</span> with cost-to-go <span class="math inline">\(J_t(x) = x^T P_t x\)</span></p>
+<p>where the states are predicted forward in time according to linear dynamics.</p>
+</section>
+<section id="recall-lqg-lqr-with-stochastic-dynamics" class="slide level2">
+<h2><span class="medium">Recall: LQG = LQR with stochastic dynamics</span></h2>
+<p>Assume <span class="math inline">\(x_{t+1} = Ax_t + Bu_t + w_t\)</span> and <span class="math inline">\(c(x_t, u_t) = x_t^T Q x_t + u_t^T R u_t\)</span></p>
+<div class="red-annotation absolute" style="top: 110px; left: 370px; ">
+<p><span class="math inline">\(\uparrow\)</span><br>
+zero mean Gaussian</p>
+</div>
+<p><br><br></p>
+<p>Then the form of the optimal policy is the same as in LQR: <span class="math inline">\(u_t = K \hat{x}_t\)</span> <span class="math inline">\(\color{red} \leftarrow\)</span> <span class="red-annotation">estimate of the state</span></p>
+<p>No need to change the algorithm, as long as you observe the state at each step (closed-loop policy)</p>
+<div class="red absolute" style="bottom: 0px; right: 0px; ">
+<p>Linear Quadratic Gaussian LQG</p>
+</div>
+</section>
+<section id="deterministic-nonlinear-cost-deterministic-nonlinear-dynamics" class="slide level2">
+<h2>Deterministic Nonlinear Cost &amp; Deterministic Nonlinear Dynamics</h2>
+<p><span class="math display">\[
+\begin{align}
+u_0^*, \ldots, u_{N-1}^* &amp;= \underset{{u_0, \ldots, u_N}}{\arg\min} \sum_{t=0}^{N} c(x_t, u_t) \\
+&amp; \text{s.t.} \\
+&amp; x_1 = f(x_0, u_0) \\
+&amp; x_2 = f(x_1, u_1) \\
+&amp; ... \\
+&amp; x_N = f(x_{N-1}, u_{N-1})
+\end{align}
+\]</span></p>
+<div class="red-annotation absolute" style="bottom: 50%; right: 0px; ">
+<p>Arbitrary differentiable functions <span class="math inline">\(c\)</span>, <span class="math inline">\(f\)</span></p>
+</div>
+<div class="red-annotation">
+<p><strong>iLQR</strong>: iteratively approximate solution by solving linearized versions of the problem via LQR</p>
+</div>
+</section>
+<section id="deterministic-nonlinear-cost-stochastic-nonlinear-dynamics" class="slide level2">
+<h2>Deterministic Nonlinear Cost &amp; Stochastic Nonlinear Dynamics</h2>
+<p><span class="math display">\[
+\begin{align}
+u_0^*, \ldots, u_{N-1}^* &amp;= \underset{{u_0, \ldots, u_N}}{\arg\min} \sum_{t=0}^{N} c(x_t, u_t) \\
+&amp; \text{s.t.} \\
+&amp; x_1 = f(x_0, u_0) + w_0 \\
+&amp; x_2 = f(x_1, u_1) + w_1 \\
+&amp; ... \\
+&amp; x_N = f(x_{N-1}, u_{N-1}) + w_{N-1}
+\end{align}
+\]</span></p>
+<div class="red-annotation absolute right-align" style="bottom: 50%; right: 0px; ">
+<p>Arbitrary differentiable functions <span class="math inline">\(c\)</span>, <span class="math inline">\(f\)</span></p>
+<p><span class="black"><span class="math inline">\(w_t \sim N(0, W_t)\)</span></span></p>
+</div>
+<div class="red-annotation">
+<p><strong>iLQG</strong>: iteratively approximate solution by solving linearized versions of the problem via LQG</p>
+</div>
+</section>
+<section id="recall-from-guided-policy-search" class="slide level2">
+<h2>Recall from Guided Policy Search</h2>
+<div class="small-math">
+<p><span class="math inline">\(\underset{q(\tau)}{\text{argmin}} \quad \mathbb{E}_{\tau \sim q(\tau)}[c(\tau)]\)</span></p>
+<p><span class="math inline">\(\text{subject to} \quad q(x_{t+1}|x_t, u_t) = \mathcal{N}(x_{t+1}; f_{xt}x_t + f_{ut}u_t, F_t) \qquad \color{red}\Leftarrow \quad \text{Learn linear Gaussian dynamics}\)</span></p>
+<p><span class="math inline">\(\qquad \qquad \text{KL}(q(\tau) || q_{\text{prev}}(\tau)) \leq \epsilon\)</span></p>
+<div class="fragment">
+<p><img data-src="images/downarrow.png" height="50"></p>
+<p><span class="math inline">\(q_{\text{gps}}(\tau) = \underset{q(\tau)}{\text{argmin}} \quad \mathbb{E}_{\tau \sim q(\tau)}[c(\tau)] - \mathcal{H}(q(\tau))\)</span></p>
+<p><span class="math inline">\(\qquad \qquad \text{subject to} \quad q(x_{t+1}|x_t, u_t) = \mathcal{N}(x_{t+1}; f_{xt}x_t + f_{ut}u_t, F_t)\)</span></p>
+</div>
+<div class="fragment">
+<p><img data-src="images/downarrow.png" height="50"></p>
+<p><span class="math inline">\(q_{\text{gps}}(\tau) = q(x_0) \prod_{t=0}^{T-1} q(x_{t+1}|x_t, u_t)q(u_t|x_t)\)</span></p>
+<div class="absolute" style="left: 200px; bottom: 80px; ">
+<p><span class="math inline">\(\qquad \color{red} \uparrow \qquad \quad \uparrow\)</span><br>
+<span class="red">Linear Gaussian<br>
+dynamics and controller</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><img data-src="images/rightuparrow.png" class="absolute" style="bottom: 150px; right: 190px; height: 300px; "></p>
+<div class="red absolute" style="bottom: 80px; right: 250px; ">
+<p>Run controller on the robot<br>
+Collect trajectories</p>
+</div>
+<div class="absolute" style="bottom: 40%; right: 50px; ">
+<p><span class="math inline">\(q_{prev} = q_{gps}\)</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="recall-from-guided-policy-search-1" class="slide level2">
+<h2>Recall from Guided Policy Search</h2>
+<div class="small-math">
+<p><span class="math inline">\(\arg\min_{q(\tau)} \; \mathbb{E}_{\tau \sim q(\tau)} [c(\tau)]\)</span></p>
+<p><span class="math inline">\(\begin{align} \text{subject to} &amp; \quad q(x_{t+1} \mid x_t, u_t) = \mathcal{N}(x_{t+1}; f_{xt}x_t + f_{ut}u_t, F_t) \color{red} \qquad \Leftarrow \text{Learn Linear Gaussian dynamics} \\
+&amp; \text{KL}(q(\tau) \parallel q_{\text{prev}}(\tau)) \leq \epsilon \end{align}\)</span></p>
+<p><img data-src="images/guided-policy-eqaution.png"></p>
+</div>
+<div class="red-annotation right-align">
+<p>Given a fixed cost function c, the linear<br>
+Gaussian controllers that GPS computes<br>
+induce a distribution of trajectories close to<br>
+<span class="math inline">\(\frac{\exp(-c(\tau))}{Z}\)</span></p>
+<p>i.e.&nbsp;good for importance sampling of the partition function Z</p>
+</div>
+</section>
+<section id="guided-cost-learning-rough-sketch" class="slide level2">
+<h2>Guided Cost Learning [rough sketch]</h2>
+<p>Collect demonstration trajectories D<br>
+Initialize cost parameters <span class="math inline">\(\theta_0\)</span></p>
+<div class="columns">
+<div class="column" style="width:10%;">
+<p><img data-src="images/black-arrow.png"></p>
+</div><div class="column" style="width:90%;">
+<p>Do forward optimization using Guided Policy Search for cost function <span class="math inline">\(c_{\theta_t} (\tau)\)</span><br>
+and compute linear Gaussian distribution of trajectories <span class="math inline">\(q_{gps} (\tau)\)</span></p>
+<p><span class="math inline">\(\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}\)</span></p>
+<div class="right-align small-math">
+<p>Importance sample trajectories from <span class="math inline">\(q_{gps} (\tau)\)</span></p>
+</div>
+<p><br></p>
+<p><span class="math inline">\(\theta_{t+1} = \theta_t + \gamma \nabla_{\theta} L(\theta_t)\)</span></p>
+</div></div>
+</section>
+<section id="regularization-of-learned-cost-functions" class="slide level2">
+<h2>Regularization of learned cost functions</h2>
+<p><span class="math display">\[
+g_{\text{lcr}}(\tau) = \sum_{x_t \in \tau} \left[ \left(c_{\theta}(x_{t+1}) - c_{\theta}(x_t)\right) - \left(c_{\theta}(x_t) - c_{\theta}(x_{t-1})\right) \right]^2
+\]</span></p>
+<p><br></p>
+<p><span class="math display">\[
+g_{\text{mono}}(\tau) = \sum_{x_t \in \tau} \left[ \max\left(0, c_{\theta}(x_t) - c_{\theta}(x_{t-1}) - 1\right) \right]^2
+\]</span></p>
+</section>
+<section id="section-1" class="slide level2 center">
+<h2></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/hXxaepw0zAw" width="900" height="506" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="small-math">Source: <a href="https://www.youtube.com/watch?v=hXxaepw0zAw&amp;ab_channel=RAIL" class="uri">https://www.youtube.com/watch?v=hXxaepw0zAw&amp;ab_channel=RAIL</a></span></p>
+</section>
+<section id="todays-agenda-3" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="grey-text">
+<p>• Learning linear rewards from trajectory demonstrations in 2D</p>
+<p>• Learning nonlinear rewards from trajectory demonstrations in 2D</p>
+<p>• Guided cost learning in any D</p>
+</div>
+<p>• Updating distributions over reward parameters using preference elicitation</p>
+<p>• Human-robot dialog with uncertainty quantification</p>
+
+<aside><div>
+<p>Acknowledgments:<br>
+Today’s slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao</p>
+</div></aside></section>
+<section id="active-preference-based-learning-of-reward-functions" class="slide level2 center">
+<h2>Active Preference-Based Learning of Reward Functions</h2>
+<p>By: Dorsa Sadigh, Anca D. Dragan, Shankar Sastry, and Sanjit A. Seshia</p>
+</section>
+<section id="section-2" class="slide level2">
+<h2></h2>
+<video id="video_shortcode_videojs_video1" width="800" height="550" class="video-js vjs-default-skin " controls="" preload="auto" data-setup="{}" title=""><source src="videos/active-preference-based.mp4"></video>
+<p>Source: <a href="https://rss2017.lids.mit.edu/static/slides/04.mp4" class="uri">https://rss2017.lids.mit.edu/static/slides/04.mp4</a></p>
+</section>
+<section id="preference-based-learning" class="slide level2">
+<h2>Preference Based Learning</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p>Learn rewards from expert preference</p>
+<ol type="1">
+<li><p>Have an estimate of reward function</p></li>
+<li><p>Pick two candidate trajectories</p></li>
+<li><p>Ask the human which trajectory is preferred</p></li>
+<li><p>Use preference as feedback to update reward function</p></li>
+</ol>
+<div class="line-block">• Preference based learning is active<br>
+• Rewards updated directly<br>
+&nbsp;&nbsp;• No inner RL loop<br>
+&nbsp;&nbsp;• No probability estimation required</div>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/preference-diagram.png"></p>
+</div></div>
+</section>
+<section id="problem-statement-autonomous-driving" class="slide level2">
+<h2>Problem Statement: Autonomous Driving</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li>2 vehicles on the road:
+<ul>
+<li>Our orange vehicle denoted 𝐻</li>
+<li>Other white vehicle/robot denoted 𝑅</li>
+</ul></li>
+<li>States: <span class="math inline">\((x_H, x_R)\)</span></li>
+<li>Inputs: <span class="math inline">\((u_H, u_R)\)</span></li>
+<li>Dynamics: <span class="math inline">\(x^{t+1} = f_{HR}(x^t, u_H, u_R)\)</span></li>
+<li>Finite Trajectories: <span class="math inline">\(\xi = \{(x^0, u^0_H, u^0_R), \ldots, (x^N, u^N_H, u^N_R)\}\)</span></li>
+<li>Feasible Trajectories: <span class="math inline">\(\xi \in \Xi\)</span></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/autonomous-driving.png"></p>
+</div></div>
+</section>
+<section id="reward-function" class="slide level2">
+<h2>Reward Function</h2>
+<ul>
+<li>Reward at a state:</li>
+</ul>
+<p><span class="math display">\[
+r_H(x^t, u_H^t, u_R^t) = w^T \phi(x^t, u_H^t, u_R^t)
+\]</span></p>
+<ul>
+<li>Reward over a finite trajectory: <span class="math display">\[
+\begin{align}
+R_H(\xi) &amp;= R_H(x_0, \mathbf{u}_H, \mathbf{u}_R) = \sum_{t=0}^{N} r_H(x^t, u_H^t, u_R^t) \\
+&amp;= w^T \Phi(\xi)
+\end{align}
+\]</span></li>
+</ul>
+</section>
+<section id="preference" class="slide level2">
+<h2>Preference</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li><p>Given 2 trajectories <span class="math inline">\(\xi_A\)</span> and <span class="math inline">\(\xi_B\)</span></p></li>
+<li><p>Preference variable 𝐼</p></li>
+</ul>
+<p><span class="math display">\[
+I =
+\begin{cases}
++1, &amp; \text{if } \xi_A \text{ is preferred} \\
+-1, &amp; \text{if } \xi_B \text{ is preferred}
+\end{cases} \\
+\]</span></p>
+<p><span class="math inline">\(\xi_A \text{ or } \xi_B \rightarrow I\)</span></p>
+<p><img data-src="images/preference-diagram3.png"></p>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/preference-diagram2.png"></p>
+</div></div>
+</section>
+<section id="weight-update" class="slide level2">
+<h2>Weight Update</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li>Assume probabilistic model: weights come from a distribution<br>
+</li>
+<li>Preference is noisy:</li>
+</ul>
+<p><span class="math display">\[
+P(I|w) =
+\begin{cases}
+\frac{\exp(R_H(\xi_A))}{\exp(R_H(\xi_A)) + \exp(R_H(\xi_B))}, &amp; \text{if } I = +1 \\
+\frac{\exp(R_H(\xi_B))}{\exp(R_H(\xi_A)) + \exp(R_H(\xi_B))}, &amp; \text{if } I = -1
+\end{cases}
+\]</span></p>
+<ul>
+<li>Some simplification:</li>
+</ul>
+<p><span class="math inline">\(\varphi = \Phi(\xi_A) - \Phi(\xi_B) \qquad \quad f_{\varphi}(w) = P(I|w) = \frac{1}{1 + \exp(-I w^T \varphi)}\)</span></p>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/preference-diagram4.png"></p>
+</div></div>
+</section>
+<section id="generate-trajectories" class="slide level2">
+<h2>Generate Trajectories</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li><p>Two feasible trajectories: <span class="math inline">\(𝜉_𝐴\)</span>,<span class="math inline">\(𝜉_𝐵\)</span></p></li>
+<li><p>Want each update to give most information</p></li>
+<li><p>Maximize minimum volume removed with a query:</p></li>
+</ul>
+<p><span class="math inline">\(\underset{{\xi_A, \xi_B}}{\max} \min\left( \mathbb{E}_W[1 - f_{\phi}(w)], \; \mathbb{E}_W[1 - f_{-\phi}(w)] \right)\)</span></p>
+<ul>
+<li><p>A binary query corresponds to selecting sides of hyperplane <span class="math inline">\(𝒘^𝑻 𝜑=0\)</span></p></li>
+<li><p>Response increases probability of weights on one side of hyperplane and decreases the other side.</p></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/preference-diagram5.png" height="200"></p>
+<p><img data-src="images/trajectories-diagram.png" height="300"></p>
+</div></div>
+</section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+
+<img data-src="images/generate-trajectories-note.png" class="r-stretch"></section>
+<section id="algorithm-summary" class="slide level2">
+<h2>Algorithm Summary</h2>
+
+<img data-src="images/algo-summary.png" class="r-stretch"></section>
+<section id="algorithm-summary-1" class="slide level2">
+<h2>Algorithm Summary</h2>
+
+<img data-src="images/algo-summary2.png" class="r-stretch"></section>
+<section id="algorithm-summary-2" class="slide level2">
+<h2>Algorithm Summary</h2>
+
+<img data-src="images/algo-summary3.png" class="r-stretch"></section>
+<section id="algorithm-summary-3" class="slide level2">
+<h2>Algorithm Summary</h2>
+
+<img data-src="images/algo-summary4.png" class="r-stretch"></section>
+<section id="algorithm-summary-4" class="slide level2">
+<h2>Algorithm Summary</h2>
+
+<img data-src="images/algo-summary5.png" class="r-stretch"></section>
+<section id="results" class="slide level2">
+<h2>Results</h2>
+<ul>
+<li>Weights begin with uniform probability</li>
+<li>Convergence after 200 iterations</li>
+</ul>
+
+<img data-src="images/result-fig3.png" width="300" class="r-stretch"></section>
+<section id="results-1" class="slide level2">
+<h2>Results</h2>
+<ul>
+<li>Rate of convergence, active synthesis is faster!</li>
+<li>Blue curve: generated feasible trajectories not optimized for weight updates</li>
+<li>Black curve: non active trajectories, equivalent to expert dataset</li>
+<li>Lighter colours: training on non feasible trajectories</li>
+</ul>
+
+<img data-src="images/results-diagram.png" class="r-stretch"></section>
+<section id="results-2" class="slide level2">
+<h2>Results</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li>Perturbation of weights
+<ul>
+<li>Learned weights: <span class="math inline">\(𝒘^∗\)</span></li>
+<li>Slightly perturbed weights: <span class="math inline">\(𝒘^1\)</span></li>
+<li>Largely perturbed weights: <span class="math inline">\(𝒘^𝟐\)</span></li>
+</ul></li>
+<li>Users prefer <span class="math inline">\(𝒘^∗\)</span></li>
+</ul>
+<p><img data-src="images/results-graph.png"></p>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/results-car.png" height="500"></p>
+</div></div>
+</section>
+<section id="check-out-their-library-for-preference-learning" class="slide level2">
+<h2>Check out their library for preference learning</h2>
+<p><br><br></p>
+<p><a href="https://github.com/Stanford-ILIAD/APReL" class="uri">https://github.com/Stanford-ILIAD/APReL</a></p>
+</section>
+<section id="todays-agenda-4" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="grey-text">
+<p>• Learning linear rewards from trajectory demonstrations in 2D</p>
+<p>• Learning nonlinear rewards from trajectory demonstrations in 2D</p>
+<p>• Guided cost learning in any D</p>
+<p>• Updating distributions over reward parameters using preference elicitation</p>
+</div>
+<p>• Human-robot dialog with uncertainty quantification</p>
+
+<aside><div>
+<p>Acknowledgments:<br>
+Today’s slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao</p>
+</div></aside></section>
+<section id="section-4" class="slide level2">
+<h2></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/xCXx09gfhx4" width="900" height="506" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=xCXx09gfhx4&amp;t=3s" class="uri">https://www.youtube.com/watch?v=xCXx09gfhx4&amp;t=3s</a></span></p>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="https://csc2626.github.io/website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩︎ Back to Course Website</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true,"src":"chalkboard.json","boardmarkerWidth":2,"chalkWidth":2,"chalkEffect":1},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp("https:\/\/csc2626\.github\.io\/2026F_website\/");
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    <script type="text/javascript" src="../custom_curtain.js"></script>
+    <script>videojs(video_shortcode_videojs_video1);</script>
+    
+
+</body></html>

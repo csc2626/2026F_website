@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.42">
+
+  <meta name="author" content="Dr.&nbsp;Mine Çetinkaya-Rundel">
+  <title>CSC2626 - Fall 2024 – LR: Inference + conditions</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-99aee7988d91ac10753026f2b3ef8702.css">
+  <link href="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script src="../site_libs/kePrint-0.0.1/kePrint.js"></script>
+  <link href="../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<meta property="og:title" content="LR: Inference + conditions – CSC2626 - Fall 2024">
+<meta property="og:description" content="STA 210 - Spring 2022">
+<meta property="og:site_name" content="CSC2626 - Fall 2024">
+<meta name="twitter:title" content="LR: Inference + conditions – CSC2626 - Fall 2024">
+<meta name="twitter:description" content="STA 210 - Spring 2022">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">LR: Inference + conditions</h1>
+  <p class="subtitle">STA 210 - Spring 2022</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Dr.&nbsp;Mine Çetinkaya-Rundel 
+</div>
+</div>
+</div>
+
+</section>
+<section>
+<section id="welcome" class="title-slide slide level1 center">
+<h1>Welcome</h1>
+
+</section>
+<section id="topics" class="slide level2">
+<h2>Topics</h2>
+<div>
+<ul>
+<li>Bulding predictive logistic regression models</li>
+<li>Sensitivity and specificity</li>
+<li>Making classification decisions</li>
+</ul>
+</div>
+</section>
+<section id="computational-setup" class="slide level2">
+<h2>Computational setup</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># load packages</span></span>
+<span id="cb1-2"><a></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-4"><a></a><span class="fu">library</span>(openintro)</span>
+<span id="cb1-5"><a></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-6"><a></a><span class="fu">library</span>(kableExtra)  <span class="co"># for table embellishments</span></span>
+<span id="cb1-7"><a></a><span class="fu">library</span>(Stat2Data)   <span class="co"># for empirical logit</span></span>
+<span id="cb1-8"><a></a></span>
+<span id="cb1-9"><a></a><span class="co"># set default theme and larger font size for ggplot2</span></span>
+<span id="cb1-10"><a></a>ggplot2<span class="sc">::</span><span class="fu">theme_set</span>(ggplot2<span class="sc">::</span><span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">20</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section>
+<section>
+<section id="data" class="title-slide slide level1 center">
+<h1>Data</h1>
+
+</section>
+<section id="risk-of-coronary-heart-disease" class="slide level2 smaller">
+<h2>Risk of coronary heart disease</h2>
+<p>This dataset is from an ongoing cardiovascular study on residents of the town of Framingham, Massachusetts. We want to examine the relationship between various health characteristics and the risk of having heart disease.</p>
+<ul>
+<li class="fragment"><p><code>high_risk</code>:</p>
+<ul>
+<li class="fragment">1: High risk of having heart disease in next 10 years</li>
+<li class="fragment">0: Not high risk of having heart disease in next 10 years</li>
+</ul></li>
+<li class="fragment"><p><code>age</code>: Age at exam time (in years)</p></li>
+<li class="fragment"><p><code>education</code>: 1 = Some High School, 2 = High School or GED, 3 = Some College or Vocational School, 4 = College</p></li>
+<li class="fragment"><p><code>currentSmoker</code>: 0 = nonsmoker, 1 = smoker</p></li>
+</ul>
+</section>
+<section id="data-prep" class="slide level2">
+<h2>Data prep</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>heart_disease <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"slides"</span>, <span class="st">"data/framingham.csv"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a></a>  <span class="fu">select</span>(age, education, TenYearCHD, totChol, currentSmoker) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a></a>  <span class="fu">drop_na</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-5"><a></a>    <span class="at">high_risk =</span> <span class="fu">as.factor</span>(TenYearCHD),</span>
+<span id="cb2-6"><a></a>    <span class="at">education =</span> <span class="fu">as.factor</span>(education),</span>
+<span id="cb2-7"><a></a>    <span class="at">currentSmoker =</span> <span class="fu">as.factor</span>(currentSmoker)</span>
+<span id="cb2-8"><a></a>  )</span>
+<span id="cb2-9"><a></a></span>
+<span id="cb2-10"><a></a>heart_disease</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 4,086 × 6
+     age education TenYearCHD totChol currentSmoker high_risk
+   &lt;dbl&gt; &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt; &lt;fct&gt;         &lt;fct&gt;    
+ 1    39 4                  0     195 0             0        
+ 2    46 2                  0     250 0             0        
+ 3    48 1                  0     245 1             0        
+ 4    61 3                  1     225 1             1        
+ 5    46 3                  0     285 1             0        
+ 6    43 2                  0     228 0             0        
+ 7    63 1                  1     205 0             1        
+ 8    45 2                  0     313 1             0        
+ 9    52 1                  0     260 0             0        
+10    43 1                  0     225 1             0        
+# … with 4,076 more rows</code></pre>
+</div>
+</div>
+</section></section>
+<section>
+<section id="inference-for-a-model" class="title-slide slide level1 center">
+<h1>Inference for a model</h1>
+
+</section>
+<section id="modeling-risk-of-coronary-heart-disease" class="slide level2">
+<h2>Modeling risk of coronary heart disease</h2>
+<p>From age and education:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>risk_fit <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glm"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a></a>  <span class="fu">fit</span>(high_risk <span class="sc">~</span> age <span class="sc">+</span> education, </span>
+<span id="cb4-4"><a></a>      <span class="at">data =</span> heart_disease, <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-output" class="slide level2 smaller">
+<h2>Model output</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">tidy</span>(risk_fit, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a></a>  <span class="fu">kable</span>(<span class="at">format =</span> <span class="st">"markdown"</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 11%">
+<col style="width: 13%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">statistic</th>
+<th style="text-align: right;">p.value</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-5.508</td>
+<td style="text-align: right;">0.311</td>
+<td style="text-align: right;">-17.692</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-6.125</td>
+<td style="text-align: right;">-4.904</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">13.648</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0.087</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education2</td>
+<td style="text-align: right;">-0.245</td>
+<td style="text-align: right;">0.113</td>
+<td style="text-align: right;">-2.172</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">-0.469</td>
+<td style="text-align: right;">-0.026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education3</td>
+<td style="text-align: right;">-0.236</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-1.753</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-0.504</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education4</td>
+<td style="text-align: right;">-0.024</td>
+<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">0.872</td>
+<td style="text-align: right;">-0.323</td>
+<td style="text-align: right;">0.264</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><span class="math display">\[
+\small{\log\Big(\frac{\hat{\pi}}{1-\hat{\pi}}\Big) = -5.385 + 0.073 ~ \text{age} - 0.242 ~ \text{ed2} - 0.235 ~ \text{ed3} - 0.020 ~ \text{ed4}}
+\]</span></p>
+</section>
+<section id="hypothesis-test-for-beta_j" class="slide level2">
+<h2>Hypothesis test for <span class="math inline">\(\beta_j\)</span></h2>
+<p><strong>Hypotheses:</strong> <span class="math inline">\(H_0: \beta_j = 0 \hspace{2mm} \text{ vs } \hspace{2mm} H_a: \beta_j \neq 0\)</span></p>
+<div class="fragment">
+<p><strong>Test Statistic:</strong> <span class="math display">\[z = \frac{\hat{\beta}_j - 0}{SE_{\hat{\beta}_j}}\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>P-value:</strong> <span class="math inline">\(P(|Z| &gt; |z|)\)</span>, where <span class="math inline">\(Z \sim N(0, 1)\)</span>, the Standard Normal distribution</p>
+</div>
+</section>
+<section id="confidence-interval-for-beta_j" class="slide level2">
+<h2>Confidence interval for <span class="math inline">\(\beta_j\)</span></h2>
+<p>We can calculate the .vocab[C% confidence interval] for <span class="math inline">\(\beta_j\)</span> as the following:</p>
+<p><span class="math display">\[
+\Large{\hat{\beta}_j \pm z^* SE_{\hat{\beta}_j}}
+\]</span></p>
+<p>where <span class="math inline">\(z^*\)</span> is calculated from the <span class="math inline">\(N(0,1)\)</span> distribution</p>
+<div class="fragment">
+<p>This is an interval for the change in the log-odds for every one unit increase in <span class="math inline">\(x_j\)</span>.</p>
+</div>
+</section>
+<section id="interpretation-in-terms-of-the-odds" class="slide level2">
+<h2>Interpretation in terms of the odds</h2>
+<p>The change in <strong>odds</strong> for every one unit increase in <span class="math inline">\(x_j\)</span>.</p>
+<p><span class="math display">\[
+\Large{e^{\hat{\beta}_j \pm z^* SE_{\hat{\beta}_j}}}
+\]</span></p>
+<div class="fragment">
+<p><strong>Interpretation:</strong> We are <span class="math inline">\(C\%\)</span> confident that for every one unit increase in <span class="math inline">\(x_j\)</span>, the odds multiply by a factor of <span class="math inline">\(e^{\hat{\beta}_j - z^* SE_{\hat{\beta}_j}}\)</span> to <span class="math inline">\(e^{\hat{\beta}_j + z^* SE_{\hat{\beta}_j}}\)</span>, holding all else constant.</p>
+</div>
+</section>
+<section id="coefficient-for-age" class="slide level2 smaller">
+<h2>Coefficient for <code>age</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">term</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std.error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.low</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-5.508</td>
+<td style="text-align: right;">0.311</td>
+<td style="text-align: right;">-17.692</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-6.125</td>
+<td style="text-align: right;">-4.904</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: #D9E3E4 !important;">age</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.076</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.006</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">13.648</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.000</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.065</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.087</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education2</td>
+<td style="text-align: right;">-0.245</td>
+<td style="text-align: right;">0.113</td>
+<td style="text-align: right;">-2.172</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">-0.469</td>
+<td style="text-align: right;">-0.026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education3</td>
+<td style="text-align: right;">-0.236</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-1.753</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-0.504</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education4</td>
+<td style="text-align: right;">-0.024</td>
+<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">0.872</td>
+<td style="text-align: right;">-0.323</td>
+<td style="text-align: right;">0.264</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<div class="fragment">
+<p><strong>Hypotheses:</strong></p>
+<p><span class="math display">\[
+H_0: \beta_{1} = 0 \hspace{2mm} \text{ vs } \hspace{2mm} H_a: \beta_{1} \neq 0
+\]</span></p>
+</div>
+</section>
+<section id="coefficient-for-age-1" class="slide level2 smaller">
+<h2>Coefficient for <code>age</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">term</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std.error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.low</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-5.508</td>
+<td style="text-align: right;">0.311</td>
+<td style="text-align: right;">-17.692</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-6.125</td>
+<td style="text-align: right;">-4.904</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: #D9E3E4 !important;">age</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.076</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.006</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">13.648</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.000</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.065</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.087</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education2</td>
+<td style="text-align: right;">-0.245</td>
+<td style="text-align: right;">0.113</td>
+<td style="text-align: right;">-2.172</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">-0.469</td>
+<td style="text-align: right;">-0.026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education3</td>
+<td style="text-align: right;">-0.236</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-1.753</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-0.504</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education4</td>
+<td style="text-align: right;">-0.024</td>
+<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">0.872</td>
+<td style="text-align: right;">-0.323</td>
+<td style="text-align: right;">0.264</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Test statistic:</strong></p>
+<p><span class="math display">\[
+z = \frac{0.0733 - 0}{0.00547} = 13.4
+\]</span></p>
+</section>
+<section id="coefficient-for-age-2" class="slide level2 smaller">
+<h2>Coefficient for <code>age</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">term</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std.error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.low</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-5.508</td>
+<td style="text-align: right;">0.311</td>
+<td style="text-align: right;">-17.692</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-6.125</td>
+<td style="text-align: right;">-4.904</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: #D9E3E4 !important;">age</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.076</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.006</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">13.648</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.000</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.065</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.087</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education2</td>
+<td style="text-align: right;">-0.245</td>
+<td style="text-align: right;">0.113</td>
+<td style="text-align: right;">-2.172</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">-0.469</td>
+<td style="text-align: right;">-0.026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education3</td>
+<td style="text-align: right;">-0.236</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-1.753</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-0.504</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education4</td>
+<td style="text-align: right;">-0.024</td>
+<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">0.872</td>
+<td style="text-align: right;">-0.323</td>
+<td style="text-align: right;">0.264</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>P-value:</strong></p>
+<p><span class="math display">\[
+P(|Z| &gt; |13.4|) \approx 0
+\]</span></p>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="dv">2</span> <span class="sc">*</span> <span class="fu">pnorm</span>(<span class="fl">13.4</span>,<span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 6.046315e-41</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="coefficient-for-age-3" class="slide level2 smaller">
+<h2>Coefficient for <code>age</code></h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">term</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std.error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.low</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-5.508</td>
+<td style="text-align: right;">0.311</td>
+<td style="text-align: right;">-17.692</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-6.125</td>
+<td style="text-align: right;">-4.904</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; background-color: #D9E3E4 !important;">age</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.076</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.006</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">13.648</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.000</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.065</td>
+<td style="text-align: right; background-color: #D9E3E4 !important;">0.087</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education2</td>
+<td style="text-align: right;">-0.245</td>
+<td style="text-align: right;">0.113</td>
+<td style="text-align: right;">-2.172</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">-0.469</td>
+<td style="text-align: right;">-0.026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education3</td>
+<td style="text-align: right;">-0.236</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-1.753</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-0.504</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education4</td>
+<td style="text-align: right;">-0.024</td>
+<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">0.872</td>
+<td style="text-align: right;">-0.323</td>
+<td style="text-align: right;">0.264</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Conclusion:</strong></p>
+<p>The p-value is very small, so we reject <span class="math inline">\(H_0\)</span>. The data provide sufficient evidence that age is a statistically significant predictor of whether someone is high risk of having heart disease, <em>after accounting for education</em>.</p>
+</section></section>
+<section>
+<section id="comparing-models" class="title-slide slide level1 center">
+<h1>Comparing models</h1>
+
+</section>
+<section id="log-likelihood" class="slide level2">
+<h2>Log likelihood</h2>
+<p><span class="math display">\[
+\log L = \sum\limits_{i=1}^n[y_i \log(\hat{\pi}_i) + (1 - y_i)\log(1 - \hat{\pi}_i)]
+\]</span></p>
+<ul>
+<li class="fragment"><p>Measure of how well the model fits the data</p></li>
+<li class="fragment"><p>Higher values of <span class="math inline">\(\log L\)</span> are better</p></li>
+<li class="fragment"><p><strong>Deviance</strong> = <span class="math inline">\(-2 \log L\)</span></p>
+<ul>
+<li class="fragment"><span class="math inline">\(-2 \log L\)</span> follows a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(n - p - 1\)</span> degrees of freedom</li>
+</ul></li>
+</ul>
+</section>
+<section id="comparing-nested-models" class="slide level2">
+<h2>Comparing nested models</h2>
+<ul>
+<li class="fragment"><p>Suppose there are two models:</p>
+<ul>
+<li class="fragment">Reduced Model includes predictors <span class="math inline">\(x_1, \ldots, x_q\)</span></li>
+<li class="fragment">Full Model includes predictors <span class="math inline">\(x_1, \ldots, x_q, x_{q+1}, \ldots, x_p\)</span></li>
+</ul></li>
+<li class="fragment"><p>We want to test the hypotheses</p>
+<p><span class="math display">\[
+\begin{aligned}
+H_0&amp;: \beta_{q+1} = \dots = \beta_p = 0 \\
+H_A&amp;: \text{ at least 1 }\beta_j \text{ is not } 0
+\end{aligned}
+\]</span></p></li>
+<li class="fragment"><p>To do so, we will use the <strong>Drop-in-deviance test</strong>, also known as the Nested Likelihood Ratio test</p></li>
+</ul>
+</section>
+<section id="drop-in-deviance-test" class="slide level2">
+<h2>Drop-in-deviance test</h2>
+<p><strong>Hypotheses:</strong></p>
+<p><span class="math display">\[
+\begin{aligned}
+H_0&amp;: \beta_{q+1} = \dots = \beta_p = 0 \\
+H_A&amp;: \text{ at least 1 }\beta_j \text{ is not } 0
+\end{aligned}
+\]</span></p>
+<div class="fragment">
+<p><strong>Test Statistic:</strong> <span class="math display">\[G = (-2 \log L_{reduced}) - (-2 \log L_{full})\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>P-value:</strong> <span class="math inline">\(P(\chi^2 &gt; G)\)</span>, calculated using a <span class="math inline">\(\chi^2\)</span> distribution with degrees of freedom equal to the difference in the number of parameters in the full and reduced models</p>
+</div>
+</section>
+<section id="chi2-distribution" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> distribution</h2>
+
+<img data-src="lec-22_files/figure-revealjs/unnamed-chunk-11-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:90.0%"></section>
+<section id="model-with-age-and-education" class="slide level2 smaller">
+<h2>Model with age and education</h2>
+<div class="question">
+<p>Should we add <code>currentSmoker</code> to this model?</p>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<table class="caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">term</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std.error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.low</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-5.508</td>
+<td style="text-align: right;">0.311</td>
+<td style="text-align: right;">-17.692</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-6.125</td>
+<td style="text-align: right;">-4.904</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">13.648</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0.087</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education2</td>
+<td style="text-align: right;">-0.245</td>
+<td style="text-align: right;">0.113</td>
+<td style="text-align: right;">-2.172</td>
+<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">-0.469</td>
+<td style="text-align: right;">-0.026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">education3</td>
+<td style="text-align: right;">-0.236</td>
+<td style="text-align: right;">0.135</td>
+<td style="text-align: right;">-1.753</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">-0.504</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">education4</td>
+<td style="text-align: right;">-0.024</td>
+<td style="text-align: right;">0.150</td>
+<td style="text-align: right;">-0.161</td>
+<td style="text-align: right;">0.872</td>
+<td style="text-align: right;">-0.323</td>
+<td style="text-align: right;">0.264</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="should-we-add-currentsmoker-to-the-model" class="slide level2">
+<h2>Should we add <code>currentSmoker</code> to the model?</h2>
+<p>First model, reduced:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>risk_fit_reduced <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glm"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a></a>  <span class="fu">fit</span>(high_risk <span class="sc">~</span> age <span class="sc">+</span> education, </span>
+<span id="cb8-4"><a></a>      <span class="at">data =</span> heart_disease, <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><br></p>
+<p>Second model, full:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb9" data-code-line-numbers="2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>risk_fit_full <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glm"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a></a>  <span class="fu">fit</span>(high_risk <span class="sc">~</span> age <span class="sc">+</span> education <span class="sc">+</span> currentSmoker, </span>
+<span id="cb9-4"><a></a>      <span class="at">data =</span> heart_disease, <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="should-we-add-currentsmoker-to-the-model-1" class="slide level2">
+<h2>Should we add <code>currentSmoker</code> to the model?</h2>
+<p>Calculate deviance for each model:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>(dev_reduced <span class="ot">&lt;-</span> <span class="fu">glance</span>(risk_fit_reduced)<span class="sc">$</span>deviance)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3244.187</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>(dev_full <span class="ot">&lt;-</span> <span class="fu">glance</span>(risk_fit_full)<span class="sc">$</span>deviance)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3221.901</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Drop-in-deviance test statistic:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a>(test_stat <span class="ot">&lt;-</span> dev_reduced <span class="sc">-</span> dev_full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 22.2863</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="should-we-add-currentsmoker-to-the-model-2" class="slide level2">
+<h2>Should we add <code>currentSmoker</code> to the model?</h2>
+<p>Calculate the p-value using a <code>pchisq()</code>, with degrees of freedom equal to the number of new model terms in the second model:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">pchisq</span>(test_stat, <span class="dv">1</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 2.348761e-06</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Conclusion:</strong> The p-value is very small, so we reject <span class="math inline">\(H_0\)</span>. The data provide sufficient evidence that the coefficient of <code>currentSmoker</code> is not equal to 0. Therefore, we should add it to the model.</p>
+</div>
+</section>
+<section id="drop-in-deviance-test-in-r" class="slide level2">
+<h2>Drop-in-Deviance test in R</h2>
+<ul>
+<li class="fragment"><p>We can use the <strong><code>anova</code></strong> function to conduct this test</p></li>
+<li class="fragment"><p>Add <strong><code>test = "Chisq"</code></strong> to conduct the drop-in-deviance test</p></li>
+</ul>
+<div class="fragment">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="fu">anova</span>(risk_fit_reduced<span class="sc">$</span>fit, risk_fit_full<span class="sc">$</span>fit, <span class="at">test =</span> <span class="st">"Chisq"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+  Resid..Df Resid..Dev    df Deviance     p.value
+      &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;
+1      4081      3244.    NA     NA   NA         
+2      4080      3222.     1     22.3  0.00000235</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="model-selection" class="slide level2">
+<h2>Model selection</h2>
+<p>Use AIC or BIC for model selection</p>
+<p><span class="math display">\[
+\begin{align}
+&amp;AIC = - 2 * \log L - \color{purple}{n\log(n)}+ 2(p +1)\\[5pt]
+&amp;BIC =- 2 * \log L - \color{purple}{n\log(n)} + log(n)\times(p+1)
+\end{align}
+\]</span></p>
+</section>
+<section id="aic-from-the-glance-function" class="slide level2">
+<h2>AIC from the <code>glance()</code> function</h2>
+<p>Let’s look at the AIC for the model that includes <code>age</code>, <code>education</code>, and <code>currentSmoker</code></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="fu">glance</span>(risk_fit_full)<span class="sc">$</span>AIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3233.901</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Calculating AIC</strong></p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">glance</span>(risk_fit_full)<span class="sc">$</span>logLik <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> (<span class="dv">5</span> <span class="sc">+</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3233.901</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="comparing-the-models-using-aic" class="slide level2">
+<h2>Comparing the models using AIC</h2>
+<p>Let’s compare the full and reduced models using AIC.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">glance</span>(risk_fit_reduced)<span class="sc">$</span>AIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3254.187</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="fu">glance</span>(risk_fit_full)<span class="sc">$</span>AIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3233.901</code></pre>
+</div>
+</div>
+<div class="question">
+<p>Based on AIC, which model would you choose?</p>
+</div>
+</section>
+<section id="comparing-the-models-using-bic" class="slide level2">
+<h2>Comparing the models using BIC</h2>
+<p>Let’s compare the full and reduced models using BIC</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="fu">glance</span>(risk_fit_reduced)<span class="sc">$</span>BIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3285.764</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">glance</span>(risk_fit_full)<span class="sc">$</span>BIC</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>[1] 3271.793</code></pre>
+</div>
+</div>
+<div class="question">
+<p>Based on BIC, which model would you choose?</p>
+</div>
+</section></section>
+<section>
+<section id="conditions" class="title-slide slide level1 center">
+<h1>Conditions</h1>
+
+</section>
+<section id="the-model" class="slide level2 smaller">
+<h2>The model</h2>
+<p>Let’s predict <code>high_risk</code> from age, total cholesterol, and whether the patient is a current smoker:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a>risk_fit <span class="ot">&lt;-</span> <span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb32-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glm"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb32-3"><a></a>  <span class="fu">fit</span>(high_risk <span class="sc">~</span> age <span class="sc">+</span> totChol <span class="sc">+</span> currentSmoker, </span>
+<span id="cb32-4"><a></a>      <span class="at">data =</span> heart_disease, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb32-5"><a></a></span>
+<span id="cb32-6"><a></a><span class="fu">tidy</span>(risk_fit, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-7"><a></a>  <span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">term</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std.error</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">statistic</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">p.value</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.low</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-6.673</td>
+<td style="text-align: right;">0.378</td>
+<td style="text-align: right;">-17.647</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-7.423</td>
+<td style="text-align: right;">-5.940</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0.082</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">14.344</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.071</td>
+<td style="text-align: right;">0.094</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">totChol</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">1.940</td>
+<td style="text-align: right;">0.052</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.004</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">currentSmoker1</td>
+<td style="text-align: right;">0.443</td>
+<td style="text-align: right;">0.094</td>
+<td style="text-align: right;">4.733</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.260</td>
+<td style="text-align: right;">0.627</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="conditions-for-logistic-regression" class="slide level2">
+<h2>Conditions for logistic regression</h2>
+<ol type="1">
+<li class="fragment"><p><strong>Linearity:</strong> The log-odds have a linear relationship with the predictors.</p></li>
+<li class="fragment"><p><strong>Randomness:</strong> The data were obtained from a random process</p></li>
+<li class="fragment"><p><strong>Independence:</strong> The observations are independent from one another.</p></li>
+</ol>
+</section>
+<section id="empirical-logit" class="slide level2">
+<h2>Empirical logit</h2>
+<p>The <strong>empirical logit</strong> is the log of the observed odds:</p>
+<p><span class="math display">\[
+\text{logit}(\hat{p}) = \log\Big(\frac{\hat{p}}{1 - \hat{p}}\Big) = \log\Big(\frac{\# \text{Yes}}{\# \text{No}}\Big)
+\]</span></p>
+</section>
+<section id="calculating-empirical-logit-categorical-predictor" class="slide level2">
+<h2>Calculating empirical logit (categorical predictor)</h2>
+<p>If the predictor is categorical, we can calculate the empirical logit for each level of the predictor.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a>heart_disease <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a></a>  <span class="fu">count</span>(currentSmoker, high_risk) <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a></a>  <span class="fu">group_by</span>(currentSmoker) <span class="sc">%&gt;%</span></span>
+<span id="cb33-4"><a></a>  <span class="fu">mutate</span>(<span class="at">prop =</span> n<span class="sc">/</span><span class="fu">sum</span>(n)) <span class="sc">%&gt;%</span></span>
+<span id="cb33-5"><a></a>  <span class="fu">filter</span>(high_risk <span class="sc">==</span> <span class="st">"1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb33-6"><a></a>  <span class="fu">mutate</span>(<span class="at">emp_logit =</span> <span class="fu">log</span>(prop<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>prop)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+# Groups:   currentSmoker [2]
+  currentSmoker high_risk     n  prop emp_logit
+  &lt;fct&gt;         &lt;fct&gt;     &lt;int&gt; &lt;dbl&gt;     &lt;dbl&gt;
+1 0             1           301 0.145     -1.77
+2 1             1           318 0.158     -1.67</code></pre>
+</div>
+</div>
+</section>
+<section id="calculating-empirical-logit-quantitative-predictor" class="slide level2">
+<h2>Calculating empirical logit (quantitative predictor)</h2>
+<ol type="1">
+<li class="fragment"><p>Divide the range of the predictor into intervals with approximately equal number of cases. (If you have enough observations, use 5 - 10 intervals.)</p></li>
+<li class="fragment"><p>Calculate the mean value of the predictor in each interval.</p></li>
+<li class="fragment"><p>Compute the empirical logit for each interval.</p></li>
+</ol>
+<div class="fragment">
+<p>Then, create a plot of the empirical logit versus the mean value of the predictor in each interval.</p>
+</div>
+</section>
+<section id="empirical-logit-plot-in-r-quantitative-predictor" class="slide level2">
+<h2>Empirical logit plot in R (quantitative predictor)</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a></a><span class="fu">emplogitplot1</span>(high_risk <span class="sc">~</span> age, </span>
+<span id="cb35-2"><a></a>              <span class="at">data =</span> heart_disease, </span>
+<span id="cb35-3"><a></a>              <span class="at">ngroups =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lec-22_files/figure-revealjs/unnamed-chunk-26-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:90.0%"></section>
+<section id="empirical-logit-plot-in-r-interactions" class="slide level2">
+<h2>Empirical logit plot in R (interactions)</h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a><span class="fu">emplogitplot2</span>(high_risk <span class="sc">~</span> age <span class="sc">+</span> currentSmoker, <span class="at">data =</span> heart_disease, </span>
+<span id="cb36-2"><a></a>              <span class="at">ngroups =</span> <span class="dv">10</span>, </span>
+<span id="cb36-3"><a></a>              <span class="at">putlegend =</span> <span class="st">"bottomright"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="lec-22_files/figure-revealjs/unnamed-chunk-27-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:90.0%"></section>
+<section id="checking-linearity" class="slide level2">
+<h2>Checking linearity</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a></a><span class="fu">emplogitplot1</span>(high_risk <span class="sc">~</span> age, </span>
+<span id="cb37-2"><a></a>              <span class="at">data =</span> heart_disease, </span>
+<span id="cb37-3"><a></a>              <span class="at">ngroups =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="lec-22_files/figure-revealjs/unnamed-chunk-28-1.png" class="quarto-figure quarto-figure-center" style="width:90.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a></a><span class="fu">emplogitplot1</span>(high_risk <span class="sc">~</span> totChol, </span>
+<span id="cb38-2"><a></a>              <span class="at">data =</span> heart_disease, </span>
+<span id="cb38-3"><a></a>              <span class="at">ngroups =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="lec-22_files/figure-revealjs/unnamed-chunk-29-1.png" class="quarto-figure quarto-figure-center" style="width:90.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+<div class="fragment">
+<p>✅ The linearity condition is satisfied. There is a linear relationship between the empirical logit and the predictor variables.</p>
+</div>
+</section>
+<section id="checking-randomness" class="slide level2 smaller">
+<h2>Checking randomness</h2>
+<p>We can check the randomness condition based on the context of the data and how the observations were collected.</p>
+<ul>
+<li class="fragment">Was the sample randomly selected?</li>
+<li class="fragment">If the sample was not randomly selected, ask whether there is reason to believe the observations in the sample differ systematically from the population of interest.</li>
+</ul>
+<div class="fragment">
+<p>✅ The randomness condition is satisfied. We do not have reason to believe that the participants in this study differ systematically from adults in the U.S. in regards to health characteristics and risk of heart disease.</p>
+</div>
+</section>
+<section id="checking-independence" class="slide level2">
+<h2>Checking independence</h2>
+<ul>
+<li class="fragment">We can check the independence condition based on the context of the data and how the observations were collected.</li>
+<li class="fragment">Independence is most often violated if the data were collected over time or there is a strong spatial relationship between the observations.</li>
+</ul>
+<div class="fragment">
+<p>✅ The independence condition is satisfied. It is reasonable to conclude that the participants’ health characteristics are independent of one another.</p>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="images/logo.png" class="slide-logo"></p>
+<div class="footer footer-default">
+<p><a href="https://sta210-s22.github.io/website/">sta210-s22.github.io/website</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          // dispatch for htmlwidgets
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for reveal
+        if (window.Reveal) {
+          window.Reveal.addEventListener("slidechanged", function(event) {
+            fireSlideChanged(event.previousSlide, event.currentSlide);
+          });
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp("https:\/\/csc2626\.github\.io\/2026F_website\/");
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

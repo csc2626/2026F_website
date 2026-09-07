@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.42">
+
+  <meta name="author" content="Florian Shkurti">
+  <title>CSC2626 - Fall 2024 – CSC2626 Imitation Learning for Robotics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2f366650f320edcfcf53d73c80250a32.css">
+  <link rel="stylesheet" href="../style.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+<meta property="og:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2024">
+<meta property="og:description" content="Week 2: Introduction to Optimal Control &amp; Model-Based RL">
+<meta property="og:site_name" content="CSC2626 - Fall 2024">
+<meta name="twitter:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2024">
+<meta name="twitter:description" content="Week 2: Introduction to Optimal Control &amp; Model-Based RL">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">CSC2626 Imitation Learning for Robotics</h1>
+  <p class="subtitle">Week 2: Introduction to Optimal Control &amp; Model-Based RL</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Florian Shkurti 
+</div>
+</div>
+</div>
+
+</section>
+<section id="todays-agenda" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p>• Intro to Control &amp; Reinforcement Learning<br>
+• Linear Quadratic Regulator (LQR)<br>
+• Iterative LQR<br>
+• Model Predictive Control<br>
+• Learning dynamics and model-based RL</p>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/robot.png" style="width:80.0%"></p>
+</div></div>
+
+<aside><div>
+<p>Acknowledgments<br>
+Today’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (DeepRL), Ben Recht (ICML’18), Emo Todorov, Zico Kolter</p>
+</div></aside></section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="images/optcontrol.png" class="r-stretch"></section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+<div class="small-math fragment">
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\underset{\pi_0, \ldots, \pi_{T-1}}{\text{minimize}} \quad \mathbb{E}_{e_t} \left[ \sum_{t=0}^{T} c(\mathbf{x}_t, \mathbf{u}_t) \right] \\
+&amp;\text{subject to} \quad \mathbf{x}_{t+1} = f_t(\mathbf{x}_t, \mathbf{u}_t, e_t) \quad \color{red}{\text{known dynamics}} \\
+&amp;\qquad \qquad \quad \mathbf{u}_t = \pi_t(\mathbf{x}_{0:t}, \mathbf{u}_{0:t-1}) \\
+&amp;\qquad \qquad \qquad \qquad \qquad \color{red}{\text{control law / policy}}
+\end{aligned}
+\]</span></p>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="fragment">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div>
+<div class="small-math fragment">
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\underset{\theta}{\text{maximize}} \quad \mathbb{E}_{\tau \sim p_\theta(\tau)} \left[ \sum_{t=0}^{T} r(\mathbf{x}_t, \mathbf{a}_t) \right] \\
+\\
+&amp;p_\theta(\tau) = p_\theta(\mathbf{x}_{0:T}, \mathbf{a}_{0:T-1}) \\
+&amp;\quad = p(\mathbf{x}_0) \prod_{t=1}^{T} \pi_\theta(\mathbf{a}_t | \mathbf{x}_t) p(\mathbf{x}_{t+1} | \mathbf{x}_t, \mathbf{u}_t) \\
+&amp;\qquad \qquad \qquad \color{red}{\text{policy}} \quad \color{red}{\text{dynamics}}
+\end{aligned}
+\]</span></p>
+<p><span style="color:red;">cost = -reward</span></p>
+</div>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="section-2" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+<p><span class="math display">\[
+J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+\]</span></p>
+<p><span class="math inline">\(\color{red}\uparrow\)</span></p>
+<div class="red-annotation">
+<p>Optimal cost-to-go:<br>
+“if you land at state x and you follow the optimal actions what is the expected cost you will pay?”</p>
+</div>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div></div>
+<div class="small-math">
+<p><span class="math display">\[
+\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\qquad \uparrow\)</span><br>
+Optimal cost-to-go</p>
+</div>
+</div><div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\uparrow\)</span><br>
+</p>
+<p>Optimal value function:</p>
+<p>“if you land at state x and you follow the optimal policy</p>
+<p>what is the expected reward you will accumulate?”</p>
+</div>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="section-4" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div></div>
+<div class="small-math">
+<p><span class="math display">\[
+\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\qquad \uparrow\)</span><br>
+Optimal cost-to-go</p>
+</div>
+</div><div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \underbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]}_{Q^*(x_t, a_t)}
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\uparrow\)</span><br>
+Optimal value function</p>
+</div>
+</div></div>
+<div class="red-annotation" style="position: absolute; bottom: 45px; right: 10px;">
+<p><span class="math inline">\(\qquad \qquad \qquad \uparrow\)</span><br>
+Optimal state-action value function:<br>
+“if you land at state x, and you commit<br>
+to first execute action a, and then<br>
+follow the optimal policy how much<br>
+reward will you accumulate?”</p>
+</div>
+<!-- Slide -->
+</section>
+<section id="section-5" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div></div>
+<div class="small-math">
+<p><span class="math display">\[
+\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\qquad \uparrow\)</span><br>
+Optimal cost-to-go</p>
+</div>
+</div><div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\uparrow\)</span><br>
+Optimal value function</p>
+<p>Value function of policy pi: “if you land at state x and you follow policy pi what is the expected reward you will accumulate?”<br>
+<span class="math inline">\(\downarrow\)</span></p>
+</div>
+<p><span class="math display">\[
+V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]
+\]</span></p>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="section-6" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div></div>
+<div class="small-math">
+<p><span class="math display">\[
+\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\qquad \uparrow\)</span><br>
+Optimal cost-to-go</p>
+</div>
+</div><div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\uparrow\)</span><br>
+Optimal value<br>
+function</p>
+<p>Value function<br>
+of policy pi<br>
+<span class="math inline">\(\downarrow\)</span></p>
+</div>
+<p><span class="math display">\[
+V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \overbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]}^{Q^{\pi} (x_t, a_t)}
+\]</span></p>
+</div></div>
+<div class="red-annotation" style="position: absolute; bottom: 80px; right: 0;">
+<p>State-action value function of policy pi:<br>
+“if you land at state x, and you commit<br>
+to first execute action a, and then follow<br>
+policy pi how much reward will you<br>
+accumulate?”</p>
+</div>
+<!-- Slide -->
+</section>
+<section id="section-7" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/optcontrol2.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/reinforcement-learning.png"></p>
+</div></div>
+<div class="small-math">
+<p><span class="math display">\[
+\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\qquad \uparrow\)</span><br>
+Optimal cost-to-go</p>
+</div>
+</div><div class="column small-math" style="width:50%;">
+<p><span class="math display">\[
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \underbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]}_{Q^*(x_t, a_t)}
+\]</span></p>
+<div style="color:red;">
+<p><span class="math inline">\(\uparrow\)</span><br>
+Optimal value<br>
+function</p>
+<div style="position: absolute; bottom: 160px; right: 20px;">
+<p>Optimal state-action<br>
+value function</p>
+</div>
+<p>Value function<br>
+of policy pi<br>
+<span class="math inline">\(\downarrow\)</span></p>
+</div>
+<p><span class="math display">\[
+V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \overbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]}^{Q^{\pi} (x_t, a_t)}
+\]</span></p>
+</div></div>
+<div class="red-annotation" style="position: absolute; bottom: 80px; right: 20px;">
+<p>State-action value<br>
+function of policy pi</p>
+</div>
+</section>
+<section id="todays-agenda-1" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><span style="color:grey;">• Intro to Control &amp; Reinforcement Learning</span><br>
+• Linear Quadratic Regulator (LQR)<br>
+• Iterative LQR<br>
+• Model Predictive Control<br>
+• Learning dynamics and model-based RL</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/robot.png" style="width:90.0%"></p>
+</div></div>
+
+<aside><div>
+<p>Acknowledgments<br>
+Today’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (DeepRL), Ben Recht (ICML’18), Emo Todorov, Zico Kolter</p>
+</div></aside></section>
+<section id="what-you-can-do-with-variants-of-lqr-control" class="slide level2">
+<h2>What you can do with (variants of) LQR control</h2>
+
+<img data-src="images/lqr-1.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="what-you-can-do-with-variants-of-lqr-control-1" class="slide level2">
+<h2>What you can do with (variants of) LQR control</h2>
+<!-- need to embed video -->
+<p>Pieter Abbeel, Helicopter Aerobatics</p>
+</section>
+<section id="lqr-assumptions" class="slide level2">
+<h2>LQR: assumptions</h2>
+<p>• You know the dynamics model of the system<br>
+• It is linear: <span class="math inline">\(\mathbf{x}_{t+1} = A\mathbf{x}_t + B\mathbf{u}_t\)</span> <!-- need to insert arrows --></p>
+<div class="columns">
+<div class="column" style="width:30%;">
+<div class="red-annotation">
+<p><span class="math inline">\(\qquad \qquad \qquad \qquad \uparrow\)</span><br>
+State at the next time step</p>
+</div>
+<p><span class="math display">\[
+\mathbb{R}^d
+\]</span></p>
+<p><span class="math display">\[
+A \in \mathbb{R}^{d \times d}
+\]</span></p>
+</div><div class="column" style="width:30%;">
+<div class="red-annotation">
+<p><span class="math inline">\(\qquad \uparrow\)</span><br>
+Control / command / action applied to the system</p>
+</div>
+<p><span class="math display">\[
+\mathbb{R}^k
+\]</span></p>
+<p><span class="math display">\[
+B \in \mathbb{R}^{d \times k}
+\]</span></p>
+</div><div class="column" style="width:60%;">
+
+</div></div>
+<!-- Slide 19 -->
+</section>
+<section id="which-systems-are-linear" class="slide level2 smaller">
+<h2>Which systems are linear?</h2>
+<div class="columns">
+<div class="column" style="width:80%;">
+<p><span style="color: green;">✓</span> • Omnidirectional robot</p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><span class="math display">\[
+\begin{align}
+x_{t+1} &amp;= x_t + v_x(t)\delta t \\
+y_{t+1} &amp;= y_t + v_y(t)\delta t \\
+\theta_{t+1} &amp;= \theta_t + \omega_z(t)\delta t
+\end{align}
+\quad \Rightarrow \quad
+\]</span></p>
+</div><div class="column" style="width:40%;">
+<p><span class="math display">\[
+\mathbf{x}_{t+1} = I\mathbf{x}_t + \delta t I \mathbf{u}_t
+\]</span> <span class="math display">\[
+\begin{align}
+A &amp;= I \\
+B &amp;= \delta t I
+\end{align}
+\]</span></p>
+</div></div>
+</div><div class="column" style="width:20%;">
+<p><img data-src="images/linear-systems.png"></p>
+</div></div>
+<div class="fragment" data-fragment-index="1">
+<p><span class="fragment" data-fragment-index="3" style="color: red;">X</span> • Simple Car</p>
+<div class="columns">
+<div class="column" style="width:35%;">
+<div style="font-size: 0.8em;">
+<p><span class="math display">\[
+\begin{align}
+x_{t+1} &amp;= x_t + v_x(t)\cos(\theta_t)\delta t \\
+y_{t+1} &amp;= y_t + v_x(t)\sin(\theta_t)\delta t \\
+\theta_{t+1} &amp;= \theta_t + \omega_z\delta t
+\end{align}
+\quad \Rightarrow \quad
+\]</span></p>
+</div>
+</div><div class="column" style="width:45%;">
+<div class="fragment" data-fragment-index="2">
+<div style="font-size: 0.8em;">
+<p><span class="math display">\[
+\mathbf{x}_{t+1} = I\mathbf{x}_t + \begin{bmatrix}
+\delta t\cos(\theta_t) &amp; 0 &amp; 0 \\
+0 &amp; \delta t\sin(\theta_t) &amp; 0 \\
+0 &amp; 0 &amp; \delta t
+\end{bmatrix} \mathbf{u}_t
+\]</span> <span class="math display">\[
+\begin{align}
+A &amp;= I \\
+B &amp;= B(x_t) \\
+\end{align}
+\]</span></p>
+</div>
+</div>
+</div><div class="column" style="width:20%;">
+<p><img data-src="images/linear-system2.png"></p>
+</div></div>
+</div>
+<!-- Slide 20 -->
+</section>
+<section id="the-goal-of-lqr" class="slide level2">
+<h2>The goal of LQR</h2>
+<div class="fragment" data-fragment-index="2" style="font-size: 0.7em; color:red; text-align: center; margin-right: 100px;">
+<p>If we want to stabilize around <span class="math inline">\(x^*\)</span> then let <span class="math inline">\(x\)</span> – <span class="math inline">\(x^*\)</span> be the state<br>
+<span class="math inline">\(\downarrow\)</span></p>
+</div>
+<div class="fragment" data-fragment-index="1">
+<p>• Stabilize the system around state <span class="math inline">\(x_t = 0\)</span> with control <span class="math inline">\(u_t = 0\)</span><br>
+</p>
+<p>• Then <span class="math inline">\(x_{t+1} = 0\)</span> and the system will remain at zero forever</p>
+</div>
+<!-- Slide 21 -->
+</section>
+<section id="lqr-assumptions-1" class="slide level2 smaller">
+<h2>LQR: assumptions</h2>
+<p>• You know the dynamics model of the system<br>
+• It is linear: <span class="math inline">\(\mathbf{x}_{t+1} = Ax_t + Bu_t\)</span></p>
+<p>• There is an instantaneous cost associated with being at state <span class="math inline">\(x_t\)</span> and taking the action : <span class="math inline">\(\mathbf{u}_t: c(\mathbf{x}_t, \mathbf{u}_t) = \mathbf{x}_t^T Q \mathbf{x}_t + \mathbf{u}_t^T R \mathbf{u}_t\)</span></p>
+<div class="fragment fade-out" style="margin-left:200px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px;">
+<div style="grid-column: 1;">
+<p><span class="math inline">\(\color{red}\uparrow\)</span><br>
+<span class="red-annotation">Quadratic state cost: Penalizes deviation from the zero vector</span></p>
+</div>
+<div style="grid-column: 2;">
+<p><span class="math inline">\(\color{red}\nwarrow\)</span><br>
+<span class="red-annotation">Quadratic control cost: Penalizes high control signals</span></p>
+</div>
+</div>
+<div class="fragment fade-in-then-out" style="position: absolute; bottom: 40%;">
+<div class="columns">
+<div class="column" style="width:53%;">
+
+</div><div class="column" style="width:20%;">
+<p><span class="math inline">\(\color{red}\uparrow\)</span></p>
+</div><div class="column" style="width:11%;">
+<p><span class="math inline">\(\color{red}\nearrow\)</span></p>
+</div><div class="column" style="width:16%;">
+
+</div></div>
+<div style="font-size: 0.7em">
+<p><span style="color: red;">Square matrices Q and R must be positive definite:</span><br>
+<span class="math inline">\(Q = Q^T\)</span> and <span class="math inline">\(\forall x, x^T Q x &gt; 0\)</span><br>
+<span class="math inline">\(R = R^T\)</span> and <span class="math inline">\(\forall u, u^T R u &gt; 0\)</span><br>
+<span style="color: red;">i.e.&nbsp;positive cost for ANY nonzero state and control vector</span></p>
+</div>
+</div>
+<!-- Slide 22 -->
+</section>
+<section id="finite-horizon-lqr" class="slide level2 smaller">
+<h2>Finite-Horizon LQR</h2>
+<p>• Idea: finding controls is an optimization problem<br>
+• Compute the control variables that minimize the cumulative cost</p>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><span class="math display">\[
+\begin{align}
+u_0^*, \ldots, u_{N-1}^* &amp;= argmin_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(\mathbf{x}_t, \mathbf{u}_t) \\
+&amp;\text{s.t.} \\
+\mathbf{x}_1 &amp;= A\mathbf{x}_0 + B\mathbf{u}_0 \\
+\mathbf{x}_2 &amp;= A\mathbf{x}_1 + B\mathbf{u}_1 \\
+&amp;\vdots \\
+\mathbf{x}_N &amp;= A\mathbf{x}_{N-1} + B\mathbf{u}_{N-1}
+\end{align}
+\]</span></p>
+</div><div class="column red-annotation fragment fade-in-then-out" style="width:40%;">
+<p>We could solve this as a constrained nonlinear optimization problem. But, there is a better way: we can find a closed-form solution.</p>
+</div></div>
+<div class="red-annotation fragment">
+<p>Open-loop plan!<br>
+Given first state compute action sequence</p>
+</div>
+<!-- Slide 23 -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p>• Let <span class="math inline">\(J_n(x)\)</span> denote the cumulative cost-to-go starting from state x and moving for n time steps.</p>
+<p>• I.e. cumulative future cost from now till n more steps</p>
+<p>• <span class="math inline">\(J_0(x) = x^TQx\)</span> is the terminal cost of ending up at state x, with no actions left to perform. Recall that <span class="math inline">\(c(x, u) = x^TQx + \cancel{\mathbf{u}^T R \mathbf{u}}\)</span></p>
+<div class="fragment">
+<p><span class="red-annotation">Q: What is the optimal cumulative cost-to-go function with 1 time step left?</span></p>
+<!-- Slide 24 -->
+</div>
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-1" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<div class="vertical-align">
+<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
+<div class="fragment fade-in-then-out red-annotation">
+<p>For notational convenience later on</p>
+</div>
+</div>
+<div class="fragment">
+<div class="vertical-align">
+<p><span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} \underbrace{[\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})]}_{\color{red}\textbf{In RL this would be the state-action value function}} \\
+\end{align}\]</span></p>
+<p><span class="red-annotation">Bellman Update<br>
+Dynamic Programming Value Iteration</span></p>
+</div>
+</div>
+<!-- Slide  -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-2" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
+<p><span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})] \\
+&amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})]
+\end{align}\]</span></p>
+<div class="red-annotation">
+<p>Q: How do we optimize a multivariable function with respect to some variables (in our case, the controls)?</p>
+</div>
+<!-- Slide -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-3" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
+<p><span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})] \\
+&amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})] \\
+&amp;= \mathbf{x}^T Q \mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})]
+\end{align}\]</span></p>
+<!-- Slide -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-4" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
+<p><span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})] \\
+&amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})] \\
+&amp;= \mathbf{x}^T Q \mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})] \\
+&amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + 2\mathbf{u}^T B^T P_0 A\mathbf{x} + \mathbf{u}^T B^T P_0 B\mathbf{u}]
+\end{align}\]</span></p>
+<div class="red-annotation fragment">
+<div class="vertical-align" style="margin-left:550px;">
+<p><span class="math inline">\(\uparrow\)</span><br>
+Quadratic<br>
+term in u</p>
+<p><span class="math inline">\(\uparrow\)</span><br>
+Linear<br>
+term in u</p>
+<p><span class="math inline">\(\uparrow\)</span><br>
+Quadratic<br>
+term in u</p>
+</div>
+<p>A: Take the partial derivative w.r.t. controls and set it to zero. That will give you a critical point.</p>
+</div>
+<!-- Slide -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-5" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p><span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + 2\mathbf{u}^T B^T P_0 A\mathbf{x} + \mathbf{u}^T B^T P_0 B\mathbf{u}]
+\end{align}\]</span></p>
+<div class="columns">
+<div class="column fragment" style="width:60%;">
+<p>The minimum is attained at:<br>
+<span class="math inline">\(2Ru + 2B^T P_0 Ax + 2B^T P_0 Bu = \mathbf{0}\)</span> <span class="math inline">\((R + B^T P_0 B)\mathbf{u} = -B^T P_0 Ax\)</span></p>
+<p><span class="math inline">\(\color{red}\uparrow\)</span><br>
+<span class="red-annotation">Q: Is this matrix invertible? Recall R, Po are positive definite matrices.</span></p>
+<div class="fragment">
+<p><span class="math inline">\(R + B^T P_0 B\)</span> <span class="red-annotation">is positive definite, so it is invertible</span></p>
+</div>
+</div><div class="column fragment fade-out" style="width:40%;">
+<p>From calculus/algebra:<br>
+<span class="math inline">\(\frac{\partial}{\partial u}(u^T M u) = (M + M^T)u\)</span><br>
+<span class="math inline">\(\frac{\partial}{\partial u}(u^T M b) = M^T b\)</span></p>
+<p>If M is symmetric:<br>
+<span class="math inline">\(\frac{\partial}{\partial u}(u^T M u) = 2Mu\)</span></p>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-6" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p><span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + 2\mathbf{u}^T B^T P_0 A\mathbf{x} + \mathbf{u}^T B^T P_0 B\mathbf{u}]
+\end{align}\]</span></p>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p>The minimum is attained at:<br>
+<span class="math inline">\(2Ru + 2B^T P_0 Ax + 2B^T P_0 Bu = \mathbf{0}\)</span> <span class="math inline">\((R + B^T P_0 B)\mathbf{u} = -B^T P_0 Ax\)</span></p>
+<p>So, the optimal control for the last time step is:<br>
+<span class="math inline">\(\mathbf{u} = -(R + B^T P_0 B)^{-1} B^T P_0 Ax\)</span><br>
+<span class="math inline">\(\mathbf{u} = K_1 \mathbf{x}\)</span><br>
+</p>
+<p><span class="red-annotation">Linear controller in terms of the state</span></p>
+</div><div class="column red-annotation fragment" style="width:40%;">
+<p>We computed the location of the minimum. Now, plug it back in and compute the minimum value</p>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-7" class="slide level2 smaller">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+<p><span class="math inline">\(J_0(x) = x^TQx\)</span> <span class="math display">\[\begin{align}
+J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + 2\mathbf{u}^T B^T P_0 A\mathbf{x} + \mathbf{u}^T B^T P_0 B\mathbf{u}] \\
+&amp;= \mathbf{x}^T \underbrace{Q + K_1^T R K_1 + (A + B K_1)^T P_0 (A + B K_1)}_{P_1} \mathbf{x}
+\end{align}\]</span></p>
+<div class="red-annotation">
+<p>Q: Why is this a big deal?<br>
+A: The cost-to-go function remains quadratic after the first recursive step.</p>
+</div>
+<!-- Slide -->
+</section>
+<section id="finding-the-lqr-controller-in-closed-form-by-recursion-8" class="slide level2">
+<h2>Finding the LQR controller in closed-form by recursion</h2>
+
+<!-- Slide -->
+<img data-src="images/lqr-recursion.png" class="r-stretch"></section>
+<section id="finite-horizon-lqr-algorithm-summary" class="slide level2">
+<h2>Finite-Horizon LQR: algorithm summary</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><span class="math inline">\(P_0 = Q\)</span><br>
+// n is the # of steps left</p>
+</div><div class="column red-annotation fragment" data-fragment-index="3" style="width:60%;">
+<p>Potential problem for states of dimension &gt;&gt; 100:<br>
+Matrix inversion is expensive: O(k^2.3) for the best known algorithm and O(k^3) for Gaussian Elimination.<br>
+<span class="math inline">\(\swarrow\)</span></p>
+</div></div>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p>for n = 1…N<br>
+<span class="math inline">\(K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A\)</span><br>
+<span class="math inline">\(P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)\)</span></p>
+</div><div class="column red-annotation fragment" data-fragment-index="1" style="width:40%;">
+<p>One pass <strong>backward</strong> in time:<br>
+Matrix gains are precomputed based on the dynamics and the instantaneous cost</p>
+</div></div>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p>Optimal control for time t = N – n is <span class="math inline">\(\mathbf{u}_t = K_t \mathbf{x}_t\)</span> with cost-to-go <span class="math inline">\(J_t(\mathbf{x}) = \mathbf{x}^T P_t \mathbf{x}\)</span> where the states are predicted forward in time according to linear dynamics</p>
+</div><div class="column red-annotation fragment" data-fragment-index="2" style="width:30%;">
+<p>One pass <strong>forward</strong> in time:<br>
+Predict states, compute controls and cost-to-go</p>
+</div></div>
+<!-- Slide -->
+</section>
+<section id="lqr-general-form-of-dynamics-and-cost-functions" class="slide level2">
+<h2>LQR: general form of dynamics and cost functions</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>Even though we assumed<br>
+</p>
+<p>we can also accommodate<br>
+</p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column small-math" style="width:30%;">
+<p><span class="math inline">\(\mathbf{x}_{t+1} = A \mathbf{x}_t + B \mathbf{u}_t\)</span><br>
+<br>
+</p>
+<p><span class="math inline">\(\mathbf{x}_{t+1} = A_t \mathbf{x}_t + B_t \mathbf{u}_t + \mathbf{b}_t\)</span></p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column small-math" style="width:30%;">
+<p><span class="math inline">\(c(\mathbf{x}_t, \mathbf{u}_t) = \mathbf{x}_t^T Q \mathbf{x}_t + \mathbf{u}_t^T R \mathbf{u}_t\)</span><br>
+</p>
+<p><span class="math inline">\(c(\mathbf{x}_t, \mathbf{u}_t) =
+\begin{bmatrix}
+\mathbf{x}_t \\
+\mathbf{u}_t
+\end{bmatrix}^T
+H_t
+\begin{bmatrix}
+\mathbf{x}_t \\
+\mathbf{u}_t
+\end{bmatrix}
++
+\begin{bmatrix}
+\mathbf{x}_t \\
+\mathbf{u}_t
+\end{bmatrix}^T
+\mathbf{h}_t\)</span></p>
+</div></div>
+<p>but the form of the computed controls becomes <span class="math inline">\(\mathbf{u}_{t} = K_t \mathbf{x}_t + \mathbf{k}_t\)</span></p>
+<!-- Slide -->
+</section>
+<section id="lqr-with-stochastic-dynamics" class="slide level2">
+<h2>LQR with stochastic dynamics</h2>
+<p>Assume <span class="math inline">\(\mathbf{x}_{t+1} = A_t \mathbf{x}_t + B_t \mathbf{u}_t + \mathbf{w}_t\)</span> and <span class="math inline">\(c(\mathbf{x}_t, \mathbf{u}_t) = \mathbf{x}_t^T Q \mathbf{x}_t + \mathbf{u}_t^T R \mathbf{u}_t\)</span></p>
+<div class="red-annotation" style="margin-left:400px">
+<p><span class="math inline">\(\uparrow\)</span> zero mean Gaussian</p>
+</div>
+<p>Then the form of the optimal policy is the same as in LQR <span class="math inline">\(\mathbf{u}_{t} = K_t \mathbf{x}_t + \mathbf{k}_t\)</span></p>
+<p>No need to change the algorithm, as long as you observe the state at each step (closed-loop policy)</p>
+<div class="fragment">
+<p><strong>Linear Quadratic Gaussian LQG</strong></p>
+</div>
+</section>
+<section id="lqr-summary" class="slide level2">
+<h2>LQR summary</h2>
+<ul>
+<li>Advantages:
+<ul>
+<li>If system is linear LQR gives the optimal controller that takes the system’s state to 0 (or the desired target state, same thing)</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<ul>
+<li><p>Drawbacks:</p>
+<ul>
+<li>Linear dynamics</li>
+<li>How can you include obstacles or constraints in the specification?</li>
+<li>Not easy to put bounds on control values</li>
+</ul></li>
+</ul>
+<!-- Slide -->
+</div>
+</section>
+<section id="todays-agenda-2" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><span style="color:grey;">• Intro to Control &amp; Reinforcement Learning</span><br>
+<span style="color:grey;">• Linear Quadratic Regulator (LQR)</span><br>
+• Iterative LQR<br>
+• Model Predictive Control<br>
+• Learning dynamics and model-based RL</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/robot.png" style="width:90.0%"></p>
+</div></div>
+</section>
+<section id="what-happens-in-the-general-nonlinear-case" class="slide level2">
+<h2>What happens in the general nonlinear case?</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><span class="math display">\[
+u_0^*, \ldots, u_{N-1}^* = \arg\min_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(x_t, u_t)
+\]</span> <span class="math display">\[
+\begin{aligned}
+\mathbf{x}_1 &amp;= f(\mathbf{x}_0, \mathbf{u}_0) \\
+\mathbf{x}_2 &amp;= f(\mathbf{x}_1, \mathbf{u}_1) \\
+&amp;\vdots \\
+\mathbf{x}_N &amp;= f(\mathbf{x}_{N-1}, \mathbf{u}_{N-1})
+\end{aligned}
+\]</span></p>
+</div><div class="column red-annotation" style="width:30%;">
+<p>Arbitrary differentiable functions c, f</p>
+</div></div>
+<div class="fragment">
+<p><span style="color:red;">Idea: iteratively approximate solution by solving linearized versions of the problem via LQR</span></p>
+<!-- Slide -->
+</div>
+</section>
+<section id="iterative-lqr-ilqr" class="slide level2">
+<h2>Iterative LQR (iLQR)</h2>
+<p>Given an initial sequence of states <span class="math inline">\(\bar{x}_0, \ldots, \bar{x}_N\)</span> and actions <span class="math inline">\(\bar{u}_0, \ldots, \bar{u}_N\)</span>:</p>
+<p>Linearize Dynamics</p>
+<div class="small-math">
+<p><span class="math display">\[
+f(x_t, u_t) \approx \tilde{f}(\delta x_t, \delta u_t) = \underbrace{f(\bar{x}_t, \bar{u}_t)}_{\mathbf{b}_t} + \underbrace{\frac{\partial f}{\partial x} (\bar{x}_t, \bar{u}_t)}_{A_t}\underbrace{(x_t - \bar{x}_t)}_{\delta x_t} + \underbrace{\frac{\partial f}{\partial u} (\bar{x}_t, \bar{u}_t)}_{B_t}\underbrace{(u_t - \bar{u}_t)}_{\delta \mathbf{u}_t}
+\]</span></p>
+</div>
+<div class="fragment">
+<p>Taylor Expand Cost</p>
+<div class="small-math">
+<p><span class="math display">\[
+c(x_t, u_t) \approx \tilde{c}(\delta x_t, \delta u_t) = c(\bar{x}_t, \bar{u}_t) + \underbrace{\nabla_{x,u} c(\bar{x}_t, \bar{u}_t)}_{\mathbf{h}_t}
+\begin{bmatrix}
+x_t - \bar{x}_t \\
+u_t - \bar{u}_t
+\end{bmatrix}
++ \frac{1}{2}
+\begin{bmatrix}
+x_t - \bar{x}_t \\
+u_t - \bar{u}_t
+\end{bmatrix}^T
+\underbrace{\nabla^2_{x,u} c(\bar{x}_t, \bar{u}_t)}_{H_t}
+\begin{bmatrix}
+x_t - \bar{x}_t \\
+u_t - \bar{u}_t
+\end{bmatrix}
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Use LQR Backward Pass on the approximate dynamics <span class="math inline">\(f(\delta x_t, \delta u_t)\)</span> and cost <span class="math inline">\(\tilde{c}(\delta x_t, \delta u_t)\)</span></p>
+</div>
+<div class="fragment">
+<p>Do a forward pass to get <span class="math inline">\(\delta u_t\)</span> and <span class="math inline">\(\delta x_t\)</span> and update state and action sequence and <span class="math inline">\(\bar{x}_0, \ldots, \bar{x}_N\)</span> and <span class="math inline">\(\bar{u}_0, \ldots, \bar{u}_N\)</span></p>
+</div>
+</section>
+<section id="iterative-lqr-convergence-tricks" class="slide level2">
+<h2>Iterative LQR: convergence &amp; tricks</h2>
+<p>• New state and action sequence in iLQR is not guaranteed to be close to the linearization point (so linear approximation might be bad)</p>
+<p>• Trick: try to penalize magnitude of <span class="math inline">\(\delta u_t\)</span> and <span class="math inline">\(\delta x_t\)</span><br>
+Replace old LQR linearized cost with <span class="math inline">\((1 - \alpha) \, \tilde{c}(\delta \mathbf{x}_t, \delta \mathbf{u}_t) + \alpha \left( \| \delta \mathbf{x}_t \|^2 + \| \delta \mathbf{u}_t \|^2 \right)\)</span></p>
+<p>• Problem: Can get stuck in local optima, need to initialize well</p>
+<p>• Problem: Hessian might not be positive definite</p>
+</section>
+<section id="todays-agenda-3" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><span style="color:grey;">• Intro to Control &amp; Reinforcement Learning</span><br>
+<span style="color:grey;">• Linear Quadratic Regulator (LQR)</span><br>
+<span style="color:grey;">• Iterative LQR</span><br>
+• Model Predictive Control<br>
+• Learning dynamics and model-based RL</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/robot.png" style="width:90.0%"></p>
+</div></div>
+</section>
+<section id="open-loop-vs.-closed-loop" class="slide level2">
+<h2>Open loop vs.&nbsp;closed loop</h2>
+<p>• The instances of LQR and iLQR that we saw were open-loop<br>
+</p>
+<p>• Commands are executed in sequence, without feedback</p>
+<div class="fragment">
+<p>• Idea: what if we throw away all commands except the first<br>
+</p>
+<p>• We can execute the first command, and then replan <span class="red-annotation">Takes into account the changing state</span></p>
+</div>
+</section>
+<section id="model-predictive-control" class="slide level2">
+<h2>Model Predictive Control</h2>
+<p>while True:</p>
+<ul>
+<li><p>observe the current state <span class="math inline">\(x_0\)</span></p></li>
+<li><p>run LQR/iLQR or LQG/iLQG or other planner to get <span class="math inline">\({u}_0, \ldots, {u}_{N-1}\)</span></p></li>
+<li><p>Execute <span class="math inline">\(u_0\)</span></p></li>
+</ul>
+<div class="fragment">
+<div class="red-annotation">
+<p>Possible speedups:</p>
+<ol type="1">
+<li>Don’t plan too far ahead with LQR</li>
+<li>Execute more than one planned action</li>
+<li>Warm starts and initialization</li>
+<li>Use faster / custom optimizer (e.g.&nbsp;CPLEX, sequential quadratic programming)</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="online-trajectory-optimization-mpc" class="slide level2">
+<h2>Online trajectory optimization / MPC</h2>
+
+<img data-src="images/MPC.png" class="r-stretch"></section>
+<section id="online-trajectory-optimization-mpc-1" class="slide level2">
+<h2>Online trajectory optimization / MPC</h2>
+
+<img data-src="images/mpc-1.png" class="r-stretch"></section>
+<section id="online-trajectory-optimization-mpc-2" class="slide level2">
+<h2>Online trajectory optimization / MPC</h2>
+<p>Test 3: Dynamic Maneuvers</p>
+
+<img data-src="images/mpc-2.png" class="r-stretch"></section>
+<section id="online-trajectory-optimization-mpc-3" class="slide level2">
+<h2>Online trajectory optimization / MPC</h2>
+
+<img data-src="images/mpc-3.png" class="r-stretch"></section>
+<section id="todays-agenda-4" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><span style="color:grey;">• Intro to Control &amp; Reinforcement Learning</span><br>
+<span style="color:grey;">• Linear Quadratic Regulator (LQR)</span><br>
+<span style="color:grey;">• Iterative LQR</span><br>
+<span style="color:grey;">• Model Predictive Control</span><br>
+• Learning dynamics and model-based RL</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/robot.png" style="width:90.0%"></p>
+</div></div>
+</section>
+<section id="learning-a-dynamics-model" class="slide level2">
+<h2>Learning a dynamics model</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p><img data-src="images/dynamics-model.png"></p>
+</div><div class="column" style="width:70%;">
+<p>Idea #1: Collect dataset <span class="math inline">\(D = \{(x_t, u_t, x_{t+1})\}\)</span></p>
+<p>do supervised learning to minimize <span class="math inline">\(\sum_{t} \left\| f_{\theta}(x_t, u_t) - x_{t+1} \right\|^2\)</span></p>
+<p>and then use the learned model for planning</p>
+<div class="fragment fade-in-then-out" style="color:red;">
+<p>Possibly a better idea: instead of minimizing single-step prediction errors, minimize multi-step errors.</p>
+<p>See “Improving Multi-step Prediction of Learned Time Series Models” by Venkatraman, Hebert, Bagnell</p>
+</div>
+<div class="fragment" style="color:red;">
+<p>Possibly a better idea: instead of predicting next state predict next change in state.</p>
+<p>See “PILCO: A Model-Based and Data-Efficient Approach to Policy Search” by Deisenroth, Rasmussen</p>
+</div>
+</div></div>
+</section>
+<section id="model-based-rl" class="slide level2">
+<h2>Model-based RL</h2>
+<p>Collect initial dataset <span class="math inline">\(D = \{(x_t, u_t, x_{t+1})\}\)</span></p>
+<ul>
+<li><p>Fit dynamics model <span class="math inline">\(f_{\theta}(x_t, u_t)\)</span></p></li>
+<li><p>Plan through <span class="math inline">\(f_{\theta}(x_t, u_t)\)</span> to get actions</p></li>
+<li><p>Execute first action, observe new state <span class="math inline">\(x_{t+1}\)</span></p></li>
+<li><p>Append <span class="math inline">\((x_t, u_t, x_{t+1})\)</span> to <span class="math inline">\(D\)</span></p></li>
+</ul>
+</section>
+<section id="todays-agenda-5" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><span style="color:grey;">• Intro to Control &amp; Reinforcement Learning</span><br>
+<span style="color:grey;">• Linear Quadratic Regulator (LQR)</span><br>
+<span style="color:grey;">• Iterative LQR</span><br>
+<span style="color:grey;">• Model Predictive Control</span><br>
+<span style="color:grey;">• Learning dynamics and model-based RL</span><br>
+• Appendix</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/robot.png" style="width:90.0%"></p>
+</div></div>
+</section>
+<section id="appendix-1-optional-reading-lqr-extensions-time-varying-systems" class="slide level2">
+<h2>Appendix #1 (optional reading) LQR extensions: time-varying systems</h2>
+<p>• What can we do when <span class="math inline">\(x_{t+1} = A_t x_t + B_t u_t\)</span> and <span class="math inline">\(c(x_t, u_t) = x_t^T Q x_t + u_t^T R u_t\)</span> ?</p>
+<p>• Turns out, the proof and the algorithm are almost the same</p>
+<p><span class="math inline">\(P_0 = Q_N\)</span></p>
+<p>// n is the # of steps left</p>
+<p>for n = 1…N</p>
+<p><span class="math inline">\(K_n = -\left(R_{N-n} + B_{N-n}^T P_{n-1} B_{N-n}\right)^{-1} B_{N-n}^T P_{n-1} A_{N-n}\)</span><br>
+</p>
+<p><span class="math inline">\(P_n = Q_{N-n} + K_n^T R_{N-n} K_n + (A_{N-n} + B_{N-n} K_n)^T P_{n-1} (A_{N-n} + B_{N-n} K_n)\)</span></p>
+<p>Optimal controller for n-step horizon is <span class="math inline">\(u_n = K_n x_n\)</span> with cost-to-go <span class="math inline">\(J_n(x) = x^T P_n x\)</span></p>
+</section>
+<section id="appendix-2-optional-reading-why-not-use-pid-control" class="slide level2">
+<h2>Appendix #2 (optional reading) Why not use PID control?</h2>
+<p>• We could, but:</p>
+<p>• The gains for PID are good for a small region of state-space.</p>
+<div class="small-math">
+<p>• System reaches a state outside this set → becomes unstable<br>
+</p>
+<div class="fragment highlight-red">
+<p>• PID has no formal guarantees on the size of the set</p>
+</div>
+</div>
+<div class="fragment highlight-red">
+<p>• We would need to tune PID gains for every control variable.<br>
+</p>
+</div>
+<div class="small-math">
+<p>• If the state vector has multiple dimensions it becomes harder to tune every control variable in isolation. Need to consider interactions and correlations.</p>
+</div>
+<div class="fragment highlight-red">
+<p>• We would need to tune PID gains for different regions of the state-space and guarantee smooth gain transitions<br>
+</p>
+</div>
+<div class="small-math">
+<p>• This is called gain scheduling, and it takes a lot of effort and time</p>
+</div>
+<div class="fragment red-annotation">
+<p>LQR addresses these problems</p>
+</div>
+</section>
+<section id="appendix-3-optional-reading-examples-of-models-and-solutions-with-lqr" class="slide level2">
+<h2>Appendix #3 (optional reading) Examples of models and solutions with LQR</h2>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<p>• Similar to double integrator dynamical system, but with friction:</p>
+<p><span class="math display">\[
+\underset{\color{red}\text{Force applied to the vehicle}}{\underline{m\ddot{p}}} = \underset{\color{red}\text{Control applied to the vehicle}}{\underline{\mathbf{u}}} - \underset{\color{red}\text{Friction opposed to motion}}{\underline{\alpha \dot{p}}}
+\]</span></p>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-1" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<p>• Similar to double integrator dynamical system, but with friction:</p>
+<p><span class="math display">\[
+m\ddot{p} = \mathbf{u} - \alpha \dot{p}
+\]</span></p>
+<p>• Set <span class="math inline">\(\dot{p} = v\)</span> and then you get:</p>
+<p><span class="math display">\[
+m\dot{v} = \mathbf{u} - \alpha \mathbf{v}
+\]</span></p>
+<div class="fragment">
+<p>• We discretize by setting</p>
+<div class="vertical-align">
+<p><span class="math display">\[
+\frac{\mathbf{p}_{t+1} - \mathbf{p}_t}{\delta t} \simeq \mathbf{v}_t
+\]</span></p>
+<p><span class="math display">\[
+m \frac{\mathbf{v}_{t+1} - \mathbf{v}_t}{\delta t} \simeq \mathbf{u}_t - \alpha \mathbf{v}_t
+\]</span></p>
+</div>
+</div>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-2" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<div class="vertical-align">
+<p><span class="math display">\[
+\frac{\mathbf{p}_{t+1} - \mathbf{p}_t}{\delta t} \simeq \mathbf{v}_t
+\]</span></p>
+<p><span class="math display">\[
+m \frac{\mathbf{v}_{t+1} - \mathbf{v}_t}{\delta t} \simeq \mathbf{u}_t - \alpha \mathbf{v}_t
+\]</span></p>
+</div>
+<p>• Define the state vector <span class="math inline">\(\mathbf{x}_t = \begin{bmatrix}\mathbf{p}_t \\\mathbf{v}_t\end{bmatrix}\)</span></p>
+<div class="fragment fade-out red-annotation">
+<p>Q: How can we express this as a linear system?</p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[
+\mathbf{x}_{t+1} =
+\begin{bmatrix}
+\mathbf{p}_{t+1} \\
+\mathbf{v}_{t+1}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\mathbf{p}_t + \delta t \mathbf{v}_t \\
+\mathbf{v}_t + \frac{\delta t}{m} \mathbf{u}_t - \frac{\alpha \delta t}{m} \mathbf{v}_t
+\end{bmatrix}
+=
+\begin{bmatrix}  
+p_t + \delta t v_t \\
+v_t - \frac{\alpha \delta t}{m} \mathbf{v}_t  
+\end{bmatrix}
++
+\begin{bmatrix}
+0 &amp; 0 \\
+0 &amp; 0 \\
+\frac{\delta t}{m} &amp; 0 \\
+0 &amp; \frac{\delta t}{m}
+\end{bmatrix}
+\mathbf{u}_t
+\]</span></p>
+</div>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-3" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<div class="vertical-align">
+<p><span class="math display">\[
+\frac{\mathbf{p}_{t+1} - \mathbf{p}_t}{\delta t} \simeq \mathbf{v}_t
+\]</span></p>
+<p><span class="math display">\[
+m \frac{\mathbf{v}_{t+1} - \mathbf{v}_t}{\delta t} \simeq \mathbf{u}_t - \alpha \mathbf{v}_t
+\]</span></p>
+</div>
+<p>• Define the state vector <span class="math inline">\(\mathbf{x}_t = \begin{bmatrix}\mathbf{p}_t \\\mathbf{v}_t\end{bmatrix}\)</span></p>
+<div class="small-math">
+<p><span class="math display">\[
+\mathbf{x}_{t+1} = \begin{bmatrix} p_{t+1} \\ v_{t+1} \end{bmatrix} = \begin{bmatrix} p_t + \delta t v_t \\ v_t + \frac{\delta t}{m} u_t - \frac{\alpha \delta t}{m} v_t \end{bmatrix} = \underbrace{\begin{bmatrix} 1 &amp; 0 &amp; \delta t &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; \delta t \\ 0 &amp; 0 &amp; 1 - \alpha \delta t/m &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 - \alpha \delta t/m \end{bmatrix}}_{\color{red}A} \mathbf{x}_t + \underbrace{\begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \\ \frac{\delta t}{m} &amp; 0 \\ 0 &amp; \frac{\delta t}{m} \end{bmatrix}}_{\color{red}B}\mathbf{u}_t
+\]</span></p>
+</div>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-4" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<p>• Define the state vector <span class="math inline">\(\mathbf{x}_t = \begin{bmatrix}\mathbf{p}_t \\\mathbf{v}_t\end{bmatrix}\)</span></p>
+<div class="small-math">
+<p><span class="math display">\[
+\mathbf{x}_{t+1} = \begin{bmatrix} p_{t+1} \\ v_{t+1} \end{bmatrix} = \begin{bmatrix} p_t + \delta t v_t \\ v_t + \frac{\delta t}{m} u_t - \frac{\alpha \delta t}{m} v_t \end{bmatrix} = \underbrace{\begin{bmatrix} 1 &amp; 0 &amp; \delta t &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; \delta t \\ 0 &amp; 0 &amp; 1 - \alpha \delta t/m &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 - \alpha \delta t/m \end{bmatrix}}_{\color{red}A} \mathbf{x}_t + \underbrace{\begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \\ \frac{\delta t}{m} &amp; 0 \\ 0 &amp; \frac{\delta t}{m} \end{bmatrix}}_{\color{red}B}\mathbf{u}_t
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p>• Define the instantaneous cost function</p>
+</div><div class="column" style="width:40%;">
+<p><span class="math display">\[
+\begin{aligned}
+c(\mathbf{x}, \mathbf{u}) = \mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} \\
+= \mathbf{x}^T \mathbf{x} + \rho \mathbf{u}^T \mathbf{u} \\
+= \|\mathbf{x}\|^2 + \rho \|\mathbf{u}\|^2
+\end{aligned}
+\]</span></p>
+</div></div>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-5" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>With initial state <span class="math inline">\(\mathbf{x}_0 = \begin{bmatrix}10 \\ 30\\ 10\\ -5\end{bmatrix}\)</span></p>
+<p>Instantaneous cost function</p>
+<p><span class="math inline">\(c(\mathbf{x}, \mathbf{u}) = \|\mathbf{x}\|^2 + 100 \|\mathbf{u}\|^2\)</span></p>
+</div><div class="column" style="width:70%;">
+<p><img data-src="images/lqr-example1.png"></p>
+</div></div>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-6" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>With initial state <span class="math inline">\(\mathbf{x}_0 = \begin{bmatrix}10 \\ 30\\ 10\\ -5\end{bmatrix}\)</span></p>
+<p>Instantaneous cost function</p>
+<p><span class="math inline">\(c(\mathbf{x}, \mathbf{u}) = \|\mathbf{x}\|^2 + 100 \|\mathbf{u}\|^2\)</span></p>
+</div><div class="column" style="width:70%;">
+<p><img data-src="images/lqr-example2.png"></p>
+<div class="fragment red-annotation" style="position: absolute; right: 40px; bottom:350px">
+<p>Notice how the controls tend to zero.<br>
+It’s because the state tends to zero as well.</p>
+</div>
+<div class="fragment red-annotation" style="position: absolute; right: 40px; bottom:200px">
+<p>Also note that in the current LQR framework,<br>
+we have not included hard constraints on the controls,<br>
+i.e.&nbsp;upper or lower bounds. We only penalize large norm for controls.</p>
+</div>
+</div></div>
+</section>
+<section id="lqr-example-1-omnidirectional-vehicle-with-friction-7" class="slide level2">
+<h2>LQR example #1: omnidirectional vehicle with friction</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>With initial state <span class="math inline">\(\mathbf{x}_0 = \begin{bmatrix}10 \\ 30\\ 10\\ -5\end{bmatrix}\)</span></p>
+<p>Instantaneous cost function</p>
+<p><span class="math inline">\(c(\mathbf{x}, \mathbf{u}) = \|\mathbf{x}\|^2 + 100 \|\mathbf{u}\|^2\)</span></p>
+</div><div class="column" style="width:70%;">
+<p><img data-src="images/lqr-example3.png"></p>
+<div class="red-annotation" style="position: absolute; right: 40px; bottom:350px">
+<p>Notice how the controls tend to zero.<br>
+</p>
+</div>
+</div></div>
+</section>
+<section id="lqr-example-2-trajectory-following-for-omnidirectional-vehicle" class="slide level2">
+<h2>LQR example #2: trajectory following for omnidirectional vehicle</h2>
+
+<img data-src="images/lqrex2.png" class="r-stretch"></section>
+<section id="lqr-example-2-trajectory-following-for-omnidirectional-vehicle-1" class="slide level2">
+<h2>LQR example #2: trajectory following for omnidirectional vehicle</h2>
+<p><span class="math display">\[
+\mathbf{x}_{t+1} = \begin{bmatrix} p_{t+1} \\ v_{t+1} \end{bmatrix} = \underbrace{\begin{bmatrix} 1 &amp; 0 &amp; \delta t &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; \delta t \\ 0 &amp; 0 &amp; 1 - \alpha \delta t/m &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 - \alpha \delta t/m \end{bmatrix}}_{\color{red}A} \mathbf{x}_t + \underbrace{\begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \\ \frac{\delta t}{m} &amp; 0 \\ 0 &amp; \frac{\delta t}{m} \end{bmatrix}}_{\color{red}B}\mathbf{u}_t
+\]</span></p>
+<p>We are given a desired trajectory <span class="math inline">\(\mathbf{p}_0^*, \mathbf{p}_1^*, \ldots, \mathbf{p}_T^*\)</span></p>
+<p>Instantaneous cost <span class="math inline">\(c(\mathbf{x}_t, \mathbf{u}_t) = (\mathbf{p}_t - \mathbf{p}_t^*)^T Q (\mathbf{p}_t - \mathbf{p}_t^*) + \mathbf{u}_t^T R \mathbf{u}_t\)</span></p>
+</section>
+<section id="lqr-example-2-trajectory-following-for-omnidirectional-vehicle-2" class="slide level2">
+<h2>LQR example #2: trajectory following for omnidirectional vehicle</h2>
+<div class="small-math">
+<p><span class="math display">\[
+\mathbf{x}_{t+1} = \begin{bmatrix} p_{t+1} \\ v_{t+1} \end{bmatrix} = \underbrace{\begin{bmatrix} 1 &amp; 0 &amp; \delta t &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; \delta t \\ 0 &amp; 0 &amp; 1 - \alpha \delta t/m &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 - \alpha \delta t/m \end{bmatrix}}_{\color{red}A} \mathbf{x}_t + \underbrace{\begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \\ \frac{\delta t}{m} &amp; 0 \\ 0 &amp; \frac{\delta t}{m} \end{bmatrix}}_{\color{red}B}\mathbf{u}_t
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math" style="width:50%;">
+<p>Define <span class="math display">\[\begin{align}
+\tilde{\mathbf{x}}_{t+1} &amp;= \mathbf{x}_{t+1} - \mathbf{x}_{t+1}^* \\
+&amp;= A\mathbf{x}_t + B\mathbf{u}_t - \mathbf{x}_{t+1}^* \\
+&amp;= A\tilde{\mathbf{x}}_t + B\mathbf{u}_t \color{red}\underline{- \mathbf{x}_{t+1}^* + A\mathbf{x}_t^*}
+\end{align}
+\]</span></p>
+</div><div class="column" style="width:50%;">
+<p>We want <span class="math inline">\(\bar{x}_{t+1} = \bar{A} \bar{x}_t + \bar{B} u_t\)</span></p>
+<div class="fragment red-annotation" style="position: absolute; bottom: 200px; right: 150px;">
+<p><span class="math inline">\(\leftarrow\)</span> Need to get rid of this additive term</p>
+</div>
+</div></div>
+<div class="fragment">
+<div class="small-math">
+<p>Redefine state: <span class="math inline">\(z_{t+1} = \begin{bmatrix} \bar{x}_{t+1} \\ 1 \end{bmatrix} = \begin{bmatrix} A &amp; c \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} \bar{x}_t \\ 1 \end{bmatrix} + \begin{bmatrix} B \\ 0 \end{bmatrix} u_t = \bar{A} z_t + \bar{B} u_t\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="small-math">
+<p>Redefine cost function: <span class="math inline">\(c(z_t, u_t) = z_t^T \bar{Q}_t z_t + u_t^T R u_t\)</span></p>
+</div>
+</div>
+</section>
+<section id="lqr-example-2-trajectory-following-for-omnidirectional-vehicle-3" class="slide level2">
+<h2>LQR example #2: trajectory following for omnidirectional vehicle</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>With initial state <span class="math inline">\(\mathbf{z}_0 = \begin{bmatrix}10 \\ 30\\ 0\\ 0\\ 1\end{bmatrix}\)</span></p>
+<p>Instantaneous cost function</p>
+<p><span class="math inline">\(c(\mathbf{z}, \mathbf{u}) = \|\mathbf{z}\|^2 + 100 \|\mathbf{u}\|^2\)</span></p>
+</div><div class="column" style="width:70%;">
+<p><img data-src="images/lqrex2-1.png"></p>
+</div></div>
+</section>
+<section id="lqr-example-2-trajectory-following-for-omnidirectional-vehicle-4" class="slide level2">
+<h2>LQR example #2: trajectory following for omnidirectional vehicle</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>With initial state <span class="math inline">\(\mathbf{z}_0 = \begin{bmatrix}10 \\ 30\\ 0\\ 0\\ 1\end{bmatrix}\)</span></p>
+<p>Instantaneous cost function</p>
+<p><span class="math inline">\(c(\mathbf{z}, \mathbf{u}) = \|\mathbf{z}\|^2 + 100 \|\mathbf{u}\|^2\)</span></p>
+</div><div class="column" style="width:70%;">
+<p><img data-src="images/lqrex2-2.png"></p>
+</div></div>
+</section>
+<section id="appendix-4-optional-reading-lqr-extensions-trajectory-following" class="slide level2">
+<h2>Appendix #4 (optional reading) LQR extensions: trajectory following</h2>
+<p>• You are given a reference trajectory (not just path, but states and times, or states and controls) that needs to be approximated</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><span class="math inline">\(\mathbf{x}_0^*, \mathbf{x}_1^*, \ldots, \mathbf{x}_N^*\)</span></p>
+</div><div class="column" style="width:50%;">
+<p><span class="math inline">\(\mathbf{u}_0^*, \mathbf{u}_1^*, \ldots, \mathbf{u}_N^*\)</span></p>
+</div></div>
+<p>Linearize the nonlinear dynamics <span class="math inline">\(x_{t+1} = f(x_t, u_t)\)</span> around the reference point <span class="math inline">\((x^*_t, u^*_t)\)</span>:</p>
+<p><span class="math inline">\(x_{t+1} \simeq f(x^*_t, u^*_t) + \frac{\partial f}{\partial x}(x^*_t, u^*_t)(x_t - x^*_t) + \frac{\partial f}{\partial u}(x^*_t, u^*_t)(u_t - u^*_t)\)</span></p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p><span class="math inline">\(\bar{x}_{t+1} \simeq A_t \bar{x}_t + B_t \bar{u}_t\)</span><br>
+</p>
+<p><span class="math inline">\(c(x_t, u_t) = \bar{x}_t^T Q \bar{x}_t + \bar{u}_t^T R \bar{u}_t\)</span></p>
+</div><div class="column" style="width:10%;">
+<p>where</p>
+</div><div class="column" style="width:20%;">
+<p><span class="math inline">\(\bar{x}_t = x_t - x_t^*\)</span><br>
+</p>
+<p><span class="math inline">\(\bar{u}_t = u_t - u_t^*\)</span></p>
+</div><div class="column red-annotation" style="width:30%;">
+<p>Trajectory following can be implemented as a time-varying LQR approximation. Not always clear if this is the best way though.</p>
+</div></div>
+</section>
+<section id="appendix-5-optional-reading-lqr-with-nonlinear-dynamics-quadratic-cost" class="slide level2">
+<h2>Appendix #5 (optional reading) LQR with nonlinear dynamics, quadratic cost</h2>
+</section>
+<section id="lqr-variants-nonlinear-dynamics-quadratic-cost" class="slide level2">
+<h2>LQR variants: nonlinear dynamics, quadratic cost</h2>
+<div class="small-math">
+<p>What can we do when <span class="math inline">\(x_{t+1} = f(x_t, u_t)\)</span> but the cost is quadratic <span class="math inline">\(c(x_t, u_t) = \bar{x}_t^T Q \bar{x}_t + \bar{u}_t^T R \bar{u}_t\)</span> ?</p>
+<p>We want to stabilize the system around state <span class="math inline">\(x_t = 0\)</span></p>
+<p>But with nonlinear dynamics we do not know if <span class="math inline">\(u_t = 0\)</span> will keep the system at the zero state.</p>
+</div>
+<div class="fragment">
+<div class="small-math">
+<p><span class="math inline">\(\rightarrow\)</span> Need to compute <span class="math inline">\(u^*\)</span> such that <span class="math inline">\(0_{t+1} = f(0_t, u^*)\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="small-math">
+<p>Taylor expansion: linearize the nonlinear dynamics around the point <span class="math inline">\((0, u^*)\)</span></p>
+<p><span class="math display">\[
+\mathbf{x}_{t+1} \simeq f(\mathbf{0}, \mathbf{u}^*) + \underbrace{\frac{\partial f}{\partial \mathbf{x}}(\mathbf{0}, \mathbf{u}^*)(\mathbf{x}_t - \mathbf{0})}_{\mathbf{A}} + \underbrace{\frac{\partial f}{\partial \mathbf{u}}(\mathbf{0}, \mathbf{u}^*)(\mathbf{u}_t - \mathbf{u}^*)}_{\mathbf{B}}
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="small-math">
+<p><span class="math inline">\(\mathbf{x}_{t+1} \simeq A \mathbf{x}_t + B(\mathbf{u}_t - \mathbf{u}^*)\)</span></p>
+<p><span style="color:red;">Solve this via LQR</span></p>
+</div>
+</div>
+</section>
+<section id="lqr-examples-code-to-replicate-these-results" class="slide level2">
+<h2>LQR examples: code to replicate these results</h2>
+<p>• <a href="https://github.com/florianshkurti/comp417.git" class="uri">https://github.com/florianshkurti/comp417.git</a></p>
+<p>• Look under comp417/lqr_examples/python</p>
+
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="https://csc2626.github.io/website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩︎ Back to Course Website</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true,"src":"chalkboard.json","boardmarkerWidth":2,"chalkWidth":2,"chalkEffect":1},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp("https:\/\/csc2626\.github\.io\/2026F_website\/");
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    
+
+</body></html>

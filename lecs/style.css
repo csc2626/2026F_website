@@ -1,0 +1,70 @@
+
+.medium {
+font-size: 0.8em;
+}
+
+.small-math {
+font-size: 0.7em;
+}
+
+.tiny-font {
+font-size: 0.5em;
+}
+
+.red-annotation {
+    color: red;
+    font-size: 0.7em;
+}
+
+.vertical-align {
+  display: flex;
+  justify-content: space-between;
+}
+
+.vertical-align > * {
+  flex: 1;
+}
+
+.bordered-box {
+  border: 1px solid red;
+}
+
+.red{
+    color: red;
+}
+
+.black{
+    color: black;
+}
+
+.green{
+    color: green;
+}
+
+.light-orange{
+    color: #f0a170;
+}
+
+.grey-text{
+  color: grey;
+}
+
+.blue-text{
+  color: blue;
+}
+
+.orange{
+    color: #FF8C00;
+}
+
+.left-align {
+    text-align: left;
+}
+
+.right-align {
+    text-align: right;
+}
+
+.center-align{
+    text-align: center; 
+}
