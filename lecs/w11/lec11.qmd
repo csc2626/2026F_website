@@ -1,6 +1,6 @@
 ---
 title: "CSC2626 Imitation Learning for Robotics"
-subtitle: "Week 11: Learning from Videos"
+subtitle: "Week 11: Representation Learning for Imitation & Provable Generalization"
 author: "Florian Shkurti"
 format:
     revealjs:
@@ -24,367 +24,141 @@ html-math-method:
     url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 ---
 
-## Learning to act from videos
+## Today’s Agenda
 
-:::: medium
-[• The argument]{.green}: we have billions of videos on the internet, many of which show how humans interact with objects. Let’s try to use these videos to teach robots how to act. A tantalizing possibility for scaling up robot learning.
+-   Representation Learning for Imitation
 
-[• Problem #1]{.red}: Actions labels are missing!
+    -   Is it better to separate representation learning from policy learning?
 
-[• Problem #2]{.red}: Morphology and mechanics of the human body are different than the robot’s
+-   Provable generalization
 
-[• Problem #3]{.red}: The camera viewpoint during the recording of the video is likely different than the one during deployment.
+    -   PAC-Bayes generalization bounds
 
-<br>
+-   Robustness and safety
 
-::: fragment
-[What can we realistically learn from videos?]{.underline}
+    -   Robustness as stability
 
-• Learn representations for pretraining policy backbones
+## Learning dense representations for manipulation
 
-• Learn video dynamics
-
-• Extract actions from videos
-
-• Learn affordances (how humans interact with objects)
-:::
-::::
-
-## Today’s agenda
-
--   Extracting actions from videos
-    -   Physics–based human motion estimation & prediction
-    -   Hand motion estimation
-    -   Motion retargeting to a robot
--   Learning video dynamics
-    -   Video predictive models
-    -   Action spaces for learning from videos
--   Learning object affordances from video
-
-## SMPL (Skinned Multi-Person Linear Model)
-
-![](images/smpl.png)
-
-![](images/smpl2.png){width="150" fig-align="center"}
-
-## 
-
-{{< video https://www.youtube.com/watch?v=kuBlUyHeV5U?rel=0&enablejsapi=1 width="100%" height="75%" >}}
-
-[<https://www.youtube.com/watch?v=kuBlUyHeV5U>]{.small-math}
-
-## SMPL + Hands
-
-{{< video https://www.youtube.com/watch?v=_1o21xc3TD0?rel=0&enablejsapi=1 width="100%" height="75%" >}}
-
-[<https://mano.is.tue.mpg.de>]{.small-math}
-
-## Biomechanics models
-
-• SMPL is a kinematic model of the human body
-
-• For more accurate models we could try to model the muscle structure of the human body
-
-<br>
+{{< video https://www.youtube.com/watch?v=L5UW1VapKNE?rel=0&enablejsapi=1 width="80%" height="65%" >}}
 
 ::: small-math
-<https://myosuite.readthedocs.io/en/latest/index.html>
-
-<https://sites.google.com/view/myodex>
+[Dense Object Nets: Learning Dense Visual Object Descriptors By and For Robotic Manipulation.]{.red} Florence, Manuelli, Tedrake. 2018
 :::
 
-## Hand motion estimation in AR/VR headsets
+## Learning policies on top of pretrained representations
 
-![](images/hand-animation.jpeg)
-
-## Frame-by-frame human pose detectors
-
-![](images/frame-by-frame.png)
+{{< video https://www.youtube.com/watch?v=RBvaazKSOAc?rel=0&enablejsapi=1 width="80%" height="65%" >}}
 
 ::: small-math
-[KAMA: 3D Keypoint Aware Body Mesh Articulation]{.red}. Iqbal, Xie et al. 3DV 2021. <https://arxiv.org/abs/2104.13502>
+[Self-Supervised Correspondence in Visuomotor Policy Learning.]{.red} Florence, Manuelli, Tedrake. 2020
 :::
 
-## Motivation
+## Another example of policy learning on pretrained representations
 
-::: red
-Frame-by-frame human pose estimators exist but are **not good enough**. We can **correct** them with physics.
-:::
+{{< video https://www.youtube.com/watch?v=bIzWADZjdoA?rel=0&enablejsapi=1 width="80%" height="70%" >}}
 
-:::::: columns
-::: {.column width="40%"}
-![](images/human-pose.gif){height="400"}
-:::
+## Can we show theoretically that representation learning helps?
 
-::: {.column .left-align width="5%"}
-$\Rightarrow$
-:::
+\[switch to notes\]
 
-::: {.column .small-math width="50%"}
-![](images/human-pose2.gif){height="400"}
-:::
-
-![](images/camera-arrow.png){.absolute right="0" bottom="90" height="400"}
-::::::
-
-## System overview
-
-![](images/sys-overview.png)
-
-::: small-math
-[Physics-based Human Motion Estimation and Synthesis from Videos.]{.red}\
-Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.
-:::
-
-::: {.absolute .tiny-font top="0" right="0"}
-![](images/kevin-xie.jpeg){height="100"}\
-Kevin Xie
-:::
-
-## Physics constraints reduce slip
-
-<iframe src="https://drive.google.com/file/d/1MrQTNIgOpeHlwS3IXcnZxgD5AT4K8Ygv/preview" width="960" height="500">
-
-</iframe>
-
-::: small-math
-[Physics-based Human Motion Estimation and Synthesis from Videos.]{.red}\
-Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.
-:::
-
-## 
-
-::::: columns
-::: {.column width="50%"}
-![](images/physics1.gif){height="300"}
-
-![](images/physics3.gif){height="300"}
-:::
-
-::: {.column width="50%"}
-![](images/physics2.gif){height="300"}
-
-![](images/physics4.gif){height="300"}
-:::
-:::::
-
-## 
-
-<iframe src="https://drive.google.com/file/d/18nc9BU2ESapwftihBZ_8QmnSTVNAPdPw/preview" width="960" height="550">
-
-</iframe>
-
-::: small-math
-[Physics-based Human Motion Estimation and Synthesis from Videos.]{.red}\
-Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.
-:::
-
-## Motion generation
-
-<iframe src="https://drive.google.com/file/d/1VEInU7_l1lUrgM3oNAN4skYl6vrgNGMn/preview" width="960" height="500">
-
-</iframe>
-
-## Today’s agenda
-
--   Extracting actions from videos
-
-    -   [Physics–based human motion estimation & prediction]{.grey-text}
-
-    -   [Hand motion estimation]{.grey-text}
-
-    -   Motion retargeting to a robot
-
--   Learning video dynamics
-
-    -   Video predictive models
-    -   Action spaces for learning from videos
-
--   Learning object affordances from video
-
-## Motion retargeting: formulating a loss function
-
-::::: columns
-::: {.column width="60%"}
-![](images/motion-retarget.png)
-:::
-
-::: {.column .small-math width="40%"}
-Motion retargeting loss function:
-
-1.  Tracking error
-2.  Respecting joint limits
-3.  Avoiding self-collisions
-4.  Respecting dynamics
-5.  Smooth motion
-
-[Issue]{.red}: source and target system have different dimensionality!
-
-[Potential fix]{.green}: need to decide joint mappings from source to target
-:::
-:::::
-
-## [Motion retargeting from human to robot hands]{.medium}
-
-![](images/robothands1.png){width="30%"} ![](images/robothands2.png){width="30%"} ![](images/robothands3.png){width="30%"}
-
-::::: columns
-::: {.column width="65%"}
-![](images/robot-cup.gif)
-:::
-
-::: {.column .small-math width="35%"}
-Motion retargeting loss terms:
-
-1.  Tracking error
-2.  Respecting target joint limits
-3.  Avoiding self-collisions in target
-4.  Respecting target dynamics
-5.  Smooth motion for target
-
-[Issue]{.red}: source and target system have different dimensionality!
-
-[Potential fix]{.green}: need to decide joint mappings from source to target
-:::
-:::::
-
-## 
-
-{{< video https://www.youtube.com/watch?v=x7OriVj7dYM?rel=0&enablejsapi=1 width="100%" height="80%" >}}
-
-## Modeling human-object interaction
-
-{{< video videos/human-object-interactions.mp4 width="900" height="500" >}}
-
-::: small-math
-[NIFTY: Neural Object Interaction Fields for Guided Human Motion Synthesis.]{.red} Kulkarni et al. 2023
-:::
-
-## 
-
-:::::: columns
-::: {.column width="50%"}
-{{< video videos/human-handpose.mp4 width="500" height="660" >}}
-:::
-
-:::: {.column .small-math width="50%"}
-::: {.absolute bottom="100"}
-Need to estimate human hand poses + unknown object geometry
-
-<br>
-
-<br>
-
-<br><br><br><br>
-
-[Learning to Imitate Object Interactions from Internet Videos.]{.red} Patel et al. 2022
-:::
-::::
-::::::
-
-##  {.center}
-
-A lot of nuance and engineering details that matter in estimating the motions of the human body, the hands, and the geometry of objects they interact with.
-
-<br>
-
-[Open questions:]{.green} Do we have to infer 3D geometry and actions from video? Do we have to do 3D perception?
-
-## Today’s agenda
+## Today’s Agenda
 
 ::: grey-text
--   Extracting actions from videos
+-   Representation Learning for Imitation
 
-    -   Physics–based human motion estimation & prediction
-
-    -   Hand motion estimation
-
-    -   Motion retargeting to a robot
+    -   Is it better to separate representation learning from policy learning?
 :::
 
--   Learning video dynamics
-    -   Video predictive models
-    -   Action spaces for learning from videos
--   Learning object affordances from video
+-   Provable generalization
 
-## Large video reconstruction models
+    -   PAC-Bayes generalization bounds
 
-![](images/video-reconstruction.png)
+-   Robustness and safety
+
+    -   Robustness as stability
+
+## PAC-Bayes generalization bounds
+
+![](images/pac-bayes.png){fig-align="center"}
 
 ::: small-math
-If you learn a good token representation for videos, then you can learn a latent dynamics model over it.
-
-Cosmos model from NVIDIA. <https://research.nvidia.com/labs/dir/cosmos-tokenizer/>
+[PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.]{.red} Majumdar et al. 2020
 :::
 
-## Large video reconstruction models
+## PAC-Bayes Bound Applied to Control
 
-::::: columns
-::: {.column width="50%"}
-<!-- {{< video videos/prev-sota.mp4 autoplay="true" >}}  -->
-
-<video data-autoplay controls src="videos/prev-sota.mp4">
-
-</video>
-
-Previous SOTA
-:::
-
-::: {.column width="50%"}
-<video data-autoplay controls src="videos/cosmos.mp4">
-
-</video>
-
-Cosmos
-:::
-:::::
+![](images/pac-bayes2.png){fig-align="center"}
 
 ::: small-math
-Cosmos model from NVIDIA. <https://research.nvidia.com/labs/dir/cosmos-tokenizer/>
+[PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.]{.red} Majumdar et al. 2020
 :::
 
-## Large video reconstruction models
+## PAC-Bayes Example
 
-::::: columns
-::: {.column width="50%"}
-<!-- {{< video videos/kitchen-prevsota.mp4 >}}  -->
-
-<video data-autoplay controls src="videos/kitchen-prevsota.mp4">
-
-</video>
-
-Previous SOTA
-:::
-
-::: {.column width="50%"}
-<video data-autoplay controls src="videos/kitchen-cosmos.mp4">
-
-</video>
-
-Cosmos
-:::
-:::::
+![](images/pac-bayes-ex.png){fig-align="center"}
 
 ::: small-math
-Cosmos model from NVIDIA. <https://research.nvidia.com/labs/dir/cosmos-tokenizer/>
+[PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.]{.red} Majumdar et al. 2020
 :::
 
-## How can we use video models in robotics?
+## [PAC-Bayes Control for Visuomotor Policies]{.medium}
 
-![](images/viper-algo.png){height="350"}
+{{< video https://www.youtube.com/watch?v=nabtvOWoIlo?rel=0&enablejsapi=1 width="100%" height="70%" >}}
 
 ::: small-math
-[Video prediction models as rewards for RL. Escontrela et al.]{.red} NeurIPS 2023.
+[Generalization Guarantees for Imitation Learning.]{.red} Ren, Veer, Majumdar. CoRL 2020.
 :::
 
-## Another idea: dynamics models with learned action spaces
+## Today’s Agenda
 
-![](images/dynamic-models.png)
+::: grey-text
+-   Representation Learning for Imitation
 
-## [Need to manually map robot actions to latent actions]{.medium}
+    -   Is it better to separate representation learning from policy learning?
 
-![](images/map-robot.gif){height="500"}
+-   Provable generalization
 
-## Genie
+    -   PAC-Bayes generalization bounds
+:::
 
-![](images/genie.png)
+-   Robustness and safety
+
+    -   Robustness as stability
+
+## What does it mean for a policy to be robust?
+
+• The system (policy, dynamics) must be such that the policy will achieve its goal point, even if a family of disturbances/noise affect it
+
+![](images/robust-policies.png){fig-align="center" height="350"}
+
+::: {.small-math .absolute bottom="30%" right="10"}
+Composition of robust policies
+
+[LQR Trees.]{.red} Tedrake, RSS 2005.
+:::
+
+## Robustness as stability of dynamical systems
+
+-   [Global asymptotic stability to a goal]{.red}: the region of attraction includes all states. The system will converge to the goal, no matter where it starts from.
+
+<br>
+
+-   How to ensure global asymptotic stability:
+    -   Show that there exists a positive energy (Lyapunov) function that
+    -   Decreases over time along the system trajectories
+    -   And will become 0 at the convergence point
+
+## Examples of Lyapunov functions
+
+\[switches to notes\]
+
+## [Two examples of learning Lyapunov functions]{.medium}
+
+![](images/lyapunov-func.png){height="300"}
+
+![](images/imitation-flow.png)
+
+## Stability via Contraction Theory
+
+{{< video https://www.youtube.com/watch?v=kmmJ6naGOfE?rel=0&enablejsapi=1 width="100%" height="65%" >}}

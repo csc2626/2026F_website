@@ -1,6 +1,6 @@
 ---
 title: "CSC2626 Imitation Learning for Robotics"
-subtitle: "Week 7: Imitation as Program Induction and Modular Decomposition of Demonstrations"
+subtitle: "Week 7: Adversarial Imitation Learning"
 author: "Florian Shkurti"
 format:
     revealjs:
@@ -26,813 +26,717 @@ html-math-method:
 
 ## Today’s agenda
 
-• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
+• Adversarial optimization for imitation learning (GAIL)
 
-• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
+• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
 
-• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
+• Model based adversarial optimization (MGAIL)
 
-• Learning to search in Task and Motion Planning (TAMP)
-
-• Generalization through imitation – using hierarchical policies
+• Multi-agent imitation learning
 
 ::: aside
 Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
+Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
 :::
 
-## Neural Programmer-Interpreters {.center}
+## Detour: solving MDPs via linear programming
 
-By Scott Reed & Nando de Freitas
+$\underset{v}{\arg\min} \quad \underset{s \in S}{\sum} d_s v_s$
+
+$\text{subject to:} \quad v_s \geq r_{s,a} + \gamma \underset{s' \in S}{\sum} T_{s,a}^{s'} v_{s'} \quad \forall s \in S, a \in A$
+
+$\qquad \qquad \quad d$ is the initial state distribution.
+
+<br><br>
+
+::: right-align
+Optimal policy
+
+$\pi^*(s) = \underset{a \in A}{\text{argmax}} Q^*(s, a)$
+:::
+
+## Detour: solving MDPs via linear programming
+
+$\underset{\mu}{\text{argmax}} \underset{s \in S, a \in A}{\sum} \mu_{s,a} r_{s,a}$
+
+$\text{subject to} \quad \underset{a \in A}{\sum} \mu_{s',a} = d_{s'} + \gamma \underset{s \in S, a \in A}{\sum} T_{s,a}^{s'} \mu_{s,a} \quad \forall s' \in S$
+
+$\qquad \qquad \quad \mu_{s,a} \geq 0$
+
+<br>
+
+::: right-align
+Discounted state action counts / occupancy measure
+
+$\mu(s,a) = \underset{t=0}{\sum}^{\infty} \gamma^t p(s_t = s, a_t = a)$
+
+Optimal policy
+
+$\pi^*(s) = \underset{a \in A}{\text{argmax}} \, \mu(s,a)$
+:::
+
+## Detour: solving MDPs via linear programming
+
+::::: columns
+::: {.column width="85%"}
+$\underset{v}{\text{argmin}} \underset{s \in S}{\sum} d_s v_s$
+
+$\text{subject to} \quad v_s \geq r_{s,a} + \gamma \underset{s' \in S}{\sum} T_{s,a}^{s'} v_{s'} \quad \forall s \in S, a \in A$
+
+$\qquad \qquad \quad d$ is the initial state distribution
+
+<br><br>
+
+$\underset{\mu}{\text{argmax}} \underset{s \in S, a \in A}{\sum} \mu_{s,a} r_{s,a}$
+
+$\text{subject to} \quad \underset{a \in A}{\sum} \mu_{s',a} = d_{s'} + \underset{s \in S, a \in A}{\sum} T_{s,a}^{s'} \mu_{s,a} \quad \forall s' \in S$
+
+$\qquad \qquad \quad \mu_{s,a} \geq 0$
+:::
+
+::: {.column width="15%"}
+Primal LP
+
+<br><br><br><br>
+
+<br>
+
+Dual LP
+:::
+:::::
+
+## Background
+
+▶ **Definitions:** Action space $\mathcal{A}$ and sample space $\mathcal{S}$. $\Pi$ is the set of all policies. Also assume $P(s'|s,a)$ is the dynamics model. In this paper, $\pi_E$ denotes the expert policy.
+
+▶ **Imitation Learning:** Learning to perform a task from expert demonstrations without querying the expert while training.
+
+▶ **Behavioral cloning:** Its success depends on large amounts of data.
+
+▶ **Inverse RL:** The paper adopts the maximum causal entropy IRL which fits a cost function $c$ with the following problem.
+
+$$\pi^* = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]$$
+
+$$\tilde{c} = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi^*}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)]$$
+
+where $H(\pi) = \mathbb{E}_\pi[-\log \pi(a|s)]$ is the entropy of the policy.
+
+## Formulation
+
+▶ We first study the policies found by RL on costs learned by IRL on the largest possible set of cost functions $\mathcal{C} = \{c : S \times A \to \mathbb{R}\}$.
+
+▶ Also need to define a convex cost function regularizer $\psi : \mathbb{R}_{S \times A} \to \mathbb{R}$, which turns out to be important in this paper.
+
+▶ Re-write the Eq. 1 as the following:
+
+$$IRL_\psi(\pi_E) = \arg \max_{c \in \mathcal{C}} -\psi(c) + (\min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)])$$
+
+$$- \mathbb{E}_{\pi_E}[c(s,a)]$$
+
+▶ Define $RL(c) = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]$.\
+Let $\tilde{c} \in IRL_\psi(\pi_E)$. We are interested in characterizing the induced policy $RL(\tilde{c})$.
+
+## Derivations
+
+▶ It is easier to characterize $RL(\tilde{c})$ if we transform optimization problems over policies into convex problems.
+
+▶ So the paper introduces an occupancy measure $\rho_\pi : S \times A \to \mathbb{R}$:
+
+$$\rho_\pi(s,a) = \pi(a|s) \sum_{t=0}^{\infty} \gamma^t P(s_t = s|\pi) \qquad (1)$$
+
+It can be interpreted as the distribution of state-action pairs when roll-out with policy $\pi$.
+
+▶ There is an **one-to-one** correspondence between policy and occupancy measure. It also allows us to re-write the expected cost as
+
+$$\mathbb{E}_\pi[c(s,a)] = \sum_{s,a} \rho_\pi(s,a)c(s,a) \qquad (2)$$
+
+## Derivations
+
+▶ **Lemma 1:** If we define
+
+$$\hat{H}(\rho) = -\sum_{s,a} \rho(s,a) \log(\rho(s,a)/\sum_{a'} \rho(s,a')) \qquad (3)$$
+
+then we have $\hat{H}(\rho) = H(\pi_\rho)$ and $H(\pi) = \hat{H}(\rho_\pi)$. So we can represent the entropy of a policy $\pi$ with the occupancy measure $\rho_\pi$.
+
+▶ **Lemma 2:** If we define,
+
+$$L(\pi, c) = -H(\pi) + \mathbb{E}_\pi[c(s,a)]$$
+
+$$\hat{L}(\rho, c) = -\hat{H}(\rho) + \sum_{s,a} \rho(s,a)c(s,a)$$
+
+then we have $L(\pi, c) = \hat{L}(\rho_\pi, c)$ and $\hat{L}(\rho, c) = L(\pi_\rho, c)$. The Lemma allows us to transform the problem from optimizing $\pi$ to $\rho$.
+
+## Convex Conjugate
+
+▶ Given a function $f$, it can be represented by the supremum of all affine functions that are majorized by $f$.
+
+▶ For any given slope $m$, there may be many different constants $b$ such that the affine function $\langle m, x \rangle - b$ is majorized by $f$. We only need the best such constant.
+
+▶ That's what the convex conjugate $f^*$ does. Given a slope $m$, $f^*$ returns the best constant $b$ such that $\langle m, x \rangle - b$ is majorized by $f$. Thus,
+
+$$f^*(m) = \sup_x \langle m, x \rangle - f(x)$$
+
+▶ Note that $f^{**} = f$.
+
+::: small-math
+There is a nice visualization of convex conjugate at <https://remilepriol.github.io/dualityviz/>
+:::
+
+## Derivations
+
+▶ By Lemma 2, if $\psi$ is a constant regularizer and $\tilde{c} \in IRL_\psi(\pi_E)$ and $\hat{\pi} \in RL(\hat{c})$, then $\rho_{\hat{\pi}} = \rho_{\pi_E}$.
+
+▶ Furthermore, we can also get the main result of the paper
+
+$$RL \circ IRL_\psi(\pi_E) = \arg \min_{\pi \in \Pi} -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E}) \qquad (4)$$
+
+where $\psi^*$ is the convex conjugate of $\psi$, which is defined as
+
+$$\psi^*(m) = \sup_{x \in \mathbb{R}^{S \times A}} m^T x - \psi(x)$$
+
+▶ It tells us that the $\psi$-regularized inverse RL seeks a policy whose occupancy measure is close to the expert's as measured by the convex function $\psi^*$.
+
+▶ A good imitation learning algorithm boils down to a good choice of the regularizer $\psi$.
+
+## Occupancy Measure Matching
+
+▶ As we showed previously, if $\psi$ is a constant, then the resulting policy would have the same occupancy measures with expert at all states and actions.
+
+▶ It is not practically useful because most of the occupancy measure of the expert values are exactly zero, due to the limited expert samples.
+
+▶ Thus, exact occupancy measure matching will force the learned policy to never visit the unseen state-action pairs.
+
+▶ If we restrict the class of cost function $\mathcal{C}$ to be convex and set the regularizer $\psi$ to be the indicator function of the set $\mathcal{C}$. Then optimization problem in (6) can be written as
+
+$$\min_\pi -H(\pi) + \max_{c \in \mathcal{C}} \mathbb{E}_\pi[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] \qquad (5)$$
+
+which is a entropy-regularized apprenticeship learning problem.
+
+## Apprenticeship Learning
+
+▶ Policy gradient method can be used to update the parameterized policy $\pi_\theta$ to optimize the apprenticeship objective, Eq. 7.
+
+$$\nabla_\theta \max_{c \in \mathcal{C}} \mathbb{E}_{\pi_\theta}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] = \nabla_\theta \mathbb{E}_{\pi_\theta}[c^*(s,a)]$$
+
+$$= \mathbb{E}_{\pi_\theta}[\nabla_\theta \log \pi_\theta(a|s) Q_{c^*}(s,a)]$$
+
+where
+
+$$c^* = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi_\theta}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] \qquad (6)$$
+
+$$Q_{c^*}(\bar{s}, \bar{a}) = \mathbb{E}_{\pi_\theta}[c^*(\bar{s}, \bar{a})|s_0 = \bar{s}, a_0 = \bar{a}] \qquad (7)$$
+
+▶ Fit $c_i^*$ as defined above. Analytical solution is feasible if $\mathcal{C}$ is restricted to Convex or Linear cost classes.
+
+▶ Given the $c_i^*$, compute the policy gradient and take a TRPO step to produce $\pi_{\theta_{i+1}}$.
+
+## GAIL
+
+▶ Apprenticeship learning via TRPO is tractable in large environments but is incapable of exactly matching occupancy measures without careful tuning due to the restrictive cost classes $\mathcal{C}$.
+
+▶ Constant regularizer $\psi$ leads to exact matching but is intractable in large environments. Thus, GAIL is proposed to combine the best of both methods.
+
+$$
+\psi_{GA}(c) \triangleq \begin{cases} 
+\mathbb{E}_{\pi_E}[g(c(s,a))] & \text{if } c < 0 \\
++\infty & \text{otherwise}
+\end{cases}
+$$
+
+where
+
+$$
+g(x) = \begin{cases}
+-x - \log(1 - e^x) & \text{if } x < 0 \\
++\infty & \text{otherwise}
+\end{cases}
+$$
+
+## GAIL
+
+▶ The GAIL regularizer $\psi_{GA}$ places low penalty on cost functions $c$ that assign an amount of negative cost to expert state-action pairs; It havily penalizes $c$ if it assigns large cost to the expert.
+
+▶ $\psi_{GA}$ is an average over expert data so it can adjust to arbitrary expert datasets.
+
+▶ In comparison, if $\psi$ is an indicator function (Apprenticeship Learning), then it's always fixed.
+
+▶ Another property of $\psi_{GA}$ is its convex conjugate $\psi_{GA}^*(\rho_\pi - \rho_{\pi_E})$ can be derived in the following form:
+
+$$\max_{D \in (0,1)^{S \times A}} \mathbb{E}_\pi[\log(D(s,a))] + \mathbb{E}_{\pi_E}[\log(1 - D(s,a))] \qquad (8)$$
+
+▶ It can be interpreted to find a discriminator that distinguishes trajectory between learned policy and expert policy. t
+
+## GAIL
+
+▶ Combining with the main result Eq. (6) in the paper,
+
+$$RL \circ IRL_\psi(\pi_E) = \arg \min_{\pi \in \Pi} -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E})$$
+
+The imitation learning problem is equivalent to find a saddle point $(\pi, D)$ of the expression
+
+$$\mathbb{E}_\pi[\log(D(s,a))] + \mathbb{E}_{\pi_E}[\log(1 - D(s,a))] - \lambda H(\pi) \qquad (9)$$
+
+▶ In terms of implementation, we just need to fit a parameterized policy $\pi_\theta$ with weights $\theta$ and a discriminator network $D_w : S \times A \to (0,1)$ with weights $w$.
+
+▶ Update $D_w$ with Adam and update $\pi_\theta$ with TRPO iteratively.
+
+## Algorithm
+
+![](images/algo.jpg){fig-align="center"}
+
+## Results
+
+![](images/results.png){fig-align="center"}
+
+## Today’s agenda
+
+::: grey-text
+• Adversarial optimization for imitation learning (GAIL)
+:::
+
+• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
+
+• Model based adversarial optimization (MGAIL)
+
+• Multi-agent imitation learning
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
+:::
+
+## InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations {.center}
+
+Presenter: Yin-Hung Chen
+
+# Motivation
+
+## GAIL
+
+A generator producing a policy 𝜋 competes with a discriminator distinguishing 𝜋 and the expert.
+
+![](images/gail-diagram.png)
+
+## Drawbacks of GAIL
+
+-   Expert demonstrations can show significant **variability**.
+
+-   The observations might have been sampled from **different experts with different skills and habits**.
+
+-   **External latent factors** of variation are not explicitly captured by GAIL, but they can significantly affect the observed behaviors.
+
+# InfoGAIL
+
+## Modified GAIL
+
+![](images/modified-gail.png)
+
+## Objective Function
+
+GAIL: $$
+\underset{\pi}{\min} \underset{𝐷\in(0,1)^{S×A}}{\max} + 𝔼_{𝜋_𝐸}  [ 𝑙𝑜𝑔(1 − 𝐷(𝑠, a))] − 𝜆𝐻(𝜋)
+$$
+
+where 𝜋 is learner policy, and $𝜋_𝐸$ is expert policy.
+
+InfoGAIL:
+
+-   Discriminator: same with GAIL
+-   Generator: simply introducing latent factor c into 𝜋 → 𝜋 𝑎 𝑠, 𝑐\
+    [However, applying GAIL to 𝜋(𝑎 \| 𝑠, 𝑐) could simply ignore c and fail to separate different expert behaviors → **adding more constraints over c**]{.orange}
+
+## Constraints over Latent Features
+
+There should be high mutual information between the latent factor c and learner trajectory τ.
+
+$$
+I(c; \tau) = \sum_{\tau} p(\tau) \sum_c p(c|\tau) \log_2 \frac{p(c|\tau)}{p(c)}
+$$
+
+Independence between c and trajectory τ:
+
+$$
+p(c|\tau) = \frac{p(c)p(\tau)}{p(\tau)}, \quad \frac{p(c|\tau)}{p(c)} = 1, \quad \log_2 \frac{p(c|\tau)}{p(c)} = 0
+$$
+
+Maximizing mutual information $I(c; \tau)$\
+→ hard to maximize directly as it requires the posterior $P(c|\tau)$\
+→ using $Q(c|\tau)$ to estimate $P(c|\tau)$ There should be high mutual information between the latent factor c and learner trajectory 𝜏.
+
+## Constraints over Latent Features
+
+Introducing the lower bound $L_I(\pi, Q)$ of $I(c; \tau)$
+
+$$
+\begin{align}
+& I(c; \tau) \\
+&= H(c) - H(c|\tau) \\
+&= \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ \mathbb{E}_{c' \sim P(c|\tau)} [log P(c'|\tau)] \right] + H(c) \\
+&= \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ D_{KL}(P(\cdot|\tau) \| Q(\cdot|\tau)) + \mathbb{E}_{c' \sim P(c|\tau)} [log Q(c'|\tau)] \right] + H(c) \\
+&\geq \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ \mathbb{E}_{c' \sim P(c|\tau)} [log Q(c'|\tau)] \right] + H(c) \\
+&= \mathbb{E}_{c \sim P(c), a \sim \pi(\cdot|s,c)} [log Q(c|\tau)] + H(c) \\
+&= L_I(\pi, Q)
+\end{align}
+$$
+
+## Constraints over Latent Features
+
+There should be high mutual information between the latent factor c and learner trajectory 𝜏.
+
+<br>
+
+Maximizing mutual information 𝐼(𝑐; 𝜏)\
+→ hard to maximize directly as it requires the posterior 𝑃(𝑐\|𝜏)\
+→ using 𝑄(𝑐\|𝜏) to estimate 𝑃(𝑐\|𝜏)
+
+<br>
+
+Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound 𝐿𝐼(𝜋, 𝑄)
+
+## Objective Function
+
+GAIL:
+
+$$
+\min_\pi \max_{D \in (0,1)^{S \times A}} \mathbb{E}_\pi [log D(s, a)] + \mathbb{E}_{\pi_E} [log(1 - D(s, a))] - \lambda H(\pi)
+$$
+
+where $\pi$ is learner policy, and $\pi_E$ is expert policy.
+
+<br>
+
+InfoGAIL:
+
+$$
+\min_{\pi,Q} \max_D \mathbb{E}_\pi [log D(s, a)] + \mathbb{E}_{\pi_E} [log(1 - D(s, a))] - \lambda_1 L_I(\pi, Q) - \lambda_2 H(\pi)
+$$
+
+$\qquad \qquad \qquad \qquad \qquad \qquad$ where $\lambda_1 > 0$ and $\lambda_2 > 0$.
+
+## InfoGAIL
+
+![](images/infogail.png)
+
+## 
+
+![](images/algo-infogail.png)
+
+# Additional Optimization
+
+## Improved Optimization
+
+The traditional GAN objective suffers from vanishing gradient and mode collapse problems.\
+Vanishing gradient
+
+::::: columns
+::: {.column width="40%"}
+$$
+\frac{\partial C}{\partial b_1} = \frac{\partial C}{\partial y_3} \frac{\partial y_3}{\partial z_3} \frac{\partial z_3}{\partial x_3} \frac{\partial x_3}{\partial z_2} \frac{\partial z_2}{\partial x_2} \frac{\partial x_2}{\partial z_1} \frac{\partial z_1}{\partial b_1}
+$$
+
+$$
+= \frac{\partial C}{\partial y_{3}} \sigma'(z_{3}) w_{3} \sigma'(z_{2}) w_{2} \sigma'(z_{1})
+$$
+
+![](images/improved-opt.png)
+:::
+
+::: {.column width="60%"}
+![](images/sigmold-func.png){fig-align="right"}
+:::
+:::::
+
+## Improved Optimization
+
+The traditional GAN objective suffers from vanishing gradient and mode collapse problems.
+
+<br>
+
+Mode collapse: generator tends to produce the same type of data → generator yields the same G(z) for different z
+
+## Improved Optimization
+
+The traditional GAN objective suffers from vanishing gradient and mode collapse problems.
+
+→ using the Wasserstein GAN (WGAN)
+
+$$
+\min_{\theta, \psi} \max_{\omega} \mathbb{E}_{\pi_\theta}[D_\omega(s, a)] - \mathbb{E}_{\pi_E}[D_\omega(s, a)] - \lambda_0 \eta(\pi_\theta) - \lambda_1 L_I(\pi_\theta, Q_\psi) - \lambda_2 H(\pi_\theta)
+$$
+
+## 
+
+![](images/infogail-algo2.png)
+
+# Experiments
+
+## Learning to Distinguish Trajectories
+
+-   The observations at time t are positions from t − 4 to t.
+-   The latent code is a one-hot encoded vector with 3 dimensions and a uniform prior.
+
+![](images/trajectory-observation.png)
+
+## Self-driving car in the TORCS Environment
+
+• The demonstrations collected by manually driving
+
+• Three-dimensional continuous action composed of steering, acceleration,and *braking*
+
+• Raw visual inputs as the only external inputs for the state
+
+• Auxiliary information as internal input, including velocity at time t, actions at time t − 1 and t − 2, and damage of the car
+
+• Pre-trained ResNet on ImageNet
+
+![](images/self-drivingcar.png){fig-align="right"}
+
+## 
+
+![](images/torcs-env.png)
+
+## Performance
+
+**Turn**
+
+\[0, 1\] corresponds to using the inside lane (blue lines), while \[1, 0\] corresponds to the outside lane (red lines).
+
+![](images/perf1.png)
+
+## Performance
+
+**Pass**
+
+\[0, 1\] corresponds to passing from right (red lines), while \[1, 0\] corresponds to passing from left (blue lines).
+
+![](images/perf2.png)
+
+::: vertical-align
+infoGAIL
+
+GAIL
+:::
+
+## Performance
+
+• Classification accuracies of 𝑄(𝑐\|𝜏)
+
+• Reward augmentation encouraging the car to drive faster
+
+![](images/perf-table.png)
+
+## 
+
+{{< video https://www.youtube.com/watch?v=YtNPBAW6h5k?rel=0&enablejsapi=1 width="80%" height="60%" >}}
+
+[<https://www.youtube.com/watch?v=YtNPBAW6h5k>]{.small-math}
+
+## Today’s agenda
+
+::: grey-text
+• Adversarial optimization for imitation learning (GAIL)
+
+• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
+:::
+
+• Model based adversarial optimization (MGAIL)
+
+• Multi-agent imitation learning
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
+:::
+
+## Model-based Adversarial Imitation Learning {.center}
+
+Nir Baram, Oron Anschel, Shie Mannor
+
+Presented by Yuwen Xiong, Mar 1 st
+
+## Recap: GAIL algorithm
+
+$$
+\underset{\pi}{\text{argmin}} \quad \underset{D \in (0,1)}{\text{argmax}} \mathbb{E}_{\pi}[\log D(s, a)] + \mathbb{E}_{\pi_E}[\log(1 - D(s, a))] - \lambda H(\pi)
+$$
+
+-   We use Adam to optimize the discriminator and use TRPO to optimize the policy
+-   The optimization of the discriminator can be done by using backpropagation, but this is not the case for the optimization of the policy
+-   $\pi$ affects the data distribution but do not appear in the objective itself
+-   We use these two equations to get gradient estimation for $\pi_{\theta}$
+
+$$
+\nabla_{\theta} \mathbb{E}_{\pi}[\log D(s, a)] \cong \mathbb{\hat{E}}_{\tau_i}[\nabla_{\theta} \log \pi_{\theta}(a|s) Q(s, a)]
+$$
+
+$$Q(\hat{s}, \hat{a}) = \mathbb{\hat{E}}_{\tau_i}[\log D(s, a) \mid s_0 = \hat{s}, a_0 = \hat{a}]$$
 
 ## Motivation
 
-Neural Programmer-Interpreters (NPI) is an attempt to use **neural methods** to train machines to carry out simple tasks based on a **small amount of training data**.
+-   A model-free approach like GAIL has its limitations
+    -   The generative model can no longer be trained by simply backpropagating the gradient from the loss function defined over the discriminator
+    -   Has to resort to high-variance gradient estimations
 
-## Recurrent neural network (RNN)
+. . .
 
-![](images/rnn.png)
+<br>
 
-• RNN is a neural network with feedback
+-   If we have a model-based version of adversarial imitation learning
+    -   The system can be easily trained end-to-end using regular backpropagation
+    -   The policy gradient can be derived directly from the gradient of the discriminator
+    -   Policies can be more robust and training requires fewer interactions with the environment
 
-• Hidden state is to capture history information and current state of the network
+## Algorithm - overview
 
-## Long Short Term Memory (LSTM)
+:::::: columns
+:::: {.column width="70%"}
+The model-free approach treats the state s as fixed and only tries to optimize the behavior.
 
-::::: columns
-::: {.column width="50%"}
-![](images/lstm.png)
-:::
+::: fragment
+Instead, we treat s as a function of the policy: $$s' = f(s, a)$$
 
-::: {.column width="50%"}
-<br><br>
-
-• LSTM is a special kind of RNN
-
-• Gates are used to control information flow. Just like a valve
-:::
-:::::
-
-## Model
-
-• The NPI core is a LSTM network that learns to represent and execute programs given their execution traces
-
-![](images/traces.png)
-
-## NPI core module
-
-![](images/npi-inference.png)
-
-## Algorithm - inference
-
-![](images/algo-inference.png)
-
-[Line 3]{.red}: $𝑀^{𝑝𝑟𝑜𝑔}$ and $𝑀^{𝑘𝑒𝑦}$ are memory banks to store program embeddings and program keys
-
-## Algorithm - inference
-
-![](images/algo-inference2.png)
-
-[Line 7]{.red}: $(𝑀_{𝑗,}^{𝑘𝑒𝑦})^{𝑇}𝑘$ is directly measurement for cosine similarity
-
-## Algorithm - inference
-
-![](images/algo-inference3.png)
-
-::: small-math
-[(1)]{.red}: $𝑀^{𝑝𝑟𝑜𝑔}$ and $𝑀^{𝑘𝑒𝑦}$ are memory storing program embeddings and program keys
-
-[(2)]{.red}: $𝑓_{𝑒𝑛𝑐}$ is a domain-specific encoder (for different tasks, have different encoders)
-
-[(3)]{.red}: $𝑓_{𝑒𝑛𝑑}$ is to calculate the probability of finishing the program
-
-[(4)]{.red}: $𝑓_{𝑝𝑟𝑜𝑔}$ is to retrieve the next program key from memory
-
-[(5)]{.red}: $𝑓_{𝑎𝑟𝑔}$ is to return the next program’s arguments
-
-[(6)]{.red}: $(𝑀_{𝑗,}^{𝑘𝑒𝑦})^{𝑇}𝑘$ is to measure cosine similarity
-
-[(7)]{.red}: $𝑓_{env}$ is a domain-specific transition mapping
-:::
-
-## Training
-
-Directly maximize the probability of the correct execution trace output $𝞷^{𝑜𝑢𝑡}$ conditioned on $𝞷^{𝑖𝑛𝑝}$:
+So that, by using the law of total derivative we can get:
 
 $$
-𝜃^∗ = 𝑎𝑟𝑔 \underset{𝜃}{max} \sum_{(𝞷^{𝑖𝑛𝑝}, 𝞷^{𝑜𝑢𝑡})} 𝑙𝑜𝑔𝑃(𝞷^{𝑜𝑢𝑡}|𝞷^{𝑖𝑛𝑝}, 𝜃)
+\begin{align}
+\left.\nabla_{\theta} D(s_t, a_t)\right|_{s=s_t, a=a_t} &= \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \left.\frac{\partial D}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_t} \\
+&= \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \frac{\partial D}{\partial s} \left(\left.\frac{\partial f}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_{t-1}} + \left.\frac{\partial f}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_{t-1}}\right)
+\end{align}
+$$
+:::
+::::
+
+::: {.column width="30%"}
+![](images/algo-diagram.png){height="300"}
+:::
+::::::
+
+## Algorithm - preparation
+
+First, we know that $D(s, a) = p(y|s, a)$, where $y = \{\pi_E, \pi\}$
+
+. . .
+
+By using Bayes rule and the law of total probability we can get:
+
+$$D(s, a) = p(\pi|s, a) = \frac{p(s, a|\pi)p(\pi)}{p(s, a)}$$
+
+$$\qquad \qquad \qquad = \frac{p(s, a|\pi)p(\pi)}{p(s, a|\pi)p(\pi) + p(s, a|\pi_E)p(\pi_E)}$$
+
+. . .
+
+$$\qquad = \frac{p(s, a|\pi)}{p(s, a|\pi) + p(s, a|\pi_E)}$$
+
+## Algorithm - preparation
+
+Re-writing it as following:
+
+$$
+D(s, a) = \frac{1}{\frac{p(s,a|\pi)+p(s,a|\pi_E)}{p(s,a|\pi)}} = \frac{1}{1 + \frac{p(s,a|\pi_E)}{p(s,a|\pi)}} = \frac{1}{1 + \frac{p(a|s,\pi_E)}{p(a|s,\pi)} \cdot \frac{p(s|\pi_E)}{p(s|\pi)}}$$
+
+. . .
+
+Let $\varphi(s, a) = \frac{p(a|s,\pi_E)}{p(a|s,\pi)}$ and $\psi(s) = \frac{p(s|\pi_E)}{p(s|\pi)}$, we can get:
+
+$$
+D(s, a) = \frac{1}{1 + \varphi(s, a) \cdot \psi(s)}
 $$
 
-Then we can just run gradient ascent to optimize it
+## Algorithm - preparation
 
-## Tasks
+Here $\varphi(s, a) = \frac{p(a|s,\pi_E)}{p(a|s,\pi)}$ stands for policy likelihood ratio
 
-• Addition
+And $\psi(s) = \frac{p(s|\pi_E)}{p(s|\pi)}$ stands for state distribution likelihood ratio
 
-[• Teach the model the standard grade school algorithm of adding 2 base-10 numbers]{.small-math}
+. . .
 
-• Sorting
+By using differentiation rule we can easily get:
 
-[• Teach the model bubble sorting to sort an array of numbers in ascending order]{.small-math}
+$$
+\nabla_a D = -\frac{\varphi_a(s, a)\psi(s)}{(1 + \varphi(s, a)\psi(s))^2}
+$$
 
-• Canonicalizing 3D models
+$$
+\nabla_s D = -\frac{\varphi_s(s, a)\psi(s) + \varphi(s, a)\psi_s(s)}{(1 + \varphi(s, a)\psi(s))^2}
+$$
 
-[• Teach the model to generate a trajectory of actions that delivers the camera to the target view, e.g, frontal pose at a 15° elevation]{.small-math}
+. . .
 
-## Adding numbers together
+Recall what we need: $\left.\nabla_\theta D(s_t, a_t)\right|_{s=s_t,a=a_t} = \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \left.\frac{\partial D}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_t}$
 
-![](images/add-numbers.png)
+## Algorithm - re-parameterization of distribution
 
-## Addition demo
+Assuming the policy is given by
 
-![](images/add-demo.gif)
+$$
+\pi_\theta(a|s) = \mathcal{N}(a|\mu_\theta(s), \sigma_\theta^2(s))
+$$
 
-## Bubble sort
+. . .
 
-![](images/bubble-sort.png)
+We can rewrite it to
 
-## Sorting demo
+$$
+\pi_\theta(a|s) = \mu_\theta(s) + \xi\sigma_\theta(s), \text{ where } \xi \sim \mathcal{N}(0, 1)
+$$
 
-![](images/sort-demo.gif)
+. . .
 
-## Canonicalizing 3D models
+So that we can get a Monte-Carlo estimator of the derivative
 
-![](images/3dmodels.png)
+$$
+\begin{align}
+\nabla_\theta \mathbb{E}_\pi(a|s) D(s, a) &= \mathbb{E}_{\rho(\xi)} \nabla_a D(a, s) \nabla_\theta \pi_\theta(a|s) \\
+& \cong \frac{1}{M} \sum_{i=1}^M \left.\nabla_a D(s, a) \nabla_\theta \pi_\theta(a|s)\right|_{\xi=\xi_i}
+\end{align}
+$$
 
-## Canonicalizing demo
+## Algorithm
 
-![](images/canonical-demo.gif)
+![](images/algo-model-diagram.png)
+
+## Algorithm
+
+To maximize the reward function, we can view reward as $r(s, a) = -D(s, a)$, and then maximizing the total reward is equivalent to minimizing the total discriminator beliefs along a trajectory.
+
+. . .
+
+So that we can define: $$
+J(\theta) = \mathbb{E} \left[ \sum_{t=0} \gamma^t D(s_t, a_t) \mid \theta \right]
+$$
+
+And write down the derivatives: (this follows SVG paper \[Heess et al. 2015\]) $$
+J_s = \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\mid s,a,s')} 
+\left[ D_s + D_a\pi_s + \gamma J'_{s'}(f_s + f_a\pi_s) 
+\right] 
+$$
+
+$$
+J_\theta =  \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\mid s,a,s')}
+[D_a\pi_\theta +  \gamma(J'_{s'}f_a\pi_\theta + J'_\theta)]
+$$
+
+## Algorithm
+
+![](images/algo1.png)
 
 ## Experiments
 
-<br>
-
-• Data Efficiency
-
-• Generalization
-
-• Learning new programs with a fixed NPI cores
-
-## Data Efficiency - Sorting
-
-<br>
-
-::::: columns
-::: {.column width="50%"}
-![](images/data-sort.png)
-:::
-
-::: {.column width="50%"}
-• Seq2Seq LSTM and NPI used the same number of layers and hidden units.
-
-• Trained on length up to 20 arrays of single-digit numbers.
-
-• NPI benefits from mining multiple subprogram examples per sorting instance, and additional parameters of the program memory.
-:::
-:::::
-
-## Generalization - Sorting
-
-<br>
-
-::::: columns
-::: {.column width="50%"}
-![](images/gen-sort.png)
-:::
-
-::: {.column width="50%"}
-• For each length **up to 20**, they provided 64 example bubble sort traces, for a total of 1216 examples.
-
-• Then, they evaluated whether the network can learn to sort arrays beyond length 20
-:::
-:::::
-
-## Generalization - Adding
-
-<br>
-
-::::: columns
-::: {.column width="50%"}
-![](images/add-sort.png)
-:::
-
-::: {.column width="50%"}
-• NPI trained on **32 examples** for sequence **length up to 20**
-
-• s2s-easy trained on **twice** as many examples as NPI (purple curve)
-
-• s2s-stack trained on **16 times** more examples than NPI (orange curve)
-:::
-:::::
-
-## Generalization - Adding
-
-<br>
-
-::::: columns
-::: {.column width="50%"}
-![](images/npi-demo.png)
-:::
-
-::: {.column width="50%"}
-• NPI trained on **32 examples** for sequence **length up to 20**
-
-• s2s-easy trained on **twice** as many examples as NPI (purple curve)
-
-• s2s-stack trained on **16 times** more examples than NPI (orange curve)
-:::
-:::::
-
-## Learning New Programs with a Fixed NPI Core
-
-• Toy example: maximum-finding in an array
-
-• Simple (not optimal) way: call BUBBLESORT and then take the right-most element of the array. Two new programs:
-
-• **RJMP**: Move all pointers to the rightmost position in the array by repeatedly calling RSHIFT program
-
-• **MAX**: Call BUBBLESORT and then RJMP
-
-• Expand program memory by adding 2 slots. Then learn by backpropagation with the NPI core and all other parameters fixed.
-
-## Learning New Programs with a Fixed NPI Core
-
-![](images/rjmp-max.png){fig-align="center" height="240"}
-
-::: {.red-annotation .absolute right="0" bottom="50%"}
-Only the memory slots of\
-the new program are updated!\
-All other weights are\
-fixed!
-:::
-
-Protocol:
-
-• Randomly initialize new program vectors in memory
-
-• Freeze core and other program vectors
-
-• Backpropagate gradients to new program vectors
-
-## Quantitative Results
-
-![](images/quantitative-table.png){fig-align="center" height="240"}
-
-• Numbers are per-sequence % accuracy
-
-• + Max: indicates performance after addition of MAX program to memory
-
-• “unseen” uses a test set with disjoint car models from the training set
+![](images/experiments.png)
 
 ## Today’s agenda
 
 ::: grey-text
-• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
+• Adversarial optimization for imitation learning (GAIL)
+
+• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
+
+• Model based adversarial optimization (MGAIL)
 :::
 
-• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
-
-• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
-
-• Learning to search in Task and Motion Planning (TAMP)
-
-• Generalization through imitation – using hierarchical policies
+• Multi-agent imitation learning
 
 ::: aside
 Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
+Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
 :::
-
-## Neural Task Programming: Learning to Generalize Across Hierarchical Tasks {.center}
-
-Danfei Xu, Suraj Nair, Yuke Zhu, Julian Gao, Animesh Garg, Li Fei-Fei, Silvio Savarese
-
-Presented by Angran Li\
-February 8, 2019
-
-## How the Algorithm works?
-
-![](images/how-algo-works.png)
-
--   Task Demonstration: state trajectory, first/third-person video demonstrations, or a list of language instructions.
--   Task-Conditional Policy: a neural program.
--   Using callable primitive actions to interact with the environment.
-
-## How the Algorithm works?
-
-![](images/how-algo-works2.png){fig-align="center"}
-
-Top-level program block_stacking is recursively decomposed to bottom-level API move_to and grip.
-
-## Goals
-
-Learning to Generalize Across Hierarchical Tasks
-
--   Generalizing the learned policies to new task objectives
-    -   Task Length: more objects to transport
-    -   Task Semantics: a different goal
-    -   Task Topology: a different trajectory to the same goal
--   Hierarchical composition of primitive actions
-    -   Modularization and reusability
-    -   Learn the latent structure in complex tasks, instead of fake dependencies
-
-## Implementation: Neural Task Programming
-
-![](images/neural-task-programming.png){fig-align="center"}
-
--   Observation Encoder: observation $o_i \Rightarrow$ state representation $s_i$
--   Task Spec. Interpreter: $\Rightarrow$ API arguments $a_i$ or task spec. $\psi_{i+1}$
--   Task Spec. Encoder: task spec. $\psi_i \Rightarrow$ vector space $\phi_i$
--   Core Network: $s_i, P_i, \phi_i \Rightarrow P_{i+1}, r_i$
-
-## Implementation: Standing on the shoulder of NPI
-
-Neural Task Programming combines the idea of **Few-Shot Learning from Demonstration** and **Neural Programmer-Interpreters**.
-
--   Similarities when executing a program:
-    -   When the EOP probability exceeds a threshold $\alpha$, control is returned to the caller program;
-    -   When the program is not primitive, a sub-program with its arguments is called;
-    -   When the program is primitive, a low-level basic action is performed.
--   Two similar modules:
-    -   Domain-specific task encoders that map an observation to a state representation.
-    -   A key-value memory that stores and retrieves program embeddings.
-
-## Implementation: NTP vs NPI
-
--   **NPI**: one-shot generalization to tasks with longer lengths; can't generalizing to novel programs without training.
--   **NTP**: generalizes to sub-task permutations (topology) and success conditions (semantics).
--   Three main **differences** of NTP than the original NPI:
-    -   NTP can interpret task specifications and perform hierarchical decomposition and thus can be considered as a **meta-policy**;
-    -   It uses robot **APl**s as the primitive actions to scale up neural programs for complex tasks;
-    -   It uses a **reactive core network** instead of a **recurrent network**, making the model less history-dependent, enabling feedback control for recovery from failures.
-
-## Model Training
-
--   The model is trained using rich supervision from program execution traces $\{\xi_t| \xi_t = (\Psi_t, p_t, s_t), t = 1 \ldots T\}$.
-
--   The training objective is to maximize the probability of the correct executions over all the tasks in the dataset $D = \{(\xi_t, \xi_{t+1})\}$.
-
--   For each task specification, the ground-truth hierarchical decomposition is provided by the expert policy, which is an agent with hard-coded rules.
-
-## Experiments: Setup
-
-![](images/experiments-setup.png){fig-align="center"}
-
--   Generalization in 3 variations: semantics, topology, and length.
--   Using image-based input without access to ground truth state.
--   Working in real-world tasks combine these variations.
-
-→ Three tasks: Object Sorting, Block Stacking, and Table Clean-up
-
-## Experiments: Object Sorting
-
-![](images/object-sorting.png){fig-align="center"}
-
--   **Flat**: non-hierarchical model, directly predicts the primitive APls instead of calling hierarchical programs.
-
--   **GRU**: Gated Recurrent Unit.
-
-## Experiments: Block Stacking
-
-![](images/block-stacking.png){fig-align="center"}
-
--   **NTPVID(E2E)**: Trained with only visual information.
--   **NTP(Full State)**: Trained with ground-truth hierarchical decomposition.
-
-## Experiments: Table Clean-up
-
-![](images/table-cleanup.png){fig-align="center"}
-
--   Sort plastic bowls and forks into a stack, so they can be steadily carried away.
-
--   Task variations:
-
-    -   Task length: number of bowls and forks varies.
-    -   Task topology: the ordering in which bowls are stacked varies.
-
-## Discussion & Future Work
-
--   **Neural Task Programming**:
-    -   A meta-learning framework that learns modular and reusable neural programs for hierarchical tasks.
-    -   Generalizing well towards the variation of task length, semantics, and topology for complex tasks.
--   **Future work**:
-    -   Improve the state encoder to extract more task-salient information such as object relationships;
-    -   Devise a richer set of APls such as velocity and torque-based controllers;
-    -   Extend this framework to tackle more complex tasks on real robots.
-
-## 
-
-<!-- {{< video https://www.youtube.com/watch?v=YWkBRPnGUqA?rel=0&enablejsapi=1 width="100%" height="80%" >}} -->
-
-<iframe data-external="1" src="https://www.youtube.com/embed/YWkBRPnGUqA?rel=0&amp;enablejsapi=1" width="100%" height="80%">
-
-</iframe>
-
-[<https://www.youtube.com/watch?v=YWkBRPnGUqA>]{.tiny-font}
-
-## Questions? {.center}
-
-## Today’s agenda
-
-::: grey-text
-• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
-
-• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
-:::
-
-• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
-
-• Learning to search in Task and Motion Planning (TAMP)
-
-• Generalization through imitation – using hierarchical policies
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
-:::
-
-## TACO: Learning Task Decomposition via Temporal Alignment for Control {.center}
-
-Kyriacos Shiarlis, Markus Wulfmeier, Sasha Salter, Shimon Whiteson, Ingmar Posner
-
-## Motivation – Block Stacking Task
-
-::::: columns
-::: {.column width="50%"}
-![](images/block-stack.png)
-:::
-
-::: {.column width="50%"}
-<br>
-
--   Complex tasks can often be broken down into simpler sub-tasks
-
--   Most Learning from Demonstration (LfD) algorithms can only learn a single policy for the whole task
-
--   Resulting in more complex policies, and also less reusable
-:::
-:::::
-
-## Modular LfD
-
-<br>
-
--   Modelling the task as a composition of sub-tasks
-
--   Reusable sub-policies (modules) are learned for each sub-task.
-
--   Sub-policies are easier to learn and can be composed in different ways to execute new tasks.
-
-Key approach: provide the learner with additional information about the demonstration
-
-## TACO: Temporal Alignment for Control
-
--   Partly supervised
--   Domain agnostic
--   Demonstration is augmented by [task sketches - a sequence of sub-tasks that occur within the demonstration]{.red}
-
-$$
-𝛕 = (b1, b2, . . . , bL),
-$$
-
--   Simultaneously aligns the sketches with the observed demonstrations and learns the required sub-policies
-
-## Example: Block stacking task
-
-![](images/block-stack-ex.png){fig-align="center"}
-
-## Problem
-
-<br>
-
-How to align task-sketches with the demonstration?
-
-Solution: Borrow temporal sequence alignment techniques from speech recognition!
-
-## TACO: Temporal Alignment for Control
-
-::::: columns
-::: {.column width="60%"}
-<br>
-
-𝛕 = (b1, b2, . . . , bL),
-
-Input sequence ρ with length T
-
-A path $ζ = (ζ_1, ζ_2, ..., ζ_T )$ is a sequence of sub- tasks of the same length as the input sequence ρ, describing the active sub-task $ζ_t$ at every time-step
-
-$Z_{T,𝛕}$ is the set of all possible paths of length T for a task sketch 𝛕
-
-Eg. T = 6, 𝛕 = (b1, b2, b3), ζ = (b1, b1, b2, b3, b3, b3)
-:::
-
-::: {.column width="40%"}
-![](images/taco.png)
-:::
-:::::
-
-## TACO: Temporal Alignment for Control
-
-Objective: Maximise the joint log likelihood of the task sequence and the actions conditioned on the states
-
-$$
-p(\tau, \mathbf{a}_\rho \mid s_\rho) = \sum_{\zeta \in \mathbb{Z}_{T, \tau}} p(\zeta \mid s_\rho) \prod_{t=1}^{T} \pi_{\theta_{\zeta_t}} (a_t \mid s_t)
-$$
-
-$p(ζ |s_ρ)$ is the product of the stop, $a_{STOP}$ , and nonstop, $ā_{STOP}$, probabilities associated with any given path.
-
-Eg. T = 4, $s_⍴ = (s_0, s_1, s_2, s_3)$, 𝛕 = (b1, b2), ζ = (b1, b1, b2, b2)
-
-$p(ζ |sρ) = π_{b1}(non-stop)^* π_{b1}(stop)^* π_{b2}(non-stop)^* π_{b2}(stop)$
-
-## TACO: Temporal Alignment for Control
-
-Problem: Impossible to compute all paths ζ in $Z_{T,tau}$ for long sequence
-
-Solution: Dynamic Programming
-
-The (joint) likelihood of a being at sub-task l at time t can be formulated in terms of **forward variables**:
-
-$$
-\alpha_t(l) := \sum_{\zeta_{1:t} \in \mathbb{Z}_t, \tau_{1:l}} p(\zeta \mid s_\rho) \prod_{t' = 1}^{t} \pi_{\theta_{\zeta_{t'}}}(a_{t'} \mid s_{t'})
-$$
-
-## TACO: Temporal Alignment for Control
-
-::::: columns
-::: {.column .small-math width="50%"}
-<br>
-
-$\alpha_1(l) = \begin{cases}
-\pi_{\theta_{b_1}}(a_1|s_1), & \text{if } l = 1, \\
-0, & \text{otherwise}.
-\end{cases}$
-
-$\alpha_t(l) = \pi_{\theta_{b_l}}(a_t|s_t) \left[ \alpha_{t-1}(l-1) \pi_{\theta_{b_{l-1}}}(a_{STOP}|s_t) \right.$
-
-$\left. + \alpha_{t-1}(l)(1 - \pi_{\theta_{b_l}}(a_{STOP}|s_t)) \right].$
-
-<br>
-
-$\alpha_T(L) = p(\tau, \mathbf{a}_\rho|\mathbf{s}_\rho).$
-:::
-
-::: {.column width="50%"}
-![](images/taco-alignment.png)
-:::
-:::::
-
-Training: Maximize $⍺_T(L)$ over θ
-
-## Experiments: Nav-World
-
-::::: columns
-::: {.column width="50%"}
-Setup:
-
--   The agent (blue) receives a route as a task sketch.
--   𝛕 = (black, green, yellow, red)
--   State space: (x, y) distance from each of the destination points
--   Action space: $(v_x, v_y)$ - the velocity
-
-Training:
-
--   Provided with state-action trajectories ⍴ and the task sketch.
--   At the end of learning, the agent learns four sub-policies
-:::
-
-::: {.column width="50%"}
-![](images/nav-world.png)
-
-<br><br>
-
-Test:
-
--   Given an unseen task sketch.
--   Considered successful if the agent visits all destinations in the correct order
-:::
-:::::
-
-## Experiments: Nav-World
-
-::::: columns
-::: {.column width="50%"}
-![Success Rate](images/nav-world-success.png)
-:::
-
-::: {.column width="50%"}
-![Alignment Accuracy](images/nav-world-alignment.png)
-:::
-:::::
-
-## Experiments: Dial Domain
-
-::::: columns
-::: {.column width="50%"}
-![](images/dial-domain.png)
-:::
-
-::: {.column width="50%"}
-![](images/dial-domain-graph.png)
-:::
-:::::
-
-## Summary: TACO - Temporal Alignment for Control
-
--   Modular LfD
-
--   Weak supervision - task sketch
-
--   Optimising the sub-policies over a distribution of possible alignments
-
-## Future Work & Limitation
-
-Limitation:
-
--   Sub-tasks in the task sketch has to be placed in the correct order
-
-<br>
-
-Future work:
-
--   Task sketches are dissimilar to natural human communication. Combination of TACO with architectures that can handle natural language.
-
--   Hierarchical task decomposition.
-
-## Today’s agenda
-
-::: grey-text
-• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
-
-• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
-
-• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
-:::
-
-• Learning to search in Task and Motion Planning (TAMP)
-
-• Generalization through imitation – using hierarchical policies
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
-:::
-
-## Task and Motion Planning
-
-::::: columns
-::: {.column width="50%"}
-![](images/task-motion-planning.png)
-:::
-
-::: {.column width="50%"}
-[Goal]{.underline}: move [green box]{.green} and [blue box]{.blue-text} on the goal surface
-
-[Problem]{.underline}: [grey box]{.grey-text} is obstructing
-
-[Task plan]{.underline}:
-
-1.  move [grey box]{.grey-text} where it doesn’t obstruct
-2.  move [blue box]{.blue-text} on goal surface
-3.  move [green box]{.green} on goal surface
-:::
-:::::
-
-## Task and Motion Planning
-
-::::: columns
-::: {.column .red-annotation width="50%"}
-![](images/task-motion-planning.png)
-
-Discrete action space: 3 objects x 4 operations\
-Continuous action space: 5 joint angles on the robot arm x T timesteps
-:::
-
-::: {.column width="50%"}
-find-grasp(b, hand)
-
-place(b, hand, sur face)
-
-find-traj(hand, goal)
-
-collides(arm, b, objects)
-
-<br>
-
-$b \in \{b_0, b_1, b_2 \}$
-:::
-:::::
-
-## Task and Motion Planning
-
-::::: columns
-::: {.column .red-annotation width="50%"}
-![](images/task-motion-planning.png)
-
-Discrete action space: M objects x N operations\
-Continuous action space: 5 joint angles on the robot arm x T timesteps
-:::
-
-::: {.column width="50%"}
-find-grasp(b, hand)
-
-place(b, hand, sur face)
-
-find-traj(hand, goal)
-
-collides(arm, b, objects)
-
-pour(b, b')
-
-stir(b)
-
-shake(b)
-
-.\
-.\
-.
-:::
-:::::
-
-## Task and Motion Planning
-
-::::: columns
-::: {.column .red-annotation width="50%"}
-![](images/task-motion-planning.png)
-
-Discrete action space: M objects x N operations\
-Continuous action space: 5 joint angles on the robot arm x T timesteps
-:::
-
-::: {.column .small-math width="50%"}
-Discrete + Continuous Optimization
-
-![](images/task-motion-graph.png){height="250"}
-
-Expanding 1 and 2 requires solving continuous optimization problems with constraints
-:::
-:::::
-
-## 
-
-Solubility experiment
-
-{{< video https://www.youtube.com/watch?v=NjpZmaKQWls?rel=0&enablejsapi=1 width="80%" height="60%" >}}
-
-[<https://www.youtube.com/watch?v=NjpZmaKQWls>]{.tiny-font}
-
-## [Constrained Motion Planner to Avoid Spilling]{.medium}
-
-{{< video https://www.youtube.com/watch?v=NjpZmaKQWls?rel=0&enablejsapi=1 width="80%" height="60%" >}}
-
-[<https://www.youtube.com/watch?v=NjpZmaKQWls>]{.tiny-font}
-
-##  {.center}
-
-These plans are useful, but unfortunately discrete + continuous optimization is [slow]{.red}
-
-Q: How can we [learn to plan]{.red} from past experience of having solved similar problems?
-
-## [Learning to Rank Objects and Operations from Past Experience]{.medium}
-
-![](images/rank-obj1.png){fig-align="center"}
-
-## [Learning to Rank Objects and Operations from Past Experience]{.medium}
-
-![](images/rank-obj2.png){fig-align="center"}
-
-## 
-
-{{< video https://www.youtube.com/watch?v=pzzpR4wh_Zk&t=15s?enablejsapi=1&rel=0 width="100%" height="80%" >}}
-
-[<https://www.youtube.com/watch?v=pzzpR4wh_Zk&t=15s>]{.tiny-font}
-
-## Learned (Informed) Planner Finds Solutions Faster
-
-![](images/learned-planner.png)
-
-[\*Learning to Search in Task and Motion Planning with Streams, Khodeir et al, Robotics and Automation Letters. 2022]{.tiny-font}
-
-## Today’s agenda
-
-::: grey-text
-• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
-
-• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
-
-• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
-
-• Learning to search in Task and Motion Planning (TAMP)
-:::
-
-• Generalization through imitation – using hierarchical policies\
-[source: <https://www.youtube.com/watch?v=hlvRmLlYHZ0&t=111s&ab_channel=RoboticsScienceandSystems>]{.tiny-font}
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
-:::
-
-## 
-
-{{< video https://www.youtube.com/watch?v=hlvRmLlYHZ0?rel=0&enablejsapi=1 width="100%" height="80%" >}}

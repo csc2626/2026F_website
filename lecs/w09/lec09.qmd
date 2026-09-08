@@ -1,6 +1,6 @@
 ---
 title: "CSC2626 Imitation Learning for Robotics"
-subtitle: "Week 9: Adversarial Imitation Learning"
+subtitle: "Week 9: Shared Autonomy and Human-in-the-Loop Learning"
 author: "Florian Shkurti"
 format:
     revealjs:
@@ -18,7 +18,7 @@ format:
         css: ../style.css
         include-after-body:
           - text: |
-                <script type="text/javascript" src="../custom_curtain.js"></script>
+                <script type="text/javascript" src="../custom_curtain.js"></script> 
 html-math-method:
     method: mathjax
     url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
@@ -26,717 +26,741 @@ html-math-method:
 
 ## Today’s agenda
 
-• Adversarial optimization for imitation learning (GAIL)
+• Shared autonomy for assistive robotics
 
-• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
+• Shared autonomy with human in the loop in deep RL
 
-• Model based adversarial optimization (MGAIL)
+• Hindsight optimization and interactive goal prediction
 
-• Multi-agent imitation learning
+• Relaxed inverse kinematics for fluid interaction with robot arms
 
 ::: aside
 Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
+Today’s slides are based on student presentations from 2019 by: Andrei Barsan, Bin Yang, and Tingwu Wang
 :::
-
-## Detour: solving MDPs via linear programming
-
-$\underset{v}{\arg\min} \quad \underset{s \in S}{\sum} d_s v_s$
-
-$\text{subject to:} \quad v_s \geq r_{s,a} + \gamma \underset{s' \in S}{\sum} T_{s,a}^{s'} v_{s'} \quad \forall s \in S, a \in A$
-
-$\qquad \qquad \quad d$ is the initial state distribution.
-
-<br><br>
-
-::: right-align
-Optimal policy
-
-$\pi^*(s) = \underset{a \in A}{\text{argmax}} Q^*(s, a)$
-:::
-
-## Detour: solving MDPs via linear programming
-
-$\underset{\mu}{\text{argmax}} \underset{s \in S, a \in A}{\sum} \mu_{s,a} r_{s,a}$
-
-$\text{subject to} \quad \underset{a \in A}{\sum} \mu_{s',a} = d_{s'} + \gamma \underset{s \in S, a \in A}{\sum} T_{s,a}^{s'} \mu_{s,a} \quad \forall s' \in S$
-
-$\qquad \qquad \quad \mu_{s,a} \geq 0$
-
-<br>
-
-::: right-align
-Discounted state action counts / occupancy measure
-
-$\mu(s,a) = \underset{t=0}{\sum}^{\infty} \gamma^t p(s_t = s, a_t = a)$
-
-Optimal policy
-
-$\pi^*(s) = \underset{a \in A}{\text{argmax}} \, \mu(s,a)$
-:::
-
-## Detour: solving MDPs via linear programming
-
-::::: columns
-::: {.column width="85%"}
-$\underset{v}{\text{argmin}} \underset{s \in S}{\sum} d_s v_s$
-
-$\text{subject to} \quad v_s \geq r_{s,a} + \gamma \underset{s' \in S}{\sum} T_{s,a}^{s'} v_{s'} \quad \forall s \in S, a \in A$
-
-$\qquad \qquad \quad d$ is the initial state distribution
-
-<br><br>
-
-$\underset{\mu}{\text{argmax}} \underset{s \in S, a \in A}{\sum} \mu_{s,a} r_{s,a}$
-
-$\text{subject to} \quad \underset{a \in A}{\sum} \mu_{s',a} = d_{s'} + \underset{s \in S, a \in A}{\sum} T_{s,a}^{s'} \mu_{s,a} \quad \forall s' \in S$
-
-$\qquad \qquad \quad \mu_{s,a} \geq 0$
-:::
-
-::: {.column width="15%"}
-Primal LP
-
-<br><br><br><br>
-
-<br>
-
-Dual LP
-:::
-:::::
-
-## Background
-
-▶ **Definitions:** Action space $\mathcal{A}$ and sample space $\mathcal{S}$. $\Pi$ is the set of all policies. Also assume $P(s'|s,a)$ is the dynamics model. In this paper, $\pi_E$ denotes the expert policy.
-
-▶ **Imitation Learning:** Learning to perform a task from expert demonstrations without querying the expert while training.
-
-▶ **Behavioral cloning:** Its success depends on large amounts of data.
-
-▶ **Inverse RL:** The paper adopts the maximum causal entropy IRL which fits a cost function $c$ with the following problem.
-
-$$\pi^* = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]$$
-
-$$\tilde{c} = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi^*}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)]$$
-
-where $H(\pi) = \mathbb{E}_\pi[-\log \pi(a|s)]$ is the entropy of the policy.
-
-## Formulation
-
-▶ We first study the policies found by RL on costs learned by IRL on the largest possible set of cost functions $\mathcal{C} = \{c : S \times A \to \mathbb{R}\}$.
-
-▶ Also need to define a convex cost function regularizer $\psi : \mathbb{R}_{S \times A} \to \mathbb{R}$, which turns out to be important in this paper.
-
-▶ Re-write the Eq. 1 as the following:
-
-$$IRL_\psi(\pi_E) = \arg \max_{c \in \mathcal{C}} -\psi(c) + (\min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)])$$
-
-$$- \mathbb{E}_{\pi_E}[c(s,a)]$$
-
-▶ Define $RL(c) = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]$.\
-Let $\tilde{c} \in IRL_\psi(\pi_E)$. We are interested in characterizing the induced policy $RL(\tilde{c})$.
-
-## Derivations
-
-▶ It is easier to characterize $RL(\tilde{c})$ if we transform optimization problems over policies into convex problems.
-
-▶ So the paper introduces an occupancy measure $\rho_\pi : S \times A \to \mathbb{R}$:
-
-$$\rho_\pi(s,a) = \pi(a|s) \sum_{t=0}^{\infty} \gamma^t P(s_t = s|\pi) \qquad (1)$$
-
-It can be interpreted as the distribution of state-action pairs when roll-out with policy $\pi$.
-
-▶ There is an **one-to-one** correspondence between policy and occupancy measure. It also allows us to re-write the expected cost as
-
-$$\mathbb{E}_\pi[c(s,a)] = \sum_{s,a} \rho_\pi(s,a)c(s,a) \qquad (2)$$
-
-## Derivations
-
-▶ **Lemma 1:** If we define
-
-$$\hat{H}(\rho) = -\sum_{s,a} \rho(s,a) \log(\rho(s,a)/\sum_{a'} \rho(s,a')) \qquad (3)$$
-
-then we have $\hat{H}(\rho) = H(\pi_\rho)$ and $H(\pi) = \hat{H}(\rho_\pi)$. So we can represent the entropy of a policy $\pi$ with the occupancy measure $\rho_\pi$.
-
-▶ **Lemma 2:** If we define,
-
-$$L(\pi, c) = -H(\pi) + \mathbb{E}_\pi[c(s,a)]$$
-
-$$\hat{L}(\rho, c) = -\hat{H}(\rho) + \sum_{s,a} \rho(s,a)c(s,a)$$
-
-then we have $L(\pi, c) = \hat{L}(\rho_\pi, c)$ and $\hat{L}(\rho, c) = L(\pi_\rho, c)$. The Lemma allows us to transform the problem from optimizing $\pi$ to $\rho$.
-
-## Convex Conjugate
-
-▶ Given a function $f$, it can be represented by the supremum of all affine functions that are majorized by $f$.
-
-▶ For any given slope $m$, there may be many different constants $b$ such that the affine function $\langle m, x \rangle - b$ is majorized by $f$. We only need the best such constant.
-
-▶ That's what the convex conjugate $f^*$ does. Given a slope $m$, $f^*$ returns the best constant $b$ such that $\langle m, x \rangle - b$ is majorized by $f$. Thus,
-
-$$f^*(m) = \sup_x \langle m, x \rangle - f(x)$$
-
-▶ Note that $f^{**} = f$.
-
-::: small-math
-There is a nice visualization of convex conjugate at <https://remilepriol.github.io/dualityviz/>
-:::
-
-## Derivations
-
-▶ By Lemma 2, if $\psi$ is a constant regularizer and $\tilde{c} \in IRL_\psi(\pi_E)$ and $\hat{\pi} \in RL(\hat{c})$, then $\rho_{\hat{\pi}} = \rho_{\pi_E}$.
-
-▶ Furthermore, we can also get the main result of the paper
-
-$$RL \circ IRL_\psi(\pi_E) = \arg \min_{\pi \in \Pi} -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E}) \qquad (4)$$
-
-where $\psi^*$ is the convex conjugate of $\psi$, which is defined as
-
-$$\psi^*(m) = \sup_{x \in \mathbb{R}^{S \times A}} m^T x - \psi(x)$$
-
-▶ It tells us that the $\psi$-regularized inverse RL seeks a policy whose occupancy measure is close to the expert's as measured by the convex function $\psi^*$.
-
-▶ A good imitation learning algorithm boils down to a good choice of the regularizer $\psi$.
-
-## Occupancy Measure Matching
-
-▶ As we showed previously, if $\psi$ is a constant, then the resulting policy would have the same occupancy measures with expert at all states and actions.
-
-▶ It is not practically useful because most of the occupancy measure of the expert values are exactly zero, due to the limited expert samples.
-
-▶ Thus, exact occupancy measure matching will force the learned policy to never visit the unseen state-action pairs.
-
-▶ If we restrict the class of cost function $\mathcal{C}$ to be convex and set the regularizer $\psi$ to be the indicator function of the set $\mathcal{C}$. Then optimization problem in (6) can be written as
-
-$$\min_\pi -H(\pi) + \max_{c \in \mathcal{C}} \mathbb{E}_\pi[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] \qquad (5)$$
-
-which is a entropy-regularized apprenticeship learning problem.
-
-## Apprenticeship Learning
-
-▶ Policy gradient method can be used to update the parameterized policy $\pi_\theta$ to optimize the apprenticeship objective, Eq. 7.
-
-$$\nabla_\theta \max_{c \in \mathcal{C}} \mathbb{E}_{\pi_\theta}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] = \nabla_\theta \mathbb{E}_{\pi_\theta}[c^*(s,a)]$$
-
-$$= \mathbb{E}_{\pi_\theta}[\nabla_\theta \log \pi_\theta(a|s) Q_{c^*}(s,a)]$$
-
-where
-
-$$c^* = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi_\theta}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] \qquad (6)$$
-
-$$Q_{c^*}(\bar{s}, \bar{a}) = \mathbb{E}_{\pi_\theta}[c^*(\bar{s}, \bar{a})|s_0 = \bar{s}, a_0 = \bar{a}] \qquad (7)$$
-
-▶ Fit $c_i^*$ as defined above. Analytical solution is feasible if $\mathcal{C}$ is restricted to Convex or Linear cost classes.
-
-▶ Given the $c_i^*$, compute the policy gradient and take a TRPO step to produce $\pi_{\theta_{i+1}}$.
-
-## GAIL
-
-▶ Apprenticeship learning via TRPO is tractable in large environments but is incapable of exactly matching occupancy measures without careful tuning due to the restrictive cost classes $\mathcal{C}$.
-
-▶ Constant regularizer $\psi$ leads to exact matching but is intractable in large environments. Thus, GAIL is proposed to combine the best of both methods.
-
-$$
-\psi_{GA}(c) \triangleq \begin{cases} 
-\mathbb{E}_{\pi_E}[g(c(s,a))] & \text{if } c < 0 \\
-+\infty & \text{otherwise}
-\end{cases}
-$$
-
-where
-
-$$
-g(x) = \begin{cases}
--x - \log(1 - e^x) & \text{if } x < 0 \\
-+\infty & \text{otherwise}
-\end{cases}
-$$
-
-## GAIL
-
-▶ The GAIL regularizer $\psi_{GA}$ places low penalty on cost functions $c$ that assign an amount of negative cost to expert state-action pairs; It havily penalizes $c$ if it assigns large cost to the expert.
-
-▶ $\psi_{GA}$ is an average over expert data so it can adjust to arbitrary expert datasets.
-
-▶ In comparison, if $\psi$ is an indicator function (Apprenticeship Learning), then it's always fixed.
-
-▶ Another property of $\psi_{GA}$ is its convex conjugate $\psi_{GA}^*(\rho_\pi - \rho_{\pi_E})$ can be derived in the following form:
-
-$$\max_{D \in (0,1)^{S \times A}} \mathbb{E}_\pi[\log(D(s,a))] + \mathbb{E}_{\pi_E}[\log(1 - D(s,a))] \qquad (8)$$
-
-▶ It can be interpreted to find a discriminator that distinguishes trajectory between learned policy and expert policy. t
-
-## GAIL
-
-▶ Combining with the main result Eq. (6) in the paper,
-
-$$RL \circ IRL_\psi(\pi_E) = \arg \min_{\pi \in \Pi} -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E})$$
-
-The imitation learning problem is equivalent to find a saddle point $(\pi, D)$ of the expression
-
-$$\mathbb{E}_\pi[\log(D(s,a))] + \mathbb{E}_{\pi_E}[\log(1 - D(s,a))] - \lambda H(\pi) \qquad (9)$$
-
-▶ In terms of implementation, we just need to fit a parameterized policy $\pi_\theta$ with weights $\theta$ and a discriminator network $D_w : S \times A \to (0,1)$ with weights $w$.
-
-▶ Update $D_w$ with Adam and update $\pi_\theta$ with TRPO iteratively.
-
-## Algorithm
-
-![](images/algo.jpg){fig-align="center"}
-
-## Results
-
-![](images/results.png){fig-align="center"}
-
-## Today’s agenda
-
-::: grey-text
-• Adversarial optimization for imitation learning (GAIL)
-:::
-
-• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
-
-• Model based adversarial optimization (MGAIL)
-
-• Multi-agent imitation learning
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
-:::
-
-## InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations {.center}
-
-Presenter: Yin-Hung Chen
-
-# Motivation
-
-## GAIL
-
-A generator producing a policy 𝜋 competes with a discriminator distinguishing 𝜋 and the expert.
-
-![](images/gail-diagram.png)
-
-## Drawbacks of GAIL
-
--   Expert demonstrations can show significant **variability**.
-
--   The observations might have been sampled from **different experts with different skills and habits**.
-
--   **External latent factors** of variation are not explicitly captured by GAIL, but they can significantly affect the observed behaviors.
-
-# InfoGAIL
-
-## Modified GAIL
-
-![](images/modified-gail.png)
-
-## Objective Function
-
-GAIL: $$
-\underset{\pi}{\min} \underset{𝐷\in(0,1)^{S×A}}{\max} + 𝔼_{𝜋_𝐸}  [ 𝑙𝑜𝑔(1 − 𝐷(𝑠, a))] − 𝜆𝐻(𝜋)
-$$
-
-where 𝜋 is learner policy, and $𝜋_𝐸$ is expert policy.
-
-InfoGAIL:
-
--   Discriminator: same with GAIL
--   Generator: simply introducing latent factor c into 𝜋 → 𝜋 𝑎 𝑠, 𝑐\
-    [However, applying GAIL to 𝜋(𝑎 \| 𝑠, 𝑐) could simply ignore c and fail to separate different expert behaviors → **adding more constraints over c**]{.orange}
-
-## Constraints over Latent Features
-
-There should be high mutual information between the latent factor c and learner trajectory τ.
-
-$$
-I(c; \tau) = \sum_{\tau} p(\tau) \sum_c p(c|\tau) \log_2 \frac{p(c|\tau)}{p(c)}
-$$
-
-Independence between c and trajectory τ:
-
-$$
-p(c|\tau) = \frac{p(c)p(\tau)}{p(\tau)}, \quad \frac{p(c|\tau)}{p(c)} = 1, \quad \log_2 \frac{p(c|\tau)}{p(c)} = 0
-$$
-
-Maximizing mutual information $I(c; \tau)$\
-→ hard to maximize directly as it requires the posterior $P(c|\tau)$\
-→ using $Q(c|\tau)$ to estimate $P(c|\tau)$ There should be high mutual information between the latent factor c and learner trajectory 𝜏.
-
-## Constraints over Latent Features
-
-Introducing the lower bound $L_I(\pi, Q)$ of $I(c; \tau)$
-
-$$
-\begin{align}
-& I(c; \tau) \\
-&= H(c) - H(c|\tau) \\
-&= \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ \mathbb{E}_{c' \sim P(c|\tau)} [log P(c'|\tau)] \right] + H(c) \\
-&= \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ D_{KL}(P(\cdot|\tau) \| Q(\cdot|\tau)) + \mathbb{E}_{c' \sim P(c|\tau)} [log Q(c'|\tau)] \right] + H(c) \\
-&\geq \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ \mathbb{E}_{c' \sim P(c|\tau)} [log Q(c'|\tau)] \right] + H(c) \\
-&= \mathbb{E}_{c \sim P(c), a \sim \pi(\cdot|s,c)} [log Q(c|\tau)] + H(c) \\
-&= L_I(\pi, Q)
-\end{align}
-$$
-
-## Constraints over Latent Features
-
-There should be high mutual information between the latent factor c and learner trajectory 𝜏.
-
-<br>
-
-Maximizing mutual information 𝐼(𝑐; 𝜏)\
-→ hard to maximize directly as it requires the posterior 𝑃(𝑐\|𝜏)\
-→ using 𝑄(𝑐\|𝜏) to estimate 𝑃(𝑐\|𝜏)
-
-<br>
-
-Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound 𝐿𝐼(𝜋, 𝑄)
-
-## Objective Function
-
-GAIL:
-
-$$
-\min_\pi \max_{D \in (0,1)^{S \times A}} \mathbb{E}_\pi [log D(s, a)] + \mathbb{E}_{\pi_E} [log(1 - D(s, a))] - \lambda H(\pi)
-$$
-
-where $\pi$ is learner policy, and $\pi_E$ is expert policy.
-
-<br>
-
-InfoGAIL:
-
-$$
-\min_{\pi,Q} \max_D \mathbb{E}_\pi [log D(s, a)] + \mathbb{E}_{\pi_E} [log(1 - D(s, a))] - \lambda_1 L_I(\pi, Q) - \lambda_2 H(\pi)
-$$
-
-$\qquad \qquad \qquad \qquad \qquad \qquad$ where $\lambda_1 > 0$ and $\lambda_2 > 0$.
-
-## InfoGAIL
-
-![](images/infogail.png)
 
 ## 
 
-![](images/algo-infogail.png)
-
-# Additional Optimization
-
-## Improved Optimization
-
-The traditional GAN objective suffers from vanishing gradient and mode collapse problems.\
-Vanishing gradient
-
-::::: columns
-::: {.column width="40%"}
-$$
-\frac{\partial C}{\partial b_1} = \frac{\partial C}{\partial y_3} \frac{\partial y_3}{\partial z_3} \frac{\partial z_3}{\partial x_3} \frac{\partial x_3}{\partial z_2} \frac{\partial z_2}{\partial x_2} \frac{\partial x_2}{\partial z_1} \frac{\partial z_1}{\partial b_1}
-$$
-
-$$
-= \frac{\partial C}{\partial y_{3}} \sigma'(z_{3}) w_{3} \sigma'(z_{2}) w_{2} \sigma'(z_{1})
-$$
-
-![](images/improved-opt.png)
-:::
-
-::: {.column width="60%"}
-![](images/sigmold-func.png){fig-align="right"}
-:::
-:::::
-
-## Improved Optimization
-
-The traditional GAN objective suffers from vanishing gradient and mode collapse problems.
-
-<br>
-
-Mode collapse: generator tends to produce the same type of data → generator yields the same G(z) for different z
-
-## Improved Optimization
-
-The traditional GAN objective suffers from vanishing gradient and mode collapse problems.
-
-→ using the Wasserstein GAN (WGAN)
-
-$$
-\min_{\theta, \psi} \max_{\omega} \mathbb{E}_{\pi_\theta}[D_\omega(s, a)] - \mathbb{E}_{\pi_E}[D_\omega(s, a)] - \lambda_0 \eta(\pi_\theta) - \lambda_1 L_I(\pi_\theta, Q_\psi) - \lambda_2 H(\pi_\theta)
-$$
+{{< video https://www.youtube.com/watch?v=wjnhrzugBj4?rel=0&enablejsapi=1 width="90%" height="65%" >}}
 
 ## 
 
-![](images/infogail-algo2.png)
+{{< video https://www.youtube.com/watch?v=Wvh-uixQrGI&t=1s?rel=0&enablejsapi=1 width="90%" height="65%" >}}
 
-# Experiments
+## Shared Autonomy via Deep Reinforcement Learning
 
-## Learning to Distinguish Trajectories
+Siddharth Reddy, Anca Dragan, Sergey Levine UC Berkeley
 
--   The observations at time t are positions from t − 4 to t.
--   The latent code is a one-hot encoded vector with 3 dimensions and a uniform prior.
+Presented by Ioan Andrei Bârsan on February 22, 2019
 
-![](images/trajectory-observation.png)
+iab\@cs.toronto.edu
 
-## Self-driving car in the TORCS Environment
+![](images/shared-autonomy.jpg){width="400" height="200" fig-align="right"}
 
-• The demonstrations collected by manually driving
+## Key Question
 
-• Three-dimensional continuous action composed of steering, acceleration,and *braking*
+![](images/robot-hand.jpg){width="400" height="200"}
 
-• Raw visual inputs as the only external inputs for the state
-
-• Auxiliary information as internal input, including velocity at time t, actions at time t − 1 and t − 2, and damage of the car
-
-• Pre-trained ResNet on ImageNet
-
-![](images/self-drivingcar.png){fig-align="right"}
-
-## 
-
-![](images/torcs-env.png)
-
-## Performance
-
-**Turn**
-
-\[0, 1\] corresponds to using the inside lane (blue lines), while \[1, 0\] corresponds to the outside lane (red lines).
-
-![](images/perf1.png)
-
-## Performance
-
-**Pass**
-
-\[0, 1\] corresponds to passing from right (red lines), while \[1, 0\] corresponds to passing from left (blue lines).
-
-![](images/perf2.png)
-
-::: vertical-align
-infoGAIL
-
-GAIL
-:::
-
-## Performance
-
-• Classification accuracies of 𝑄(𝑐\|𝜏)
-
-• Reward augmentation encouraging the car to drive faster
-
-![](images/perf-table.png)
-
-## 
-
-{{< video https://www.youtube.com/watch?v=YtNPBAW6h5k?rel=0&enablejsapi=1 width="80%" height="60%" >}}
-
-[<https://www.youtube.com/watch?v=YtNPBAW6h5k>]{.small-math}
-
-## Today’s agenda
-
-::: grey-text
-• Adversarial optimization for imitation learning (GAIL)
-
-• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
-:::
-
-• Model based adversarial optimization (MGAIL)
-
-• Multi-agent imitation learning
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
-:::
-
-## Model-based Adversarial Imitation Learning {.center}
-
-Nir Baram, Oron Anschel, Shie Mannor
-
-Presented by Yuwen Xiong, Mar 1 st
-
-## Recap: GAIL algorithm
-
-$$
-\underset{\pi}{\text{argmin}} \quad \underset{D \in (0,1)}{\text{argmax}} \mathbb{E}_{\pi}[\log D(s, a)] + \mathbb{E}_{\pi_E}[\log(1 - D(s, a))] - \lambda H(\pi)
-$$
-
--   We use Adam to optimize the discriminator and use TRPO to optimize the policy
--   The optimization of the discriminator can be done by using backpropagation, but this is not the case for the optimization of the policy
--   $\pi$ affects the data distribution but do not appear in the objective itself
--   We use these two equations to get gradient estimation for $\pi_{\theta}$
-
-$$
-\nabla_{\theta} \mathbb{E}_{\pi}[\log D(s, a)] \cong \mathbb{\hat{E}}_{\tau_i}[\nabla_{\theta} \log \pi_{\theta}(a|s) Q(s, a)]
-$$
-
-$$Q(\hat{s}, \hat{a}) = \mathbb{\hat{E}}_{\tau_i}[\log D(s, a) \mid s_0 = \hat{s}, a_0 = \hat{a}]$$
+How can a robot **collaborating** with a human infer the human’s goals with as few **assumptions** as possible?
 
 ## Motivation
 
--   A model-free approach like GAIL has its limitations
-    -   The generative model can no longer be trained by simply backpropagating the gradient from the loss function defined over the discriminator
-    -   Has to resort to high-variance gradient estimations
+:::::: columns
+::: {.column width="60%"}
+• **Hard**: Actuating a robot with many DoF and/or unfamiliar dynamics.
 
-. . .
+• **Hard**: Specifying a goal formally (e.g., coordinates).
+
+• **Easy**: Demonstrating the goal indirectly.
+
+• …let the machine figure out what I want!
+:::
+
+:::: {.column width="40%"}
+![](images/robot-chair.jpg){height="400"}
+
+::: tiny-font
+Image source: “Multihierarchical Interactive Task Planning. Application to Mobile Robotics” Galindo et al., 2008
+:::
+::::
+::::::
+
+## Motivation: Unknown Dynamics are Hard for Humans
+
+![](images/unknown-dynamics.png)
+
+## It can get even worse than Lunar Lander…
+
+::::: columns
+::: {.column width="70%"}
+![](images/lunar-lander.jpg)
+:::
+
+::: {.column .small-math width="30%"}
+<https://www.foddy.net/Athletics.html> or Google “qwop”
+:::
+:::::
+
+## Challenges
+
+• **Recall**: Want to demonstrate the goal indirectly with **minimal assumptions**.
+
+• → We expect the computer to start helping **while it is still learning.**
+
+• **Challenge #1**: How to actually infer user’s goal?
+
+• **Challenge #2**: How can we learn this online with low latency?
+
+## Main Hypothesis
+
+Shared autonomy can improve human performance without any assumptions about:
+
+(1) dynamics,
+
+(2) the human’s policy,
+
+(3) the nature of the goal.
+
+## Formulation: Reward
 
 <br>
 
--   If we have a model-based version of adversarial imitation learning
-    -   The system can be easily trained end-to-end using regular backpropagation
-    -   The policy gradient can be derived directly from the gradient of the discriminator
-    -   Policies can be more robust and training requires fewer interactions with the environment
-
-## Algorithm - overview
-
-:::::: columns
-:::: {.column width="70%"}
-The model-free approach treats the state s as fixed and only tries to optimize the behavior.
-
-::: fragment
-Instead, we treat s as a function of the policy: $$s' = f(s, a)$$
-
-So that, by using the law of total derivative we can get:
-
 $$
-\begin{align}
-\left.\nabla_{\theta} D(s_t, a_t)\right|_{s=s_t, a=a_t} &= \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \left.\frac{\partial D}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_t} \\
-&= \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \frac{\partial D}{\partial s} \left(\left.\frac{\partial f}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_{t-1}} + \left.\frac{\partial f}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_{t-1}}\right)
-\end{align}
+R(s, a, s') = \underbrace{R_{\text{general}}(s, a, s')}_{\text{known}} + \underbrace{R_{\text{feedback}}(s, a, s')}_{\text{unknown, but observed}}
 $$
+
+:::::: small-math
+::: {.absolute top="210" left="100"}
+$\qquad \qquad \quad \uparrow$\
+Agent’s reward\
+(what we want to maximize)
 :::
-::::
 
-::: {.column width="30%"}
-![](images/algo-diagram.png){height="300"}
+::: {.absolute top="230" left="350"}
+$\qquad \qquad \qquad \uparrow$\
+Handcrafted “common sense”\
+knowledge: do not crash, do\
+not tip, etc.
+:::
+
+::: {.absolute top="230" right="150"}
+$\uparrow$\
+Stuﬀ inferred from the human\
+([Main focus of this paper!]{.red})
 :::
 ::::::
 
-## Algorithm - preparation
+## Formulation
 
-First, we know that $D(s, a) = p(y|s, a)$, where $y = \{\pi_E, \pi\}$
-
-. . .
-
-By using Bayes rule and the law of total probability we can get:
-
-$$D(s, a) = p(\pi|s, a) = \frac{p(s, a|\pi)p(\pi)}{p(s, a)}$$
-
-$$\qquad \qquad \qquad = \frac{p(s, a|\pi)p(\pi)}{p(s, a|\pi)p(\pi) + p(s, a|\pi_E)p(\pi_E)}$$
-
-. . .
-
-$$\qquad = \frac{p(s, a|\pi)}{p(s, a|\pi) + p(s, a|\pi_E)}$$
-
-## Algorithm - preparation
-
-Re-writing it as following:
-
+::: {.absolute top="0" right="0"}
 $$
-D(s, a) = \frac{1}{\frac{p(s,a|\pi)+p(s,a|\pi_E)}{p(s,a|\pi)}} = \frac{1}{1 + \frac{p(s,a|\pi_E)}{p(s,a|\pi)}} = \frac{1}{1 + \frac{p(a|s,\pi_E)}{p(a|s,\pi)} \cdot \frac{p(s|\pi_E)}{p(s|\pi)}}$$
-
-. . .
-
-Let $\varphi(s, a) = \frac{p(a|s,\pi_E)}{p(a|s,\pi)}$ and $\psi(s) = \frac{p(s|\pi_E)}{p(s|\pi)}$, we can get:
-
+\underbrace{R_{\text{feedback}}(s, a, s')}_{\text{unknown, but observed}}
 $$
-D(s, a) = \frac{1}{1 + \varphi(s, a) \cdot \psi(s)}
-$$
+:::
 
-## Algorithm - preparation
+<br>
 
-Here $\varphi(s, a) = \frac{p(a|s,\pi_E)}{p(a|s,\pi)}$ stands for policy likelihood ratio
+:::::: columns
+::: {.column .tiny-font width="5%"}
+<br><br>
 
-And $\psi(s) = \frac{p(s|\pi_E)}{p(s|\pi)}$ stands for state distribution likelihood ratio
+Needs\
+virtual\
+“user”!
+:::
 
-. . .
+::: {.column width="65%"}
+• The authors introduce three variants of their method:
 
-By using differentiation rule we can easily get:
+1.  Known goal space, known user policy.
 
-$$
-\nabla_a D = -\frac{\varphi_a(s, a)\psi(s)}{(1 + \varphi(s, a)\psi(s))^2}
-$$
+2.  Known goal space, unknown user policy.
 
-$$
-\nabla_s D = -\frac{\varphi_s(s, a)\psi(s) + \varphi(s, a)\psi_s(s)}{(1 + \varphi(s, a)\psi(s))^2}
-$$
+3.  Unknown goal space, unknown user policy.
+:::
 
-. . .
+::: {.column width="30%"}
+![](images/fewer-assumption.png)
+:::
+::::::
 
-Recall what we need: $\left.\nabla_\theta D(s_t, a_t)\right|_{s=s_t,a=a_t} = \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \left.\frac{\partial D}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_t}$
+## The Method
 
-## Algorithm - re-parameterization of distribution
+-   Based on Q-Learning.
 
-Assuming the policy is given by
+-   User input has **two** roles:
 
-$$
-\pi_\theta(a|s) = \mathcal{N}(a|\mu_\theta(s), \sigma_\theta^2(s))
-$$
+    1.  A **prior policy** we should fine-tune.
 
-. . .
+    2.  A sensor which can be used to decode the **goal**.
 
-We can rewrite it to
+-   Short version: Like Q-Learning, but execute closest high-value action to the user’s input, instead of highest-value action.
 
-$$
-\pi_\theta(a|s) = \mu_\theta(s) + \xi\sigma_\theta(s), \text{ where } \xi \sim \mathcal{N}(0, 1)
-$$
+## The Method (Continued)
 
-. . .
+![](images/method-algo1.png)
 
-So that we can get a Monte-Carlo estimator of the derivative
+## The Method (Continued)
 
-$$
-\begin{align}
-\nabla_\theta \mathbb{E}_\pi(a|s) D(s, a) &= \mathbb{E}_{\rho(\xi)} \nabla_a D(a, s) \nabla_\theta \pi_\theta(a|s) \\
-& \cong \frac{1}{M} \sum_{i=1}^M \left.\nabla_a D(s, a) \nabla_\theta \pi_\theta(a|s)\right|_{\xi=\xi_i}
-\end{align}
-$$
+![](images/method-2.png)
 
-## Algorithm
+## But where is $\text{R}_{\text{feedback}}$?
 
-![](images/algo-model-diagram.png)
+-   The choice of $\text{R}_{\text{feedback}}$ determines what kind of **input** we give to the Q- Learning agent in addition to state!
 
-## Algorithm
+1.  Known goal space & user policy → exact goal.
 
-To maximize the reward function, we can view reward as $r(s, a) = -D(s, a)$, and then maximizing the total reward is equivalent to minimizing the total discriminator beliefs along a trajectory.
+2.  Known goal space & unknown policy → predicted goal (pretrained LSTM).
 
-. . .
+3.  Unknown goal space & policy → the user’s input [(main focus)]{.green}
 
-So that we can define: $$
-J(\theta) = \mathbb{E} \left[ \sum_{t=0} \gamma^t D(s_t, a_t) \mid \theta \right]
-$$
+## Input to RL Agent
 
-And write down the derivatives: (this follows SVG paper \[Heess et al. 2015\]) $$
-J_s = \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\mid s,a,s')} 
-\left[ D_s + D_a\pi_s + \gamma J'_{s'}(f_s + f_a\pi_s) 
-\right] 
-$$
-
-$$
-J_\theta =  \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\mid s,a,s')}
-[D_a\pi_\theta +  \gamma(J'_{s'}f_a\pi_\theta + J'_\theta)]
-$$
-
-## Algorithm
-
-![](images/algo1.png)
+![](images/rl-agent.png)
 
 ## Experiments
 
-![](images/experiments.png)
+<br><br>
 
-## Today’s agenda
+-   **Virtual** experiments with Lunar Lander in OpenAI gym.
 
-::: grey-text
-• Adversarial optimization for imitation learning (GAIL)
+-   **Physical** experiments with an actual drone.
 
-• Adversarial optimization with multiple inferred behaviors (InfoGAIL)
+## Real-World Experiments
 
-• Model based adversarial optimization (MGAIL)
+![](images/realworld-ex.png){.absolute top="50" right="0" width="300"}
+
+<br>
+
+-   **Goal**: Land drone on pad **facing a certain way**.
+
+-   **Pilot**: Human, knows target orientation.
+
+-   **Copilot**: Our Agent, knows where pad is, but not target orientation.
+
+## Real-World Results
+
+![](images/realworld-results.jpg){fig-align="center" height="450"}
+
+**Important observation: Only n = 4 humans in drone study.**
+
+## Experimental Results: Assumptions
+
+![](images/ex-results-assumption.jpg){fig-align="center" height="400"}
+
+-   Higher alpha means we take any action. α = 1.0 means we ignore the pilot.
+
+-   Experimented in virtual environment.
+
+## Recap: Strengths
+
+-   Good results even when making no assumptions about user/goal.
+
+-   Writing is very clear!
+
+-   Possible applications in many fields, including e.g. **prosthetics, wheelchairs**.
+
+-   Source code released on GitHub!
+
+## Recap: Weaknesses
+
+-   User studies could have had more participants.
+
+-   Could have shown results on more Gym environments.
+
+-   Solution does not generalize to sophisticated long-term goals.
+
+## Conclusion
+
+-   Can do shared autonomy with minimal assumptions!
+-   Idea: Q-Learning & pick high-value action most similar to user’s action.
+-   Works well in virtual environments (real humans).
+-   Seems to work well in real environments, too.
+
+## Thanks for your attention!
+
+Q&A, if time permits it.
+
+Project website: <https://sites.google.com/view/deep-assist>
+
+![](images/lader-video.png){height="300" fig-align="center"}
+
+Video of computer-assisted human piloting the lander.
+
+## Shared Autonomy via Hindsight Optimization
+
+## Teleoperation
+
+![](images/teleportation1.jpg){width="30%"} ![](images/teleporation2.jpg){width="30%" height="200"} ![](images/teleporation3.jpg){width="30%" height="200"}
+
+![](images/teleporation4.jpg){width="30%"} ![](images/teleporation5.jpg){width="30%"} ![](images/teleporation6.jpg){width="30%" height="200"}
+
+**Noisy, insuﬃcient degrees of freedom, tedious**
+
+::: {.tiny-font .absolute bottom="0" left="0"}
+Image credit: Javdani RSS2015 talk
 :::
 
-• Multi-agent imitation learning
+## Shared Autonomy
 
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
+:::::::: columns
+::: {.column width="30%"}
+![](images/user-input.png) **User Input**
 :::
+
+::: {.column width="3%"}
+<br><br><br>
+
+\+
+:::
+
+::: {.column width="30%"}
+<br><br>
+
+![](images/autonoumous.jpg) **Autonomous Assistance**
+:::
+
+::: {.column width="3%"}
+<br><br><br>
+
+**=**
+:::
+
+::: {.column width="30%"}
+<br>
+
+![](images/acheive-goal.jpg) **Achieve Goal**
+:::
+::::::::
+
+## Shared Autonomy
+
+:::::::: columns
+::: {.column width="30%"}
+![](images/user-input.png) **User Input**
+:::
+
+::: {.column width="3%"}
+<br><br><br>
+
+\+
+:::
+
+::: {.column width="30%"}
+![](images/autonomous-assistance.png) **Autonomous Assistance**
+:::
+
+::: {.column width="3%"}
+<br><br><br>
+
+**=**
+:::
+
+::: {.column width="30%"}
+<br>
+
+![](images/acheive-goal.jpg) **Achieve Goal**
+:::
+::::::::
+
+## Shared Autonomy
+
+::::::::: columns
+:::: {.column width="30%"}
+Predict goal Assist for single goal
+
+::: small-math
+\[Dragan and Srinivasa 13\]\
+\[Kofman et al. 05\]\
+\[Kragic et al. 05\]\
+\[Yu et al. 05\]\
+\[McMullen et al. 14\]\
+…
+:::
+::::
+
+::: {.column width="3%"}
+<br><br><br>
+
+\+
+:::
+
+::: {.column width="30%"}
+![](images/autonomous-assistance.png) **Autonomous Assistance**
+:::
+
+::: {.column width="3%"}
+<br><br><br>
+
+**=**
+:::
+
+::: {.column width="30%"}
+<br>
+
+![](images/acheive-goal-number.png) **Achieve Goal**
+:::
+:::::::::
+
+## Shared Autonomy
+
+:::::::::: columns
+::::: {.column width="30%"}
+Predict goal Assist for single goal
+
+::: small-math
+\[Dragan and Srinivasa 13\]\
+\[Kofman et al. 05\]\
+\[Kragic et al. 05\]\
+\[Yu et al. 05\]\
+\[McMullen et al. 14\]\
+…
+:::
+
+Predict goal distribution Assist for distribution
+
+::: small-math
+\[Hauser 13\]\
+This work!
+:::
+:::::
+
+::: {.column width="3%"}
+<br><br><br>
+
+\+
+:::
+
+::: {.column width="30%"}
+![](images/autonomous-assistance.png) **Autonomous Assistance**
+:::
+
+::: {.column width="3%"}
+<br><br><br>
+
+**=**
+:::
+
+::: {.column width="30%"}
+<br>
+
+![](images/acheive-goal-arrow.png) **Achieve Goal**
+:::
+::::::::::
+
+## Method
+
+-   System dynamics: $x’ = T(x, a)$
+
+![](images/system-dynamics.png){.absolute bottom="0" right="0" width="400"}
+
+## Method
+
+::::: columns
+::: {.column width="60%"}
+-   System dynamics: $x' = T(x, a)$
+
+-   User (MDP) as $(X, U, T, C_g^{\text{usr}})$
+
+    -   User policy: $\pi_g^{\text{usr}}(x) = p(u|x, g)$
+    -   MaxEnt IOC: $C_g^{\text{usr}} : X \times U \to \mathcal{R}$
+:::
+
+::: {.column width="40%"}
+![](images/system-dynamic-user.png)
+:::
+:::::
+
+## Method
+
+::::: columns
+::: {.column width="60%"}
+-   System dynamics: $x' = T(x, a)$
+
+-   User (MDP) as $(X, U, T, C_g^{\text{usr}})$
+
+    -   User policy: $\pi_g^{\text{usr}}(x) = p(u|x, g)$
+    -   MaxEnt IOC: $C_g^{\text{usr}} : X \times U \to \mathcal{R}$
+
+-   System (POMDP) as $(S, A, T, C^{\text{rob}}, U, \Omega)$
+
+    -   Uncertainty over user's goal
+    -   System state: $s = X \times G$
+    -   Observation: user inputs $U$
+    -   Observation model $\Omega$
+
+    $p(g|\xi^{0 \to t}) = \frac{p(\xi^{0 \to t}|g)p(g)}{\sum_{g'} p(\xi^{0 \to t}|g')p(g')}$
+
+    -   Cost function $C^{\text{rob}} : S \times A \times U \to \mathcal{R}$
+:::
+
+::: {.column width="40%"}
+![](images/method-goal-belief.png)
+:::
+:::::
+
+## Hindsight Optimization
+
+::::::::: columns
+::::: {.column .small-math width="35%"}
+-   MDP solution:
+
+    $$V^{\pi^r}(s) = \mathbb{E}\left[\sum_t C^r(s_t, u_t, a_t) \mid s_0 = s\right]$$
+
+    $$V^*(s) = \min_{\pi^r} V^{\pi^r}(s)$$
+
+::: fragment
+-   POMDP solution:
+
+    $$V^{\pi^r}(b) = \mathbb{E}\left[\sum_t C^r(s_t, u_t, a_t) \mid b_0 = b\right]$$
+
+    $$V^*(b) = \min_{\pi^r} V^{\pi^r}(b)$$
+:::
+
+::: fragment
+-   HOP approximation:
+
+    $$V^{\text{HS}}(b) = \mathbb{E}_b\left[\min_{\pi^r} V^{\pi^r}(s)\right]$$
+
+    $$= \mathbb{E}_g[V_g(x)]$$
+:::
+:::::
+
+::::: {.column width="65%"}
+:::: fragment
+![](images/optimization.png){height="400" width="500" fig-align="center"}
+
+::: {.absolute .small-math bottom="200" right="0"}
+Deterministic\
+problem for\
+each future
+:::
+::::
+:::::
+:::::::::
+
+## Results (video)
+
+{{< video https://www.cs.cmu.edu/~sjavdani/videos/rss_2015_hindsight_presentation.mp4 width="800" height="500" >}}
+
+## Results
+
+::::: columns
+::: {.column width="35%"}
+Compare with method that predicts one goal, the proposed method has:
+
+-   Faster execution time
+
+-   Fewer user inputs
+:::
+
+::: {.column width="65%"}
+![](images/result-methods.jpg){height="500" fig-align="center"}
+:::
+:::::
+
+## User Study
+
+![](images/user-study.png){fig-align="center"}
+
+## Limitations
+
+-   Requires prior knowledge about the world:
+
+    -   a dynamics model that predicts the consequences of taking a given action in a given state of the environment;
+
+    -   the set of possible goals for the user;
+
+    -   the user's control policy given their goal.
+
+-   Suitable in constrained domains where where this knowledge can be directly hard-coded or learned.
+
+-   Unsuitable for unstructured environments with ill-defined goals and unpredictable user behavior.
+
+## References
+
+-   Javdani, S., Srinivasa, S. S., & Bagnell, J. A. (2015). Shared autonomy via hindsight optimization. Robotics science and systems: online proceedings, 2015.
+
+-   RSS2015 talk: “Shared autonomy via hindsight optimization”
+
+-   Javdani, S., Admoni, H., Pellegrinelli, S., Srinivasa, S. S., & Bagnell, J. A. (2018). Shared autonomy via hindsight optimization for teleoperation and teaming. The International Journal of Robotics Research, 37(7), 717-742.
+
+-   ICAPS 2015 talk: "Hindsight Optimization for Probabilistic Planning with Factored Actions”
+
+## RelaxedIK: Real-time Synthesis of Accurate and Feasible Robot Arm Motion
+
+## Recap: Forward Kinematics (FK)
+
+1.  Forward Kinematics
+
+    -   A common robotic skeleton is a tree of rigid bones
+
+    -   The relative Euler angles of all the joints determine the end-effector
+
+        -   End-effectors? A tool that's connected to the end of a robot arm
+
+        ::::: columns
+        ::: {.column width="35%"}
+        ![](images/fk.png){height="100"}
+
+        ![](images/twist-bend-twist.gif){height="200"}
+        :::
+
+        ::: {.column width="65%"}
+        ![](images/fk-robotarm.gif){height="300"}
+        :::
+        :::::
+
+::: {.tiny-font .absolute bottom="0"}
+materials from <https://github.com/alecjacobson/computer-graphics-csc418>
+:::
+
+## Recap: Inverse Kinematics (IK)
+
+1.  Inverse Kinematics
+
+    -   We formulate the inverse kinematics function as: $\Theta = IK(p)$ , which can be easily written in an analytic form for a simple tree skeleton.
+
+        -   Pose contains velocity?
+
+        -   Hard to find feasible state space?
+
+    -   In reality, IK is often treated as an optimization problem $$
+        \chi_p(\Theta) = \| p_g - FK(\Theta) \|_2
+        $$
+
+![](images/hand-moving.gif){fig-align="right" height="200"}
+
+## Imitation Learning
+
+1.  Imitation learning using IK
+
+    -   Basic idea: Using IK to bridge between target pose and agent’s angles
+
+    -   Input: M (consecutive) expert (goal) poses
+
+    -   Output: M (consecutive) frames of agent’s euler joints
+
+    -   Constraints:
+
+        -   IK constraints (goal constraints)
+
+        -   Between-frames constraints
+
+## Imitation Learning
+
+1.  Imitation learning using IK
+
+    -   Basic idea: minimize the difference of target pose and agent pose
+
+2.  Direct point-to-point approach
+
+    -   TRAC-IK (previous state-of-the-art)
+
+    -   Pose2pose / frame2frame imitation learning
+
+        -   Ignore most of the constraints between frames
+
+    -   Problems
+
+        -   Self-collision
+
+        -   Time constraints
+
+## Imitation Learning
+
+Self-collision
+
+![](images/self-collision.gif){fig-align="center" height="450"}
+
+## Imitation Learning
+
+Discontinuities
+
+![](images/discontinuities.gif){fig-align="center" height="450"}
+
+## Imitation Learning
+
+Goal mistracking
+
+![](images/goal-mistracking.gif){fig-align="center" height="450"}
+
+## Imitation Learning
+
+Unpredictable behaviors ![](images/unpredictable.gif){fig-align="center" height="450"}
+
+## Relaxed IK
+
+1.  Basic Idea: Using soft (Relaxed) IK loss that considers self-collision and singularity for faster optimization
+
+$$
+f(\Theta) = \sum_{i=1}^{k} w_i f_i(\Theta, \Omega_i)
+$$
+
+1.  Loss functions
+
+    a.  End-effector position & orientation matching
+
+    b.  Minimize joint velocity, acceleration, jerk
+
+    c.  Self-collision loss (fast)
+
+    d.  Singularity loss
+
+## Relaxed IK
+
+Self-collision loss
+
+-   Common approach: very slow
+
+-   Relaxed IK:
+
+    -   Approximate how imminent the robot is to a collision state
+
+    -   Using simulated data to train a network to predict the distances between links
+
+    ::::: columns
+    ::: {.column width="50%"}
+    $$
+    \text{col}(\Theta) = \sum_{i,j} b \cdot \exp\left( -\frac{\text{dis}(l_i, l_j)^2}{2c^2} \right)
+    $$
+    :::
+
+    ::: {.column width="50%"}
+    ![](images/collision-avoidance.gif)
+    :::
+    :::::
+
+## Relaxed IK
+
+1.  Singularity loss
+
+-   Kinematic singularities are well studied in robotics
+
+-   Relaxed IK:
+
+    -   Find a metric that can approximate distance to a singularity
+
+    -   Jacobian’s condition number is used as a proxy distance to singularity\
+        Why?
+
+    $$
+    \dot{\mathbf{x}} = \mathbf{J}(\Theta) \dot{\Theta}
+    $$
+
+    -   Penalize condition values less than mean - b \* std
+
+    -   Estimate mean, std from simulated data
+
+## Relaxed IK
+
+Pros
+
+-   Much faster and smoother performance
+    -   combining neural network and traditional robotics
+-   Data driven, less human-engineering
+    -   novel singularity metric
+-   Easy to deploy
+    -   sim2Real
+
+![](images/square-tracing.gif){fig-align="center" height="200"}

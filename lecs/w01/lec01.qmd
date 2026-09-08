@@ -8,7 +8,7 @@ format:
     embed-resources: false
     show-notes: false
     smaller: true
-    footer: '<a href="https://csc2626.github.io/website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩ Back to Course Website</a>'
+    footer: '<a href="https://csc2626.github.io/2026F_website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩ Back to Course Website</a>'
     chalkboard:
       buttons: true
       boardmarker-width: 2
@@ -45,9 +45,9 @@ html-math-method:
 
 This is a graduate level course
 
-Course website: <https://csc2626.github.io/website/>
+Course website: <https://csc2626.github.io/2026F_website/>
 
-Discussion forum + announcements: <https://q.utoronto.ca> (Quercus)
+Discussion forum + announcements: <https://q.utoronto.ca/courses/440859> (Quercus)
 
 Request improvements anonymously: <https://www.surveymonkey.com/r/LJJV5LY>
 
@@ -110,7 +110,7 @@ Course project: 60%
 
 • Final project report (6-8 pages) + code: 25%
 
-Project guidelines <https://csc2626.github.io/website/project-description.html>
+Project guidelines <https://csc2626.github.io/2026F_website/project-description.html>
 :::
 
 In-class panel discussions: 10%

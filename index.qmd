@@ -1,5 +1,5 @@
 ---
-title: "Fall 2026 - CSC 2626: Imitation Learning for Robotics"
+title: "CSC2626: Imitation Learning for Robotics"
 tbl-colwidths: [5,10,25,5,5,5,5,5,5]
 image: "images/DrawingHands.jpg"
 ---
@@ -51,88 +51,80 @@ You need to be comfortable with: introductory machine learning concepts (such as
 This page contains an outline of the topics, content, and assignments for the semester. Note that this schedule will be updated as the semester progresses, with all changes documented here.
 
 ::: column-screen-inset-right
-| Week | Date | Topic | Prepare | Slides | Lecture Recordings | Notebooks | Assignments | Project |
+| Week | Date | Topic | Required Reading | Lecture Slides | Lecture Recordings | Optional Exercises | Assignments | Project Deliverables |
 | :-------: | --------- | --------- | :-------: | :-------: | :-------: | :-------: | :-------: | :-------: |
-| [1](#week-1) | Tue, Sep 8 | Imitation learning vs supervised learning | 📖 | [🖥️](/lecs/w01/lec01.html){.no-style target="_blank" aria-label="Lec 1 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 | ✍️ |  |
-|  |  | Mitigating compunding errors via dataset aggregation | 📖 |  |  | 📋 |  |  |
-|  |  | Mitigating compounding errors by choosing loss functions | 📖 |  |  | 📋 |  |  |
-|  |  | Imitation via multi-modal generative models | 📖 |  |  | 📋 |  |  |
-|  |  | Teleoperation interfaces for manipulation (optional) | 📖 |  |  | 📋 |  |  |
-|  |  | Querying experts only when necessary (optional) | 📖 |  |  | 📋 |  |  |
-|  |  | Imitation for visual navigation and autonomous driving (optional) | 📖 |  |  | 📋 |  |  |
-| [2](#week-2) | Tue, Sep 15 | Intro to optimal control | 📖 | [🖥️](/lecs/w02/lec02.html){.no-style target="_blank" aria-label="Lec 2 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Intro to model-based reinforcement learning | 📖 |  |  | 📋 |  |  |
-|  |  | Intro to model-free reinforcement learning | 📖 |  |  | 📋 |  |  |
-|  |  | Monotonic improvement of the value function (optional) | 📖 |  |  | 📋 |  |  |
-|  |  | Learning dynamics well only where it matters for the value function (optional) | 📖 |  |  | 📋 | 📂 |  |
-|  |  | Parallelizing MPC on the GPU (optional) | 📖 |  |  | 📋 |  |  |
-| [3](#week-3) | Tue, Sep 22 | Offline / batch reinforcement learning | 📖 | [🖥️](/lecs/w03/lec03.html){.no-style target="_blank" aria-label="Lec 3 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 | ✍️ |  |
-|  |  | Transitioning from offline to online RL | 📖 |  |  | 📋 |  |  |
-| [4](#week-4) | Tue, Sep 29 | Imitation learning combined with RL and planning | 📖 | [🖥️](/lecs/w04/lec04.html){.no-style target="_blank" aria-label="Lec 4 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Making cost-to-go queries to experts | 📖 |  |  | 📋 |  |  |
-|  |  | Expert iteration | 📖 |  |  | 📋 |  |  |
-|  |  | Imitation can improve search and exploration strategies | 📖 |  |  | 📋 |  |  |
-|  |  | Learning from experts that have privileged information | 📖 |  |  | 📋 | 📂 | ✍️ |
-|  |  | Dynamic movement primitives | 📖 |  |  | 📋 | 📂 | ✍️ |
-| [5](#week-5) | Tue, Oct 6 | Inverse reinforcement learning | 📖 | [🖥️](/lecs/w05/lec05.html){.no-style target="_blank" aria-label="Lec 5 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Inferring rewards from preferences | 📖 |  |  | 📋 |  |  |
-|  |  | Task specification and human-robot dialog | 📖 |  |  | 📋 |  |  |
-|  |  | Value alignment | 📖 |  |  | 📋 |  |  |
-| [6](#week-6) | Tue, Oct 13 | Thanksgiving Monday |  |  |  |  |  | 📂 |
-|  |  | No in-person lecture or office hours on Monday |  |  |  |  |  |  |
-|  |  | TA office hours are on |  |  |  |  |  |  |
-| [7](#week-7) | Tue, Oct 20 | Imitation as program induction | 📖 | [🖥️](/lecs/w07/lec07.html){.no-style target="_blank" aria-label="Lec 7 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Modular decomposition of demonstrations into skills | 📖 |  |  | 📋 |  |  |
-|  |  | (Hierarchical) imitation of multi-goal tasks | 📖 |  |  | 📋 |  |  |
-|  |  | Inferring grammars and planning domains | 📖 |  |  | 📋 |  |  |
+| [1](#week-1) | Tue, Sep 8 | Imitation learning vs supervised learning | [📖](#w1-imitation-learning-vs-supervised-learning){.no-style aria-label="Required reading: Imitation learning vs supervised learning"} | [🖥️](/lecs/w01/lec01.html){.no-style target="_blank" aria-label="Lec 1 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Mitigating compunding errors via dataset aggregation | [📖](#w1-mitigating-compunding-errors-via-dataset-aggregation){.no-style aria-label="Required reading: Mitigating compunding errors via dataset aggregation"} |  |  | 📋 |  |  |
+|  |  | Mitigating compounding errors by choosing loss functions | [📖](#w1-mitigating-compounding-errors-by-choosing-loss-functions){.no-style aria-label="Required reading: Mitigating compounding errors by choosing loss functions"} |  |  | 📋 |  |  |
+|  |  | Imitation via multi-modal generative models | [📖](#w1-imitation-via-multi-modal-generative-models){.no-style aria-label="Required reading: Imitation via multi-modal generative models"} |  |  | 📋 |  |  |
+|  |  | Teleoperation interfaces for manipulation | [📖](#w1-teleoperation-interfaces-for-manipulation){.no-style aria-label="Required reading: Teleoperation interfaces for manipulation"} |  |  | 📋 |  |  |
+|  |  | Querying experts only when necessary (optional) | [📖](#w1-querying-experts-only-when-necessary){.no-style aria-label="Required reading: Querying experts only when necessary (optional)"} |  |  | 📋 |  |  |
+|  |  | Imitation for visual navigation and autonomous driving (optional) | [📖](#w1-imitation-for-visual-navigation-and-autonomous-driving){.no-style aria-label="Required reading: Imitation for visual navigation and autonomous driving (optional)"} |  |  | 📋 |  |  |
+| [2](#week-2) | Tue, Sep 15 | Intro to optimal control | [📖](#w2-intro-to-optimal-control){.no-style aria-label="Required reading: Intro to optimal control"} | [🖥️](/lecs/w02/lec02.html){.no-style target="_blank" aria-label="Lec 2 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Intro to model-based reinforcement learning | [📖](#w2-intro-to-model-based-reinforcement-learning){.no-style aria-label="Required reading: Intro to model-based reinforcement learning"} |  |  | 📋 |  |  |
+|  |  | Intro to model-free reinforcement learning | [📖](#week-2){.no-style aria-label="Required reading: Intro to model-free reinforcement learning"} |  |  | 📋 |  |  |
+|  |  | Monotonic improvement of the value function (optional) | [📖](#w2-monotonic-improvement-of-the-value-function){.no-style aria-label="Required reading: Monotonic improvement of the value function (optional)"} |  |  | 📋 |  |  |
+|  |  | Learning dynamics well only where it matters for the value function (optional) | [📖](#w2-learning-dynamics-well-only-where-it-matters-for-the-value-function){.no-style aria-label="Required reading: Learning dynamics well only where it matters for the value function (optional)"} |  |  | 📋 |  |  |
+|  |  | Parallelizing MPC on the GPU (optional) | [📖](#w2-parallelizing-mpc-on-the-gpu){.no-style aria-label="Required reading: Parallelizing MPC on the GPU (optional)"} |  |  | 📋 |  |  |
+| [3](#week-3) | Tue, Sep 22 | Offline / batch reinforcement learning | [📖](#w3-offline-batch-reinforcement-learning){.no-style aria-label="Required reading: Offline / batch reinforcement learning"} | [🖥️](/lecs/w03/lec03.html){.no-style target="_blank" aria-label="Lec 3 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Transitioning from offline to online RL | [📖](#w3-transitioning-from-offline-to-online-rl){.no-style aria-label="Required reading: Transitioning from offline to online RL"} |  |  | 📋 |  |  |
+| [4](#week-4) | Tue, Sep 29 | Imitation learning combined with RL and planning | [📖](#w4-imitation-learning-combined-with-rl-and-planning){.no-style aria-label="Required reading: Imitation learning combined with RL and planning"} | [🖥️](/lecs/w04/lec04.html){.no-style target="_blank" aria-label="Lec 4 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 | ✍️ |  |
+|  |  | Making cost-to-go queries to experts | [📖](#w4-making-cost-to-go-queries-to-experts){.no-style aria-label="Required reading: Making cost-to-go queries to experts"} |  |  | 📋 |  |  |
+|  |  | Expert iteration | [📖](#w4-expert-iteration){.no-style aria-label="Required reading: Expert iteration"} |  |  | 📋 |  |  |
+|  |  | Imitation can improve search and exploration strategies | [📖](#w4-imitation-can-improve-search-and-exploration-strategies){.no-style aria-label="Required reading: Imitation can improve search and exploration strategies"} |  |  | 📋 |  |  |
+|  |  | Learning from experts that have privileged information | [📖](#w4-learning-from-experts-that-have-privileged-information){.no-style aria-label="Required reading: Learning from experts that have privileged information"} |  |  | 📋 |  |  |
+|  |  | Dynamic movement primitives | [📖](#w4-dynamic-movement-primitives){.no-style aria-label="Required reading: Dynamic movement primitives"} |  |  | 📋 |  |  |
+| [5](#week-5) | Tue, Oct 6 | Imitation as program induction | [📖](#w5-imitation-as-program-induction){.no-style aria-label="Required reading: Imitation as program induction"} | [🖥️](/lecs/w05/lec05.html){.no-style target="_blank" aria-label="Lec 5 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Modular decomposition of demonstrations into skills | [📖](#w5-modular-decomposition-of-demonstrations-into-skills){.no-style aria-label="Required reading: Modular decomposition of demonstrations into skills"} |  |  | 📋 |  |  |
+|  |  | (Hierarchical) imitation of multi-goal tasks | [📖](#w5-hierarchical-imitation-of-multi-goal-tasks){.no-style aria-label="Required reading: (Hierarchical) imitation of multi-goal tasks"} |  |  | 📋 |  |  |
+|  |  | Inferring grammars and planning domains | [📖](#w5-inferring-grammars-and-planning-domains){.no-style aria-label="Required reading: Inferring grammars and planning domains"} |  |  | 📋 |  |  |
+| [6](#week-6) | Tue, Oct 13 | Inverse reinforcement learning | [📖](#w6-inverse-reinforcement-learning){.no-style aria-label="Required reading: Inverse reinforcement learning"} | [🖥️](/lecs/w06/lec06.html){.no-style target="_blank" aria-label="Lec 6 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 | ✍️ |  |
+|  |  | Inferring rewards from preferences | [📖](#w6-inferring-rewards-from-preferences){.no-style aria-label="Required reading: Inferring rewards from preferences"} |  |  | 📋 |  |  |
+|  |  | Task specification and human-robot dialog | [📖](#w6-task-specification-and-human-robot-dialog){.no-style aria-label="Required reading: Task specification and human-robot dialog"} |  |  | 📋 |  |  |
+|  |  | Value alignment | [📖](#w6-value-alignment){.no-style aria-label="Required reading: Value alignment"} |  |  | 📋 |  |  |
+| [7](#week-7) | Tue, Oct 20 | Adversarial imitation learning | [📖](#w7-adversarial-imitation-learning){.no-style aria-label="Required reading: Adversarial imitation learning"} | [🖥️](/lecs/w07/lec07.html){.no-style target="_blank" aria-label="Lec 7 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  | 📂 |
 | [8](#week-8) | Tue, Oct 27 | Fall Reading Week |  |  |  |  |  |  |
 |  |  | No lecture |  |  |  |  |  |  |
 |  |  | No office hours |  |  |  |  |  |  |
-| [9](#week-9) | Tue, Nov 3 | Adversarial imitation learning | 📖 | [🖥️](/lecs/w09/lec09.html){.no-style target="_blank" aria-label="Lec 9 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-| [10](#week-10) | Tue, Nov 10 | Shared autonomy | 📖 | [🖥️](/lecs/w10/lec10.html){.no-style target="_blank" aria-label="Lec 10 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Imitation with a human in the loop | 📖 |  |  | 📋 |  |  |
-|  |  | Teleoperation | 📖 |  |  | 📋 |  |  |
-| [11](#week-11) | Tue, Nov 17 | Imitation learning from videos | 📖 | [🖥️](/lecs/w11/lec11.html){.no-style target="_blank" aria-label="Lec 11 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Causal confusion in imitation learning | 📖 |  |  | 📋 |  |  |
-| [12](#week-12) | Tue, Nov 24 | Representation learning for imitation | 📖 | [🖥️](/lecs/w12/lec12.html){.no-style target="_blank" aria-label="Lec 11 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
-|  |  | Generalization and safety guarantees for imitation | 📖 |  |  | 📋 |  |  |
-| [13](#week-13) | Tue, Dec 1 | Project presentations |  |  |  |  |  |  |
-| [14](#week-14) | Tue, Dec 8 | Final project submission |  |  |  |  |  | 📂 |
+| [9](#week-9) | Tue, Nov 3 | Shared autonomy | [📖](#w9-shared-autonomy){.no-style aria-label="Required reading: Shared autonomy"} | [🖥️](/lecs/w09/lec09.html){.no-style target="_blank" aria-label="Lec 9 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Imitation with a human in the loop | [📖](#w9-imitation-with-a-human-in-the-loop){.no-style aria-label="Required reading: Imitation with a human in the loop"} |  |  | 📋 |  |  |
+|  |  | Teleoperation | [📖](#w9-teleoperation){.no-style aria-label="Required reading: Teleoperation"} |  |  | 📋 |  |  |
+| [10](#week-10) | Tue, Nov 10 | Imitation learning from videos | [📖](#w10-imitation-learning-from-videos){.no-style aria-label="Required reading: Imitation learning from videos"} | [🖥️](/lecs/w10/lec10.html){.no-style target="_blank" aria-label="Lec 10 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Causal confusion in imitation learning | [📖](#w10-causal-confusion-in-imitation-learning){.no-style aria-label="Required reading: Causal confusion in imitation learning"} |  |  | 📋 |  |  |
+| [11](#week-11) | Tue, Nov 17 | Representation learning for imitation | [📖](#w11-representation-learning-for-imitation){.no-style aria-label="Required reading: Representation learning for imitation"} | [🖥️](/lecs/w11/lec11.html){.no-style target="_blank" aria-label="Lec 11 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Generalization and safety guarantees for imitation | [📖](#w11-generalization-and-safety-guarantees-for-imitation){.no-style aria-label="Required reading: Generalization and safety guarantees for imitation"} |  |  | 📋 |  |  |
+| [12](#week-12) | Tue, Nov 24 | TBA |  |  |  |  |  |  |
+| [13](#week-13) | Tue, Dec 1 | In-class project presentations. Final reports due. |  |  |  |  |  | 📂 📂 |
 :::
 
 ### Week 1 {#week-1}
 
-**Imitation learning vs supervised learning**\
+[**Imitation learning vs supervised learning**]{#w1-imitation-learning-vs-supervised-learning}\
 [An invitation to imitation](https://www.ri.cmu.edu/pub_files/2015/3/InvitationToImitation_3_1415.pdf)\
-[ALVINN: An autonomous land vehicle in a neural network](https://papers.nips.cc/paper/95-alvinn-an-autonomous-land-vehicle-in-a-neural-network)
+[ALVINN: An autonomous land vehicle in a neural network](https://dl.acm.org/doi/10.5555/2969735.2969771)
 
-**Mitigating compunding errors via dataset aggregation**\
+[**Mitigating compunding errors via dataset aggregation**]{#w1-mitigating-compunding-errors-via-dataset-aggregation}\
 [DAgger: A reduction of imitation learning and structured prediction to no-regret online learning](https://arxiv.org/abs/1011.0686)
 
-**Mitigating compounding errors by choosing loss functions**\
+[**Mitigating compounding errors by choosing loss functions**]{#w1-mitigating-compounding-errors-by-choosing-loss-functions}\
 [Is Behavior Cloning All You Need? Understanding Horizon in Imitation Learning](https://arxiv.org/abs/2407.15007)
 
-**Imitation via multi-modal generative models**\
-[Diffusion policy](https://diffusion-policy.cs.columbia.edu/)
+[**Imitation via multi-modal generative models**]{#w1-imitation-via-multi-modal-generative-models}\
+[Diffusion policy](https://diffusion-policy.cs.columbia.edu/)\
+[Implicit behavioral cloning](https://arxiv.org/abs/2109.00137)\
+[Revisiting energy based models as policies: ranking noise contrastive estimation and interpolating energy models](https://arxiv.org/abs/2309.05803)
 
-**Training instabilities of behavioral cloning**\
-[Butterfly Effects of SGD Noise: Error Amplification in Behavior Cloning and Autoregression](https://arxiv.org/abs/2310.11428)
-
-<details>
-
-<summary>Teleoperation interfaces for manipulation \[optional\]</summary>
-
+[**Teleoperation interfaces for manipulation**]{#w1-teleoperation-interfaces-for-manipulation}\
 [UMI: Universal Manipulator Interface](https://umi-gripper.github.io/)\
 [ALOHA: Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware](https://tonyzhaozh.github.io/aloha/)\
 [Real-Time Bimanual Dexterous Teleoperation for Imitation Learning](https://dingry.github.io/projects/bunny_visionpro.html)\
 [Teleoperation with Immersive Active Visual Feedback](https://robot-tv.github.io/)\
 [ACE: A Cross-platform Visual-Exoskeleton for Low-Cost Dexterous Teleoperation](https://ace-teleop.github.io/)
 
-</details>
 
 <details>
 
-<summary>Querying experts only when necessary \[optional\]</summary>
+<summary id="w1-querying-experts-only-when-necessary">Querying experts only when necessary \[optional\]</summary>
 
 [Maximum mean discrepancy imitation learning](http://www.roboticsproceedings.org/rss09/p38.pdf)\
 [DropoutDAgger: A Bayesian approach to safe imitation learning](https://arxiv.org/abs/1709.06166)\
@@ -144,7 +136,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 <details>
 
-<summary>Imitation for visual navigation and autonomous driving \[optional\]</summary>
+<summary id="w1-imitation-for-visual-navigation-and-autonomous-driving">Imitation for visual navigation and autonomous driving \[optional\]</summary>
 
 [Visual path following on a manifold in unstructured three-dimensional terrain](https://ieeexplore.ieee.org/document/5509140/)\
 [End-to-end learning for self-driving cars](https://arxiv.org/abs/1604.07316)\
@@ -153,18 +145,10 @@ This page contains an outline of the topics, content, and assignments for the se
 
 </details>
 
-<details>
-
-<summary>Behavioral cloning with energy-based models \[optional\]</summary>
-
-[Implicit behavioral cloning](https://arxiv.org/abs/2109.00137)\
-[Revisiting energy based models as policies: ranking noise contrastive estimation and interpolating energy models](https://arxiv.org/abs/2309.05803)
-
-</details>
 
 ### Week 2 {#week-2}
 
-**Intro to Optimal Control**\
+[**Intro to Optimal Control**]{#w2-intro-to-optimal-control}\
 [Linear Quadratic Regulator](http://people.eecs.berkeley.edu/~somil/Papers/lqrlecture.pdf) and [some examples](https://web.archive.org/web/20210613114312/https://stanford.edu/class/engr108/lectures/control_slides.pdf)\
 [Iterative Linear Quadratic Regulator](https://homes.cs.washington.edu/~todorov/papers/LiICINCO04.pdf)\
 [Model Predictive Control](https://ieeexplore.ieee.org/document/845037)\
@@ -172,7 +156,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 <details>
 
-<summary>Intro to model-based RL \[optional\]</summary>
+<summary id="w2-intro-to-model-based-reinforcement-learning">Intro to model-based RL \[optional\]</summary>
 
 [PILCO: Probabilistic inference for learning control](http://mlg.eng.cam.ac.uk/pilco/)\
 [Deep reinforcement learning in a handful of trials using probabilistic dynamics models](https://arxiv.org/abs/1805.12114)\
@@ -188,7 +172,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 <details>
 
-<summary>Monotonic improvement of the value function \[optional\]</summary>
+<summary id="w2-monotonic-improvement-of-the-value-function">Monotonic improvement of the value function \[optional\]</summary>
 
 [Algorithmic framework for model-based deep reinforcement learning with theoretical guarantees](https://arxiv.org/abs/1807.03858)\
 [When to Trust Your Model: Model-Based Policy Optimization](https://arxiv.org/abs/1906.08253)
@@ -197,7 +181,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 <details>
 
-<summary>Learning dynamics where it matters for the value function \[optional\]</summary>
+<summary id="w2-learning-dynamics-well-only-where-it-matters-for-the-value-function">Learning dynamics where it matters for the value function \[optional\]</summary>
 
 [Value Gradient Weighted Model-Based Reinforcement Learning](https://arxiv.org/abs/2204.01464)
 
@@ -205,7 +189,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 <details>
 
-<summary>Parallelizing MPC on the GPU \[optional\]</summary>
+<summary id="w2-parallelizing-mpc-on-the-gpu">Parallelizing MPC on the GPU \[optional\]</summary>
 
 [MPCGPU: Real-Time Nonlinear Model Predictive Control through Preconditioned Conjugate Gradient on the GPU](https://arxiv.org/abs/2309.08079)\
 [STORM: An Integrated Framework for Fast Joint-Space Model-Predictive Control for Reactive Manipulation](https://arxiv.org/abs/2104.13542)
@@ -214,7 +198,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 ### Week 3 {#week-3}
 
-**Offline / Batch Reinforcement Learning**\
+[**Offline / Batch Reinforcement Learning**]{#w3-offline-batch-reinforcement-learning}\
 [Conservative Q-Learning for offline reinforcement learning](https://arxiv.org/abs/2006.04779)\
 [IQ-Learn: inverse soft-Q learning for imitation](https://arxiv.org/abs/2106.12142)\
 [Scaling data-driven robotics with reward sketching and batch reinforcement learning](https://arxiv.org/abs/1909.12200)\
@@ -223,7 +207,7 @@ This page contains an outline of the topics, content, and assignments for the se
 [What matters in learning from offline human demonstrations for robot manipulation](https://arxiv.org/abs/2108.03298)\
 [NeurIPS 2020 tutorial on offline RL](https://sites.google.com/view/offlinerltutorial-neurips2020/home)
 
-**Transitioning from offline to online RL**\
+[**Transitioning from offline to online RL**]{#w3-transitioning-from-offline-to-online-rl}\
 [Cal-QL: calibrated offline RL pre-training for efficient online fine-tuning](https://arxiv.org/abs/2303.05479)
 
 <details>
@@ -247,25 +231,25 @@ This page contains an outline of the topics, content, and assignments for the se
 
 ### Week 4 {#week-4}
 
-**Imitation learning combined with RL and planning**\
+[**Imitation learning combined with RL and planning**]{#w4-imitation-learning-combined-with-rl-and-planning}\
 [Learning neural network policies with guided policy search under unknown dynamics](https://papers.nips.cc/paper_files/paper/2014/hash/6766aa2750c19aad2fa1b32f36ed4aee-Abstract.html)\
 [Planning with diffusion for flexible behavior synthesis](https://diffusion-planning.github.io/)
 
-**Expert iteration**\
+[**Expert iteration**]{#w4-expert-iteration}\
 [Thinking fast and slow with deep learning and tree search](https://arxiv.org/abs/1705.08439)\
 [Dual policy iteration](https://arxiv.org/abs/1805.10755)\
 [Learning to search via retrospective imitation](https://arxiv.org/abs/1804.00846)
 
-**Learning from experts that have privileged information**\
+[**Learning from experts that have privileged information**]{#w4-learning-from-experts-that-have-privileged-information}\
 [PLATO: Policy learning using adaptive trajectory optimization](https://arxiv.org/abs/1603.00622)
 
-**Dynamic movement primitives**\
+[**Dynamic movement primitives**]{#w4-dynamic-movement-primitives}\
 [Dynamic Movement Primitives in robotics: a tutorial survey](https://arxiv.org/abs/2102.03861)\
 [Using probabilistic movement primitives in robotics](https://link.springer.com/article/10.1007/s10514-017-9648-7)
 
 <details>
 
-<summary>Making cost-to-go queries to experts (optional)</summary>
+<summary id="w4-making-cost-to-go-queries-to-experts">Making cost-to-go queries to experts (optional)</summary>
 
 [AggreVaTe: Reinforcement and imitation learning via interactive no-regret learning](https://arxiv.org/abs/1406.5979)\
 [Deeply AggreVaTeD: Differentiable Imitation Learning for Sequential Prediction](https://arxiv.org/abs/1703.01030)\
@@ -275,7 +259,7 @@ This page contains an outline of the topics, content, and assignments for the se
 
 <details>
 
-<summary>Imitation can improve search and exploration strategies (optional)</summary>
+<summary id="w4-imitation-can-improve-search-and-exploration-strategies">Imitation can improve search and exploration strategies (optional)</summary>
 
 [Learning to gather information via imitation](https://arxiv.org/abs/1611.04180)\
 [Overcoming exploration in reinforcement learning with demonstrations](https://arxiv.org/abs/1709.10089)\
@@ -285,22 +269,58 @@ This page contains an outline of the topics, content, and assignments for the se
 
 ### Week 5 {#week-5}
 
-**Inverse reinforcement learning**\
+[**Imitation as program induction**]{#w5-imitation-as-program-induction}\
+[Neural programmer-interpreters](https://arxiv.org/abs/1511.06279)\
+[Neural Task Programming: Learning to generalize across hierarchical tasks](https://arxiv.org/abs/1710.01813)
+
+[**Modular decomposition of demonstrations into skills**]{#w5-modular-decomposition-of-demonstrations-into-skills}\
+[TACO: Learning task decomposition via temporal alignment for control](https://arxiv.org/abs/1803.01840)
+
+[**(Hierarchical) imitation of multi-goal tasks**]{#w5-hierarchical-imitation-of-multi-goal-tasks}\
+[Learning to generalize across long-horizon tasks from human demonstrations](https://arxiv.org/abs/2003.06085)
+
+[**Inferring goals, grammars, and planning domains**]{#w5-inferring-grammars-and-planning-domains}\
+[The motion grammar: analysis of a linguistic method for robot control](https://ieeexplore.ieee.org/document/6457507/)\
+[Action understanding as inverse planning](https://www.sciencedirect.com/science/article/pii/S0010027709001607?via%3Dihub)
+
+<details>
+
+<summary>Optional reading</summary>
+
+[Incremental learning of subtasks from unsegmented demonstration](https://ieeexplore.ieee.org/document/5650500/)\
+[Inducing probabilistic context-free grammars for the sequencing of movement primitives](https://www.ias.informatik.tu-darmstadt.de/uploads/Team/RudolfLioutikov/lioutikov_movement_pcfg_icra2018.pdf)\
+[Neural Task Graphs: Generalizing to unseen tasks from a single video demonstration](https://arxiv.org/abs/1807.03480)\
+[Neural program synthesis from diverse demonstration videos](https://shaohua0116.github.io/demo2program/)\
+[Automata guided reinforcement learning with demonstrations](https://arxiv.org/abs/1809.06305)\
+[A syntactic approach to robot imitation learning using probabilistic activity grammars](https://www.sciencedirect.com/science/article/pii/S0921889013001449)\
+[Robot learning from demonstration by constructing skill trees](http://journals.sagepub.com/doi/abs/10.1177/0278364911428653)\
+[Learning to sequence movement primitives from demonstrations](https://ieeexplore.ieee.org/document/6943187)\
+[Imitation-projected programmatic reinforcement learning](https://arxiv.org/abs/1907.05431)\
+[Reinforcement and imitation learning for diverse visuomotor skills](https://arxiv.org/abs/1802.09564)\
+[Inferring task goals and constraints using Bayesian nonparametric inverse reinforcement learning](https://arxiv.org/abs/1802.09564)\
+[You only demonstrate once: category-level manipulation from single visual demonstration](https://arxiv.org/abs/2201.12716)\
+[Bottom-up skill discovery from unsegmented demonstrations for long-horizon robot manipulation](https://ieeexplore.ieee.org/abstract/document/9695333)
+
+</details>
+
+### Week 6 {#week-6}
+
+[**Inverse reinforcement learning**]{#w6-inverse-reinforcement-learning}\
 [Maximum entropy inverse reinforcement learning](https://www.aaai.org/Papers/AAAI/2008/AAAI08-227.pdf)\
 [Guided Cost Learning: Deep inverse optimal control via policy optimization](https://arxiv.org/abs/1603.00448)\
 [Bayesian inverse reinforcement learning](https://www.aaai.org/Papers/IJCAI/2007/IJCAI07-416.pdf)
 
-**Inferring rewards from preferences**\
+[**Inferring rewards from preferences**]{#w6-inferring-rewards-from-preferences}\
 [Active preference-based learning of reward functions](http://rss2017.lids.mit.edu/program/papers/04/)\
 [Extrapolating beyond suboptimal demonstrations via inverse reinforcement learning from observations](https://arxiv.org/abs/1904.06387)
 
 **Inferring constraints from demonstrations**\
 [Inverse KKT: Learning cost functions of manipulation tasks from demonstrations](http://journals.sagepub.com/doi/abs/10.1177/0278364917745980)
 
-**Task specification and human-robot dialog**\
+[**Task specification and human-robot dialog**]{#w6-task-specification-and-human-robot-dialog}\
 [Robots that ask for help: uncertainty alignment for LLM planners](https://arxiv.org/abs/2307.01928)
 
-**Value alignment**\
+[**Value alignment**]{#w6-value-alignment}\
 [Inverse reward design](https://arxiv.org/abs/1711.02827)
 
 <details>
@@ -330,53 +350,9 @@ This page contains an outline of the topics, content, and assignments for the se
 
 </details>
 
-### Week 6 {#week-6}
-
-Thanksgiving week. No lecture on Monday.
-
 ### Week 7 {#week-7}
 
-**Imitation as program induction**\
-[Neural programmer-interpreters](https://arxiv.org/abs/1511.06279)\
-[Neural Task Programming: Learning to generalize across hierarchical tasks](https://arxiv.org/abs/1710.01813)
-
-**Modular decomposition of demonstrations into skills**\
-[TACO: Learning task decomposition via temporal alignment for control](https://arxiv.org/abs/1803.01840)
-
-**(Hierarchical) imitation of multi-goal tasks**\
-[Learning to generalize across long-horizon tasks from human demonstrations](https://arxiv.org/abs/2003.06085)
-
-**Inferring goals, grammars, and planning domains**\
-[The motion grammar: analysis of a linguistic method for robot control](https://ieeexplore.ieee.org/document/6457507/)\
-[Action understanding as inverse planning](https://www.sciencedirect.com/science/article/pii/S0010027709001607?via%3Dihub)
-
-<details>
-
-<summary>Optional reading</summary>
-
-[Incremental learning of subtasks from unsegmented demonstration](https://ieeexplore.ieee.org/document/5650500/)\
-[Inducing probabilistic context-free grammars for the sequencing of movement primitives](https://www.ias.informatik.tu-darmstadt.de/uploads/Team/RudolfLioutikov/lioutikov_movement_pcfg_icra2018.pdf)\
-[Neural Task Graphs: Generalizing to unseen tasks from a single video demonstration](https://arxiv.org/abs/1807.03480)\
-[Neural program synthesis from diverse demonstration videos](https://shaohua0116.github.io/demo2program/)\
-[Automata guided reinforcement learning with demonstrations](https://arxiv.org/abs/1809.06305)\
-[A syntactic approach to robot imitation learning using probabilistic activity grammars](https://www.sciencedirect.com/science/article/pii/S0921889013001449)\
-[Robot learning from demonstration by constructing skill trees](http://journals.sagepub.com/doi/abs/10.1177/0278364911428653)\
-[Learning to sequence movement primitives from demonstrations](https://ieeexplore.ieee.org/document/6943187)\
-[Imitation-projected programmatic reinforcement learning](https://arxiv.org/abs/1907.05431)\
-[Reinforcement and imitation learning for diverse visuomotor skills](https://arxiv.org/abs/1802.09564)\
-[Inferring task goals and constraints using Bayesian nonparametric inverse reinforcement learning](https://arxiv.org/abs/1802.09564)\
-[You only demonstrate once: category-level manipulation from single visual demonstration](https://arxiv.org/abs/2201.12716)\
-[Bottom-up skill discovery from unsegmented demonstrations for long-horizon robot manipulation](https://ieeexplore.ieee.org/abstract/document/9695333)
-
-</details>
-
-### Week 8 {#week-8}
-
-Fall reading week. No lecture.
-
-### Week 9 {#week-9}
-
-**Adversarial imitation learning**\
+[**Adversarial imitation learning**]{#w7-adversarial-imitation-learning}\
 [GAIL: Generative adversarial imitation learning](https://arxiv.org/abs/1606.03476)\
 [Learning robust rewards with adversarial inverse reinforcement learning](https://arxiv.org/abs/1710.11248)\
 [InfoGAIL: interpretable imitation learning from visual demonstrations](https://arxiv.org/abs/1703.08840)\
@@ -394,18 +370,22 @@ Fall reading week. No lecture.
 
 </details>
 
-### Week 10 {#week-10}
+### Week 8 {#week-8}
 
-**Teleoperation**\
+Fall reading week. No lecture.
+
+### Week 9 {#week-9}
+
+[**Teleoperation**]{#w9-teleoperation}\
 [RelaxedIK: Real-time synthesis of accurate and feasible robot arm motion](http://www.roboticsproceedings.org/rss14/p43.html)\
 [Error-aware imitation learning from teleoperation data for mobile manipulation](https://proceedings.mlr.press/v164/wong22a.html)\
 [Controlling assistive robots with learned latent actions](https://ieeexplore.ieee.org/abstract/document/9197197)
 
-**Shared autonomy**\
+[**Shared autonomy**]{#w9-shared-autonomy}\
 [Shared autonomy via deep reinforcement learning](http://bair.berkeley.edu/blog/2018/04/18/shared-autonomy/)\
 [Shared autonomy via hindsight optimization](https://www.ri.cmu.edu/pub_files/2015/7/Javdani15Hindsight.pdf)
 
-**Imitation with a human in the loop**\
+[**Imitation with a human in the loop**]{#w9-imitation-with-a-human-in-the-loop}\
 [Learning models for shared control of human-machine systems with unknown dynamics](https://arxiv.org/abs/1808.08268)\
 [Human-in-the-loop imitation learning using remote teleoperation](https://arxiv.org/abs/2012.06733)
 
@@ -423,9 +403,9 @@ Fall reading week. No lecture.
 
 </details>
 
-### Week 11 {#week-11}
+### Week 10 {#week-10}
 
-**Imitation learning from videos**\
+[**Imitation learning from videos**]{#w10-imitation-learning-from-videos}\
 [K-VIL: Keypoints-based visual imitation learning](https://arxiv.org/abs/2209.03277)\
 [Track2Act: Predicting point tracks from internet videos enables generalizable robot manipulation](https://arxiv.org/abs/2405.01527)\
 [VideoDex: Learning dexterity from internet videos](https://arxiv.org/abs/2212.04498)
@@ -433,7 +413,7 @@ Fall reading week. No lecture.
 **Motion Retargeting**\
 [Robotic Telekinesis: Learning a robotic hand imitator by watching humans on YouTube](https://robotic-telekinesis.github.io/)
 
-**Causal confusion in imitation learning**\
+[**Causal confusion in imitation learning**]{#w10-causal-confusion-in-imitation-learning}\
 [Causal confusion in imitation learning](https://arxiv.org/abs/1905.11979)
 
 <details>
@@ -466,9 +446,9 @@ Fall reading week. No lecture.
 
 </details>
 
-### Week 12 {#week-12}
+### Week 11 {#week-11}
 
-**Representation learning for imitation**\
+[**Representation learning for imitation**]{#w11-representation-learning-for-imitation}\
 [Generalization guarantees for imitation learning](https://arxiv.org/abs/2008.01913)\
 [Provable representation learning for imitation with contrastive Fourier features](https://arxiv.org/abs/2105.12272)\
 [TRAIL: near-optimal imitation learning with suboptimal data](https://arxiv.org/abs/2110.14770)\
@@ -476,17 +456,19 @@ Fall reading week. No lecture.
 [Self-supervised correspondence in visuomotor policy learning](https://arxiv.org/abs/1909.06933)\
 [The surprising effectiveness of representation learning for visual imitation](https://arxiv.org/abs/2112.01511)
 
-**Generalization and safety guarantees for imitation**\
+[**Generalization and safety guarantees for imitation**]{#w11-generalization-and-safety-guarantees-for-imitation}\
 [Provable guarantees for generative behavior cloning: bridging low-level stability and high-level behavior](https://arxiv.org/abs/2307.14619)\
 [Imitation learning with stability and safety guarantees](https://arxiv.org/abs/2012.09293)
 
+### Week 12 {#week-12}
+
+TBA
+
 ### Week 13 {#week-13}
 
-Project presentations
+Final project presentations and report due.
 
-### Week 14 {#week-14}
-
-Final project submission
+ 
 
 
 

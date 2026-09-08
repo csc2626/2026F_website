@@ -1,6 +1,6 @@
 ---
 title: "CSC2626 Imitation Learning for Robotics"
-subtitle: "Week 5: Learning Reward Functions"
+subtitle: "Week 5: Imitation as Program Induction and Modular Decomposition of Demonstrations"
 author: "Florian Shkurti"
 format:
     revealjs:
@@ -24,1261 +24,815 @@ html-math-method:
     url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 ---
 
-## Today's agenda
+## Today’s agenda
 
--   Learning linear rewards from trajectory demonstrations in 2D
--   Learning nonlinear rewards from trajectory demonstrations in 2D\
--   Guided cost learning in any D
--   Updating distributions over reward parameters using preference elicitation
--   Human-robot dialog with uncertainty quantification
+• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
+
+• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
+
+• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
+
+• Learning to search in Task and Motion Planning (TAMP)
+
+• Generalization through imitation – using hierarchical policies
 
 ::: aside
-Acknowledgments:\
-Today's slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
 :::
 
-## Maximum Entropy Inverse Reinforcement Learning
+## Neural Programmer-Interpreters {.center}
 
-Ziebart, Maas, Bagnell and Dey
+By Scott Reed & Nando de Freitas
 
-Presented by Sergio Casas
+## Motivation
 
-## Imitation Learning approaches
+Neural Programmer-Interpreters (NPI) is an attempt to use **neural methods** to train machines to carry out simple tasks based on a **small amount of training data**.
 
-• In Imitation Learning, we want to learn to **predict the behavior an expert agent would choose.**
+## Recurrent neural network (RNN)
 
-• So far, we have seen two main paradigms to tackle this problem
+![](images/rnn.png)
 
-![](images/imitation-learning.png)
+• RNN is a neural network with feedback
 
-## Imitation Learning approaches
+• Hidden state is to capture history information and current state of the network
 
-• In Imitation Learning, we want to learn to **predict the behavior an expert agent would choose.**
-
-• Today, we introduce a third paradigm: **Inverse Reinforcement Learning (IRL)**
-
-![](images/imitation-learning2.png)
-
-## Basic Principle
+## Long Short Term Memory (LSTM)
 
 ::::: columns
 ::: {.column width="50%"}
--   IRL reduces the imitation problem to:
-    -   **Recovering a reward function** given a set of demonstrations.
-    -   Solving the MDP using RL to recover the policy, conditioned on our learned reward.
--   IRL assumes that the reward function provides the most concise and transferable definition of the task
+![](images/lstm.png)
 :::
 
 ::: {.column width="50%"}
-![](images/basic-principle.png)
+<br><br>
+
+• LSTM is a special kind of RNN
+
+• Gates are used to control information flow. Just like a valve
 :::
 :::::
 
-## Background \[Ng & Russell 2000, Abbeel & Ng 2004\]
+## Model
 
--   More formally, we want to find a reward function R\* that explains the expert behavior such that:
+• The NPI core is a LSTM network that learns to represent and execute programs given their execution traces
 
-$$
-\mathbb{E} \left[ \sum_{t} R^{*}(s_{t}) \mid \pi^{*} \right] \geq \mathbb{E} \left[ \sum_{t} R^{*}(s_{t}) \mid \pi \right] \quad \forall \pi
-$$
+![](images/traces.png)
 
--   IRL Challenges:
-    -   Assumes we know the expert policy $\pi^*$, but we only observe sample trajectories
-    -   Assumes optimality of the expert
-    -   Assumes we can enumerate all policies
-    -   Reward function ambiguity (eg. R=0 is a solution)
+## NPI core module
 
-## Background \[Ng & Russell 2000, Abbeel & Ng 2004\]
+![](images/npi-inference.png)
 
-::: small-math
--   We define feature expectations (or feature counts) as:
+## Algorithm - inference
 
-$$
-\mathbf{f}_{\pi} = \mathbb{E} \left[ \sum_{t} \mathbf{f}_{s_t} \mid \pi \right]
-$$
+![](images/algo-inference.png)
 
--   Let the reward be a linear function of the state features:
+[Line 3]{.red}: $𝑀^{𝑝𝑟𝑜𝑔}$ and $𝑀^{𝑘𝑒𝑦}$ are memory banks to store program embeddings and program keys
 
-$$
-R(s) = \theta^{\top} \mathbf{f}_s
-$$
+## Algorithm - inference
 
--   Therefore, we can calculate the expected reward of a policy as:
+![](images/algo-inference2.png)
 
-$$
-\mathbb{E} \left[ \sum_{t} R(s_t) \mid \pi \right] = 
-\mathbb{E} \left[ \sum_{t} \theta^{\top} \mathbf{f}_{s_t} \mid \pi \right] = 
-\theta^{\top} \mathbb{E} \left[ \sum_{t} \mathbf{f}_{s_t} \mid \pi \right] = 
-\theta^{\top} \mathbf{f}_{\pi}
-$$
-:::
+[Line 7]{.red}: $(𝑀_{𝑗,}^{𝑘𝑒𝑦})^{𝑇}𝑘$ is directly measurement for cosine similarity
 
-## Background \[Ng & Russell 2000, Abbeel & Ng 2004\]
+## Algorithm - inference
+
+![](images/algo-inference3.png)
 
 ::: small-math
--   We can also define the feature counts of a trajectory $\tau$ :
+[(1)]{.red}: $𝑀^{𝑝𝑟𝑜𝑔}$ and $𝑀^{𝑘𝑒𝑦}$ are memory storing program embeddings and program keys
 
-$$
-f_{\tau} = \sum_{s_t \in \tau} f_{s_t}
-$$
+[(2)]{.red}: $𝑓_{𝑒𝑛𝑐}$ is a domain-specific encoder (for different tasks, have different encoders)
 
--   And the expected empirical feature count from $m$ sample trajectories of a policy:
+[(3)]{.red}: $𝑓_{𝑒𝑛𝑑}$ is to calculate the probability of finishing the program
 
-$$
-\tilde{f}_{\pi} = \frac{1}{m} \sum_i f_{\tau_i}
-$$
+[(4)]{.red}: $𝑓_{𝑝𝑟𝑜𝑔}$ is to retrieve the next program key from memory
 
--   Finally, we can obtain an unbiased estimate of the expected reward of a policy as:
+[(5)]{.red}: $𝑓_{𝑎𝑟𝑔}$ is to return the next program’s arguments
 
-$$
-\mathbb{E} \left[ \sum_t R(s_t) \mid \pi \right] \approx \theta^\top \tilde{f}_{\pi}
-$$
+[(6)]{.red}: $(𝑀_{𝑗,}^{𝑘𝑒𝑦})^{𝑇}𝑘$ is to measure cosine similarity
+
+[(7)]{.red}: $𝑓_{env}$ is a domain-specific transition mapping
 :::
 
-## Background \[Ng & Russell 2000, Abbeel & Ng 2004\]
+## Training
 
--   Therefore, we can rewrite our inequality as:
-
-$$
-\theta^{*\top} f_{\pi^*} \geq \theta^{*\top} f_{\pi}
-$$
-
-which can in turn be **approximated** when having a dataset $D$ of expert demonstrated trajectories $D$ as:
+Directly maximize the probability of the correct execution trace output $𝞷^{𝑜𝑢𝑡}$ conditioned on $𝞷^{𝑖𝑛𝑝}$:
 
 $$
-\theta^{*\top} f_D \geq \theta^{*\top} f_{\pi} \quad \text{where} \quad f_D = \tilde{f}_{\pi^*}
+𝜃^∗ = 𝑎𝑟𝑔 \underset{𝜃}{max} \sum_{(𝞷^{𝑖𝑛𝑝}, 𝞷^{𝑜𝑢𝑡})} 𝑙𝑜𝑔𝑃(𝞷^{𝑜𝑢𝑡}|𝞷^{𝑖𝑛𝑝}, 𝜃)
 $$
 
--   By sampling expert trajectories to compute the feature count estimate, we **tackle the challenge of the partial observability** of the expert policy.
+Then we can just run gradient ascent to optimize it
 
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
+## Tasks
 
--   Let's recap the IRL Challenges:
+• Addition
 
-    -   [Assumes we know the expert policy $\pi^*$]{.green}
+[• Teach the model the standard grade school algorithm of adding 2 base-10 numbers]{.small-math}
 
-    -   [Assumes optimality of the expert]{.green}
+• Sorting
 
-    -   [Assumes we can enumerate all policies]{.green}
+[• Teach the model bubble sorting to sort an array of numbers in ascending order]{.small-math}
 
-    -   [Reward function ambiguity (e.g. R=0 is a solution)]{.red}
+• Canonicalizing 3D models
 
-## Maximum Entropy Principle {.r-fit-text}
+[• Teach the model to generate a trajectory of actions that delivers the camera to the target view, e.g, frontal pose at a 15° elevation]{.small-math}
 
-::: {.absolute top="70" right="0"}
-$$
-H(p) = -\int_x p(x)\log p(x)dx
-$$
-:::
+## Adding numbers together
+
+![](images/add-numbers.png)
+
+## Addition demo
+
+![](images/add-demo.gif)
+
+## Bubble sort
+
+![](images/bubble-sort.png)
+
+## Sorting demo
+
+![](images/sort-demo.gif)
+
+## Canonicalizing 3D models
+
+![](images/3dmodels.png)
+
+## Canonicalizing demo
+
+![](images/canonical-demo.gif)
+
+## Experiments
 
 <br>
 
-$$
-p(x) = ? 
-\qquad
-\begin{cases}
-\underset{p(x)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
-\text{subject to} \int_a^b p(x)dx = 1
-\qquad
-\end{cases}
-$$
+• Data Efficiency
 
-## Maximum Entropy Principle {.r-fit-text}
+• Generalization
+
+• Learning new programs with a fixed NPI cores
+
+## Data Efficiency - Sorting
 
 <br>
 
-$$
-p(x) = ?
-\qquad
-\begin{cases}
-\underset{p(x)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
-\text{subject to} & \int_x p(x)dx = 1 \\[0.5em]
-& \mathbb{E}_{x \sim p(x)}[x] = \frac{1}{|D|} \sum_{x_i \in D} x_i = \hat{\mu} \\[0.5em]
-& \mathbb{V}_{x \sim p(x)}[x] = \frac{1}{|D|} \sum_{x_i \in D} (x_i - \hat{\mu})^2 = \hat{\sigma}^2
-\end{cases}
-$$
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-$$
-p(\tau|\theta) = ? 
-\qquad
-\begin{cases}
-\underset{p(\tau|\theta)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
-\text{subject to} & \sum_{\tau} p(\tau|\theta) = 1 \\[0.5em]
-& \mathbb{E}_{\tau \sim p(\tau|\theta)}[\mathbf{f}_{\tau}] = \frac{1}{|D|} \sum_{\tau \in D} \mathbf{f}_{\tau}
-\end{cases}
-$$
-
-::: {.red-annotation .right-align}
-**Assumption:** Trajectories (states and action sequences) here are discrete
-:::
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
--   Applying the principle of maximum entropy **breaks the ambiguity of the reward function.**
-
--   Leads us to a distribution over behaviors constrained to match feature expectations of the demonstrations while **having no preference to any particular path that fits this constraint.**
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-$$
-p(\tau|\theta) = \frac{\exp(\theta^{\top}\mathbf{f}_{\tau})}{Z(\theta)} 
-\qquad
-\begin{cases} 
-\underset{p(\tau|\theta)}{\text{argmax}} \, \mathcal{H}(p) \\[0.5em]
-\text{subject to} & \sum_{\tau} p(\tau|\theta) = 1 \\[0.5em]
-& \mathbb{E}_{\tau \sim p(\tau|\theta)}[\mathbf{f}_{\tau}] = \frac{1}{|D|} \sum_{\tau \in D} \mathbf{f}_{\tau}
-\end{cases}
-$$
-
-[Linear Reward Function]{.small-math}
-
-$R_{\theta}(\tau) = \theta^{\top}\mathbf{f}_{\tau}$
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-::: small-math
-$$
-\left.
-\begin{aligned}
-p(\tau \mid \theta) &= \frac{\exp\!\bigl(\theta^\top \mathbf{f}_\tau\bigr)}{Z(\theta)} \\[8pt]
-\textbf{Linear Reward Function}\\
-R_\theta(\tau) &= \theta^\top \mathbf{f}_\tau
-\end{aligned}
-\right\}
-\qquad
-p(\tau \mid \theta) \;=\; p(x_0)\,
-\prod_{t=0}^{T-1} p(x_{t+1}\!\mid\!x_t,u_t)\,\pi_\theta(u_t\!\mid\!x_t)
-\;=\; \frac{\exp\!\bigl(R_\theta(\tau)\bigr)}{Z(\theta)}
-$$
-:::
-
-## Maximum Entropy Principle \[Ziebart et al. 2008\]
-
-![](images/maximum-entropy1.png)
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-![](images/maximum-entropy2.png)
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-![](images/maximum-entropy3.png)
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-![](images/maximum-entropy4.png)
-
-## Maximum Entropy IRL \[Ziebart et al. 2008\]
-
-![](images/maximum-entropy5.png)
-
-## State visitation distribution
-
 ::::: columns
 ::: {.column width="50%"}
--   The exponential growth of paths with the MDPs time horizon makes enumeration-based approaches infeasible.
-
--   The authors proposed a **DP algorithm similar to value iteration** to compute the state visitation distribution efficiently.
+![](images/data-sort.png)
 :::
 
 ::: {.column width="50%"}
-![](images/algo1.png)
+• Seq2Seq LSTM and NPI used the same number of layers and hidden units.
+
+• Trained on length up to 20 arrays of single-digit numbers.
+
+• NPI benefits from mining multiple subprogram examples per sorting instance, and additional parameters of the program memory.
 :::
 :::::
 
-## Learning from demonstrations \[Ziebart et al. 2008\]
+## Generalization - Sorting
 
--   As we have seen, maximizing the entropy subject to the feature counts constraint is equivalent to maximize the likelihood of the demonstrated trajectories D with an exponential family as our path distribution: $$
-    \theta^{*} = \arg\max_{\theta} L(\theta) = \arg\max_{\theta} \sum_{\tilde{\tau} \in D} \log P(\tilde{\tau} \mid \theta, T)
-    $$
-
--   For deterministic MDPs, this function is convex and can be optimized using gradient descent:
-
-$$
-\nabla L(\theta) = 
-\underbrace{\tilde{\mathbf{f}}} 
-- \sum_{\tau} P(\tau \mid \theta, T) \mathbf{f}_{\tau} = 
-\tilde{\mathbf{f}} - 
-\underbrace{\sum_{s_i} \mu_{s_i}} \mathbf{f}_{s_i}
-$$
-
-::: {.small-math .absolute bottom="30" left="200"}
-In practice we use empirical, sample-based\
-expectations of the expert agent
-:::
-
-::: {.small-math .absolute bottom="30" right="200"}
-State visitation distribution
-:::
-
-## MaxEnt high-level algorithm
-
-![](images/high-level-algo.png)
-
-## Application: Driver Route Modelling
-
--   Interested in **predicting driver behavior** and **route recommendation**
--   Pittsburgh’s **road network as an MDP**
-    -   $>$ 300,000 states or road segments
-    -   $>$ 900,000 actions or transitions at intersections
--   Destination is represented as an absorbing state with zero-cost. Thus, trips with different destinations will have slightly different MDPs
--   **Assumption: the reward weights are independent of the goal state.** A single reward weight is then learned from many MDPs that only differ in the goal
-
-## Application: Driver Route Modelling
-
--   Dataset
-    -   GPS data from \>100,000 miles and 3,000 hours of taxi trips
-    -   Fit the sparse GPS data to the road network using a particle filter
-    -   Segmented the traces into 13,000 trips using a time-based threshold to determine stops
--   Path features (low dimensional, 22 counts)
-    -   Road type: from interstate to local road
-    -   Speed: from high speed to low speed
-    -   Lanes: from single-lane to many-lanes
-    -   Transitions: straight, left, right, hard left, hard right
-
-## Application: Driver Route Modelling
-
-:::::: small-math
--   **Maximize the probability of demonstrated paths** using MaxEnt IRL\*
--   Baselines:
-    -   **Time-based**: Based on expected time travels. Weights the cost of a unit distance of road to be inversely proportional to the speed of the road.
-    -   **Max-margin** \[Ratliff et al. 2006\]: Model capable of predicting new paths, but incapable of density estimation. Directly measures disagreement between the expert and learned policy
-    -   **Action-based** \[Ramachandran et al. 2007, Neu et al. 2007\]: The choice of an action is distributed according to the future expected reward of the best policy after taking that action. Suffers from label bias (local distribution of probability mass):
-
-::::: columns
-::: {.column width="50%"}
-![](images/driver-route-modelling.png)
-:::
-
-::: {.column width="50%"}
-MaxEnt: paths 1, 2, 3 will have 33% probability
-
-Action-based: 50% path 3, 25% paths 1 and 2
-:::
-:::::
-
-\*applied to a "fixed class of reasonably good paths" instead of the full training set
-::::::
-
-## Application: Driver Route Modelling
-
-![](images/driver-route-table.png)
-
--   **Matching**: Average percentage of distance matching
--   **90% Match**: Percentage of examples with at least 90% matching distance
--   **Log Prob:** Average log probability
-
-## Application: Driver Route Modelling
-
--   Learned costs:
-    -   Additionally, learned a fixed per edge cost of 1.4 seconds to penalize roads composed of many short paths
-
-![](images/driver-route-diagram.png)
-
-## Application: Driver Route Modelling
-
--   **Predicting destination**: so far we have only described situations where the driver intended destination is known. We can use Bayes rule to predict destination\* given our current model.
-
-::::: columns
-::: {.column width="50%"}
 <br>
 
-$$
-P(\text{dest} \mid \tilde{\tau}_{A \rightarrow B}) \propto P(\tilde{\tau}_{A \rightarrow B} \mid \text{dest}) \, P(\text{dest})
-$$
-
-$$
-\propto \frac{\sum_{\tau_{B \rightarrow \text{dest}}} e^{\theta^{\top} f_{\tau}}}{\sum_{\tau_{A \rightarrow \text{dest}}} e^{\theta^{\top} f_{\tau}}} \, P(\text{dest})
-$$
+::::: columns
+::: {.column width="50%"}
+![](images/gen-sort.png)
 :::
 
 ::: {.column width="50%"}
-![](images/driver-route-graph.png){fig-align="right"}
+• For each length **up to 20**, they provided 64 example bubble sort traces, for a total of 1216 examples.
+
+• Then, they evaluated whether the network can learn to sort arrays beyond length 20
 :::
 :::::
 
-\*posed as a multiclass classification problem over 5 possible destinations
+## Generalization - Adding
 
-## Reflections
+<br>
 
-::: green
--   Solves the reward ambiguity problem by applying the Maximum Entropy theorem, i.e. using path distributions in the exponential family
--   SOTA performance and guarantees a t the time for linear reward functions
+::::: columns
+::: {.column width="50%"}
+![](images/add-sort.png)
 :::
 
-::: red
--   Derivations assume linear reward function
--   MaxEnt IRL requires to know the environment dynamics T (model-given)
--   Need to solve full RL problem at each iteration. Only reasonable for small MDPs, i.e. low-dimensional state-action spaces
+::: {.column width="50%"}
+• NPI trained on **32 examples** for sequence **length up to 20**
+
+• s2s-easy trained on **twice** as many examples as NPI (purple curve)
+
+• s2s-stack trained on **16 times** more examples than NPI (orange curve)
+:::
+:::::
+
+## Generalization - Adding
+
+<br>
+
+::::: columns
+::: {.column width="50%"}
+![](images/npi-demo.png)
 :::
 
-## Today's agenda
+::: {.column width="50%"}
+• NPI trained on **32 examples** for sequence **length up to 20**
 
--   [Learning linear rewards from trajectory demonstrations in 2D]{.grey-text}
+• s2s-easy trained on **twice** as many examples as NPI (purple curve)
 
--   Learning nonlinear rewards from trajectory demonstrations in 2D
+• s2s-stack trained on **16 times** more examples than NPI (orange curve)
+:::
+:::::
 
--   Guided cost learning in any D
+## Learning New Programs with a Fixed NPI Core
 
--   Updating distributions over reward parameters using preference elicitation
+• Toy example: maximum-finding in an array
 
--   Human-robot dialog with uncertainty quantification
+• Simple (not optimal) way: call BUBBLESORT and then take the right-most element of the array. Two new programs:
+
+• **RJMP**: Move all pointers to the rightmost position in the array by repeatedly calling RSHIFT program
+
+• **MAX**: Call BUBBLESORT and then RJMP
+
+• Expand program memory by adding 2 slots. Then learn by backpropagation with the NPI core and all other parameters fixed.
+
+## Learning New Programs with a Fixed NPI Core
+
+![](images/rjmp-max.png){fig-align="center" height="240"}
+
+::: {.red-annotation .absolute right="0" bottom="50%"}
+Only the memory slots of\
+the new program are updated!\
+All other weights are\
+fixed!
+:::
+
+Protocol:
+
+• Randomly initialize new program vectors in memory
+
+• Freeze core and other program vectors
+
+• Backpropagate gradients to new program vectors
+
+## Quantitative Results
+
+![](images/quantitative-table.png){fig-align="center" height="240"}
+
+• Numbers are per-sequence % accuracy
+
+• + Max: indicates performance after addition of MAX program to memory
+
+• “unseen” uses a test set with disjoint car models from the training set
+
+## Today’s agenda
+
+::: grey-text
+• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
+:::
+
+• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
+
+• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
+
+• Learning to search in Task and Motion Planning (TAMP)
+
+• Generalization through imitation – using hierarchical policies
 
 ::: aside
-Acknowledgments:\
-Today's slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
 :::
 
-## Large scale cost function learning for path planning using deep inverse reinforcement learning
+## Neural Task Programming: Learning to Generalize Across Hierarchical Tasks {.center}
 
-**Wulfmeier et. al (IJRR 2017)**
+Danfei Xu, Suraj Nair, Yuke Zhu, Julian Gao, Animesh Garg, Li Fei-Fei, Silvio Savarese
+
+Presented by Angran Li\
+February 8, 2019
+
+## How the Algorithm works?
+
+![](images/how-algo-works.png)
+
+-   Task Demonstration: state trajectory, first/third-person video demonstrations, or a list of language instructions.
+-   Task-Conditional Policy: a neural program.
+-   Using callable primitive actions to interact with the environment.
+
+## How the Algorithm works?
+
+![](images/how-algo-works2.png){fig-align="center"}
+
+Top-level program block_stacking is recursively decomposed to bottom-level API move_to and grip.
+
+## Goals
+
+Learning to Generalize Across Hierarchical Tasks
+
+-   Generalizing the learned policies to new task objectives
+    -   Task Length: more objects to transport
+    -   Task Semantics: a different goal
+    -   Task Topology: a different trajectory to the same goal
+-   Hierarchical composition of primitive actions
+    -   Modularization and reusability
+    -   Learn the latent structure in complex tasks, instead of fake dependencies
+
+## Implementation: Neural Task Programming
+
+![](images/neural-task-programming.png){fig-align="center"}
+
+-   Observation Encoder: observation $o_i \Rightarrow$ state representation $s_i$
+-   Task Spec. Interpreter: $\Rightarrow$ API arguments $a_i$ or task spec. $\psi_{i+1}$
+-   Task Spec. Encoder: task spec. $\psi_i \Rightarrow$ vector space $\phi_i$
+-   Core Network: $s_i, P_i, \phi_i \Rightarrow P_{i+1}, r_i$
+
+## Implementation: Standing on the shoulder of NPI
+
+Neural Task Programming combines the idea of **Few-Shot Learning from Demonstration** and **Neural Programmer-Interpreters**.
+
+-   Similarities when executing a program:
+    -   When the EOP probability exceeds a threshold $\alpha$, control is returned to the caller program;
+    -   When the program is not primitive, a sub-program with its arguments is called;
+    -   When the program is primitive, a low-level basic action is performed.
+-   Two similar modules:
+    -   Domain-specific task encoders that map an observation to a state representation.
+    -   A key-value memory that stores and retrieves program embeddings.
+
+## Implementation: NTP vs NPI
+
+-   **NPI**: one-shot generalization to tasks with longer lengths; can't generalizing to novel programs without training.
+-   **NTP**: generalizes to sub-task permutations (topology) and success conditions (semantics).
+-   Three main **differences** of NTP than the original NPI:
+    -   NTP can interpret task specifications and perform hierarchical decomposition and thus can be considered as a **meta-policy**;
+    -   It uses robot **APl**s as the primitive actions to scale up neural programs for complex tasks;
+    -   It uses a **reactive core network** instead of a **recurrent network**, making the model less history-dependent, enabling feedback control for recovery from failures.
+
+## Model Training
+
+-   The model is trained using rich supervision from program execution traces $\{\xi_t| \xi_t = (\Psi_t, p_t, s_t), t = 1 \ldots T\}$.
+
+-   The training objective is to maximize the probability of the correct executions over all the tasks in the dataset $D = \{(\xi_t, \xi_{t+1})\}$.
+
+-   For each task specification, the ground-truth hierarchical decomposition is provided by the expert policy, which is an agent with hard-coded rules.
+
+## Experiments: Setup
+
+![](images/experiments-setup.png){fig-align="center"}
+
+-   Generalization in 3 variations: semantics, topology, and length.
+-   Using image-based input without access to ground truth state.
+-   Working in real-world tasks combine these variations.
+
+→ Three tasks: Object Sorting, Block Stacking, and Table Clean-up
+
+## Experiments: Object Sorting
+
+![](images/object-sorting.png){fig-align="center"}
+
+-   **Flat**: non-hierarchical model, directly predicts the primitive APls instead of calling hierarchical programs.
+
+-   **GRU**: Gated Recurrent Unit.
+
+## Experiments: Block Stacking
+
+![](images/block-stacking.png){fig-align="center"}
+
+-   **NTPVID(E2E)**: Trained with only visual information.
+-   **NTP(Full State)**: Trained with ground-truth hierarchical decomposition.
+
+## Experiments: Table Clean-up
+
+![](images/table-cleanup.png){fig-align="center"}
+
+-   Sort plastic bowls and forks into a stack, so they can be steadily carried away.
+
+-   Task variations:
+
+    -   Task length: number of bowls and forks varies.
+    -   Task topology: the ordering in which bowls are stacked varies.
+
+## Discussion & Future Work
+
+-   **Neural Task Programming**:
+    -   A meta-learning framework that learns modular and reusable neural programs for hierarchical tasks.
+    -   Generalizing well towards the variation of task length, semantics, and topology for complex tasks.
+-   **Future work**:
+    -   Improve the state encoder to extract more task-salient information such as object relationships;
+    -   Devise a richer set of APls such as velocity and torque-based controllers;
+    -   Extend this framework to tackle more complex tasks on real robots.
 
 ## 
 
-![](images/deep-irl-title.png)
+<!-- {{< video https://www.youtube.com/watch?v=YWkBRPnGUqA?rel=0&enablejsapi=1 width="100%" height="80%" >}} -->
 
-## Deep Maximum Entropy IRL \[Wulfmeier et al. 2017\]
+<iframe data-external="1" src="https://www.youtube.com/embed/YWkBRPnGUqA?rel=0&amp;enablejsapi=1" width="100%" height="80%">
 
-![](images/deep-maxent-irl.png)
+</iframe>
 
-## Benchmarking
+[<https://www.youtube.com/watch?v=YWkBRPnGUqA>]{.tiny-font}
 
-::::: columns
-::: {.column width="50%"}
-| • Reward function FCN:
-|      • Two hidden layers
-|      • ReLU activation
-|      • 1x1 filter weights
+## Questions? {.center}
 
-• Evaluation metric: expected value difference
-
-• Compared against Linear MaxEnt, GPIRL, NPB-FIRL
-:::
-
-::: {.column width="50%"}
-![ObjectWorld](images/benchmarking.png)
-:::
-:::::
-
-## Benchmarking
-
-::: {layout-ncol="2"}
-![ObjectWorld](images/benchmarking-1.png){height="500"}
-
-![BinaryWorld](images/benchmarking-2.png)
-:::
-
-## Proposed Network Architectures
-
-![](images/network_architectures.png){fig-align="center"}
-
-## Large-scale Demonstration
-
-::::: columns
-::: {.column width="40%"}
--   13 drivers
--   $>$ 25,000 trajectories 12m-15m long
-
-<br>
-
--   **Goal:** reward map given features
-    -   Steepness
-    -   Corner cases (underpasses, stairs)
-:::
-
-::: {.column width="60%"}
-![Mobile research platform: a modified GEM golf cart](images/large_scale_demo.png)
-:::
-:::::
-
-## Network Input Data
-
-![](images/network_input_data.png)
-
-## Evaluation
-
--   No absolute ground truth
--   Compared against manual cost functions
--   Metrics:
-    -   NLL – negative log-likelihood
-    -   MHD – Hausdorff distance
-    -   FNR – False negative rate
-    -   FPR – False positive rate
-
-![](images/evaluation_metrics.png)
-
-## Robustness to Systematic Noise
-
-![](images/robustness_noise.png)
-
-## Pretraining
-
-![](images/pretraining.png)
-
-## Limitations
-
--   Does not address velocity profiles
--   Does not consider temporal consistency between consecutive cost maps
-    -   Possibly introduce RNNs or temporal convolutions
-
-## Today's agenda
+## Today’s agenda
 
 ::: grey-text
-• Learning linear rewards from trajectory demonstrations in 2D
+• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
 
-• Learning nonlinear rewards from trajectory demonstrations in 2D
+• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
 :::
 
-• Guided cost learning in any D
+• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
 
-• Updating distributions over reward parameters using preference elicitation
+• Learning to search in Task and Motion Planning (TAMP)
 
-• Human-robot dialog with uncertainty quantification
+• Generalization through imitation – using hierarchical policies
 
 ::: aside
-Acknowledgments:\
-Today's slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
 :::
 
-## Guided Cost Learning \[Finn, Levine, Abbeel et al. 2016\]
+## TACO: Learning Task Decomposition via Temporal Alignment for Control {.center}
 
-:::::::: columns
-::: {.column width="35%"}
-$$
-p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
-$$
+Kyriacos Shiarlis, Markus Wulfmeier, Sasha Salter, Shimon Whiteson, Ingmar Posner
 
-Nonlinear Reward Function
-
-Learned Features
-:::
-
-::: {.column width="5%"}
-![](images/long-bracket.png)
-:::
-
-::::: {.column .small-math width="60%"}
-$p(\tau|\theta) = p(x_0) \prod_{t=0}^{T-1} \underbrace{p(x_{t+1}|x_t, u_t)} \pi_{\theta}(u_t|x_t) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}$
-
-::: {.red-annotation .center-align}
-True and stochastic dynamics (unknown)
-:::
-
-<br> Log-likelihood of observed dataset D of trajectories
-
-$$
-L(\theta) = \frac{1}{|D|} \sum_{\tau \in D} \log p(\tau|\theta) = \frac{1}{|D|} \sum_{\tau \in D} -c_{\theta}(\tau) - \log Z(\theta)
-$$
-
-::: fragment
-![](images/guided-cost-learning.png)
-:::
-:::::
-::::::::
-
-## [Approximating the gradient of the log-likelihood]{.medium}
-
-:::::::: columns
-::: {.column width="35%"}
-$$
-p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
-$$
-
-Nonlinear Reward Function
-
-Learned Features
-:::
-
-::: {.column width="5%"}
-![](images/long-bracket.png){height="400"}
-:::
-
-::::: {.column width="60%"}
-$$
-\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}
-$$
-
-:::: {.red-annotation .right-align}
-How do you approximate this expectation?
-
-::: fragment
-Idea #1: sample from $p(\tau | \theta)$\
-(can you do this)
-:::
-::::
-:::::
-::::::::
-
-## [Approximating the gradient of the log-likelihood]{.medium}
-
-:::::::: columns
-::: {.column width="35%"}
-$$
-p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
-$$
-
-Nonlinear Reward Function
-
-Learned Features
-:::
-
-::: {.column width="5%"}
-![](images/long-bracket.png){height="400"}
-:::
-
-::::: {.column width="60%"}
-$$
-\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}
-$$
-
-:::: {.red-annotation .right-align}
-How do you approximate this expectation?
-
-Idea #1: sample from $p(\tau | \theta)$\
-(don't know the dynamics)
-
-::: fragment
-Idea #2: sample from an easier distribution $q(\tau | \theta)$\
-that approximates $p(\tau | \theta)$
-
-**Importance Sampling**\
-see Relative Entropy Inverse RL by Boularias, Kober, Peters
-:::
-::::
-:::::
-::::::::
-
-## Importance Sampling
-
-How to estimate properties/statistics of one distribution (p) given samples from another distribution (q)
+## Motivation – Block Stacking Task
 
 ::::: columns
 ::: {.column width="50%"}
-![](images/importance_sampling_concept.png)
+![](images/block-stack.png)
 :::
 
 ::: {.column width="50%"}
-$$
-\begin{align}
-\mathbb{E}_{x \sim p(x)}[f(x)] &= \int f(x)p(x)\,dx \\
-&= \int \frac{q(x)}{q(x)} f(x)p(x)\,dx \\
-&= \int f(x)p(x)\frac{q(x)}{q(x)}\,dx \\
-&= \mathbb{E}_{x\sim q(x)}\left[ f(x)\frac{p(x)}{q(x)}\right] \\
-&= \mathbb{E}_{x\sim q(x)}[f(x)w(x)]
-\end{align}
-$$
+<br>
+
+-   Complex tasks can often be broken down into simpler sub-tasks
+
+-   Most Learning from Demonstration (LfD) algorithms can only learn a single policy for the whole task
+
+-   Resulting in more complex policies, and also less reusable
 :::
 :::::
 
-::: red-annotation
-Weights = likelihood ratio, i.e. how to reweigh samples to obtain statistics of p from samples of q
+## Modular LfD
+
+<br>
+
+-   Modelling the task as a composition of sub-tasks
+
+-   Reusable sub-policies (modules) are learned for each sub-task.
+
+-   Sub-policies are easier to learn and can be composed in different ways to execute new tasks.
+
+Key approach: provide the learner with additional information about the demonstration
+
+## TACO: Temporal Alignment for Control
+
+-   Partly supervised
+-   Domain agnostic
+-   Demonstration is augmented by [task sketches - a sequence of sub-tasks that occur within the demonstration]{.red}
+
+$$
+𝛕 = (b1, b2, . . . , bL),
+$$
+
+-   Simultaneously aligns the sketches with the observed demonstrations and learns the required sub-policies
+
+## Example: Block stacking task
+
+![](images/block-stack-ex.png){fig-align="center"}
+
+## Problem
+
+<br>
+
+How to align task-sketches with the demonstration?
+
+Solution: Borrow temporal sequence alignment techniques from speech recognition!
+
+## TACO: Temporal Alignment for Control
+
+::::: columns
+::: {.column width="60%"}
+<br>
+
+𝛕 = (b1, b2, . . . , bL),
+
+Input sequence ρ with length T
+
+A path $ζ = (ζ_1, ζ_2, ..., ζ_T )$ is a sequence of sub- tasks of the same length as the input sequence ρ, describing the active sub-task $ζ_t$ at every time-step
+
+$Z_{T,𝛕}$ is the set of all possible paths of length T for a task sketch 𝛕
+
+Eg. T = 6, 𝛕 = (b1, b2, b3), ζ = (b1, b1, b2, b3, b3, b3)
 :::
 
-## [Importance Sampling: Pitfalls and Drawbacks]{.medium}
-
-What can go wrong?
-
-:::::::: columns
 ::: {.column width="40%"}
-![](images/importance_sampling_concept.png)
-:::
-
-::: {.column .small-math width="35%"}
-$$
-\begin{align}
-\mathbb{E}_{x \sim p(x)}[f(x)] &= \int f(x)p(x)\,dx \\
-&= \int \frac{q(x)}{q(x)} f(x)p(x)\,dx \\
-&= \int f(x)p(x)\frac{q(x)}{q(x)}\,dx \\
-&= \mathbb{E}_{x\sim q(x)}\left[ f(x)\frac{p(x)}{q(x)}\right] \\
-&= \mathbb{E}_{x\sim q(x)}[f(x)w(x)]
-\end{align}
-$$
-:::
-
-::::: {.column .red-annotation width="25%"}
-**Problem #1:**\
-If q(x) = 0 but f(x)p(x) \> 0\
-for x in non-measure-zero\
-set then there is estimation bias
-
-<br>
-
-::: fragment
-**Problem #2:**\
-Weights measure mismatch between q(x) and p(x). If mismatch is large then some weights will dominate. If x lives in high dimensions a single weight may dominate
-:::
-
-<br>
-
-::: fragment
-**Problem #3:**\
-Variance of estimator is high if (q – fp)(x) is high
+![](images/taco.png)
 :::
 :::::
-::::::::
 
-::: {.fragment .absolute .small-math bottom="0" left="0"}
-For more info see:\
-#1, #3: Monte Carlo theory, methods, and examples, Art Owen, chapter 9\
-#2: Bayesian reasoning and machine learning, David Barber, chapter 27.6 on importance sampling
+## TACO: Temporal Alignment for Control
+
+Objective: Maximise the joint log likelihood of the task sequence and the actions conditioned on the states
+
+$$
+p(\tau, \mathbf{a}_\rho \mid s_\rho) = \sum_{\zeta \in \mathbb{Z}_{T, \tau}} p(\zeta \mid s_\rho) \prod_{t=1}^{T} \pi_{\theta_{\zeta_t}} (a_t \mid s_t)
+$$
+
+$p(ζ |s_ρ)$ is the product of the stop, $a_{STOP}$ , and nonstop, $ā_{STOP}$, probabilities associated with any given path.
+
+Eg. T = 4, $s_⍴ = (s_0, s_1, s_2, s_3)$, 𝛕 = (b1, b2), ζ = (b1, b1, b2, b2)
+
+$p(ζ |sρ) = π_{b1}(non-stop)^* π_{b1}(stop)^* π_{b2}(non-stop)^* π_{b2}(stop)$
+
+## TACO: Temporal Alignment for Control
+
+Problem: Impossible to compute all paths ζ in $Z_{T,tau}$ for long sequence
+
+Solution: Dynamic Programming
+
+The (joint) likelihood of a being at sub-task l at time t can be formulated in terms of **forward variables**:
+
+$$
+\alpha_t(l) := \sum_{\zeta_{1:t} \in \mathbb{Z}_t, \tau_{1:l}} p(\zeta \mid s_\rho) \prod_{t' = 1}^{t} \pi_{\theta_{\zeta_{t'}}}(a_{t'} \mid s_{t'})
+$$
+
+## TACO: Temporal Alignment for Control
+
+::::: columns
+::: {.column .small-math width="50%"}
+<br>
+
+$\alpha_1(l) = \begin{cases}
+\pi_{\theta_{b_1}}(a_1|s_1), & \text{if } l = 1, \\
+0, & \text{otherwise}.
+\end{cases}$
+
+$\alpha_t(l) = \pi_{\theta_{b_l}}(a_t|s_t) \left[ \alpha_{t-1}(l-1) \pi_{\theta_{b_{l-1}}}(a_{STOP}|s_t) \right.$
+
+$\left. + \alpha_{t-1}(l)(1 - \pi_{\theta_{b_l}}(a_{STOP}|s_t)) \right].$
+
+<br>
+
+$\alpha_T(L) = p(\tau, \mathbf{a}_\rho|\mathbf{s}_\rho).$
 :::
 
-## Importance Sampling
+::: {.column width="50%"}
+![](images/taco-alignment.png)
+:::
+:::::
 
-What is the best approximating distribution q?
+Training: Maximize $⍺_T(L)$ over θ
+
+## Experiments: Nav-World
 
 ::::: columns
 ::: {.column width="50%"}
-![](images/importance_sampling_concept.png)
+Setup:
+
+-   The agent (blue) receives a route as a task sketch.
+-   𝛕 = (black, green, yellow, red)
+-   State space: (x, y) distance from each of the destination points
+-   Action space: $(v_x, v_y)$ - the velocity
+
+Training:
+
+-   Provided with state-action trajectories ⍴ and the task sketch.
+-   At the end of learning, the agent learns four sub-policies
 :::
 
 ::: {.column width="50%"}
-$$
-\begin{align}
-\mathbb{E}_{x \sim p(x)}[f(x)] &= \int f(x)p(x)\,dx \\
-&= \int \frac{q(x)}{q(x)} f(x)p(x)\,dx \\
-&= \int f(x)p(x)\frac{q(x)}{q(x)}\,dx \\
-&= \mathbb{E}_{x\sim q(x)}\left[ f(x)\frac{p(x)}{q(x)}\right] \\
-&= \mathbb{E}_{x\sim q(x)}[f(x)w(x)]
-\end{align}
-$$
+![](images/nav-world.png)
+
+<br><br>
+
+Test:
+
+-   Given an unseen task sketch.
+-   Considered successful if the agent visits all destinations in the correct order
 :::
 :::::
 
-Best approximation $q(x) \propto f(x)p(x)$
-
-## Importance Sampling
-
-**How does this connect back to partition function estimation?**
+## Experiments: Nav-World
 
 ::::: columns
 ::: {.column width="50%"}
-![](images/importance_sampling_concept.png)
+![Success Rate](images/nav-world-success.png)
 :::
 
 ::: {.column width="50%"}
-$$
-\begin{align}
-Z(\theta) &= \sum_{\tau} \exp(-c_{\theta}(\tau)) \\
-&= \sum_{\tau} \exp(-c_{\theta}(\tau)) \\
-&= \sum_{\tau} \frac{q(\tau|\theta)}{q(\tau|\theta)} \exp(-c_{\theta}(\tau)) \\
-&= \mathbb{E}_{\tau \sim q(\tau|\theta)} \left[ \frac{\exp(-c_{\theta}(\tau))}{q(\tau|\theta)} \right]
-\end{align}
-$$
+![Alignment Accuracy](images/nav-world-alignment.png)
 :::
 :::::
 
-. . .
+## Experiments: Dial Domain
 
-Best approximation $q(\tau | \theta) \propto exp(-c_{\theta} (\tau))$
-
-. . .
-
-::: {.red-annotation .absolute bottom="30" right="80"}
-![](images/redcircle.png){width="100"}
-
-Cost function estimate changes at each gradient step\
-Therefore the best approximating distribution should change as well
+::::: columns
+::: {.column width="50%"}
+![](images/dial-domain.png)
 :::
 
-## [Approximating the gradient of the log-likelihood]{.medium}
-
-:::::::: columns
-::: {.column width="35%"}
-$$
-p(\tau|\theta) = \frac{\exp(-c_{\theta}(\tau))}{Z(\theta)}
-$$
-
-Nonlinear Reward Function
-
-Learned Features
-:::
-
-::: {.column width="5%"}
-![](images/long-bracket.png){height="400"}
-:::
-
-::::: {.column width="60%"}
-$$
-\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}
-$$
-
-:::: {.red-annotation .right-align}
-How do you approximate this expectation?
-
-Idea #1: sample from $p(\tau | \theta)$\
-(don't know the dynamics)
-
-Idea #2: sample from an easier distribution $q(\tau | \theta)$\
-that approximates $p(\tau | \theta)$
-
-![](images/importance-sampling.png){height="80"}\
-
-::: fragment
-![](images/adaptive-importance-sampling.png){height="80"}
-:::
-::::
-:::::
-::::::::
-
-## Guided Cost Learning
-
-How do you select q?
-
-<br><br>
-
-How do you adapt it as the cost c changes?
-
-## Guided Cost Learning: the punchline
-
-How do you select q?
-
-<br><br>
-
-How do you adapt it as the cost c changes?
-
-::: red-annotation
-Given a fixed cost function c, the distribution of trajectories that Guided Policy Search computes is close to $\frac{\exp(-c(\tau))}{Z}$
-
-i.e. it is good for importance sampling of the partition function Z
-:::
-
-## Recall: Finite-Horizon LQR
-
-$P_0 = Q$
-
-// $n$ is the \# of steps left
-
-for $n = 1 \dots N$
-
-$K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A$
-
-$P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)$
-
-Optimal control for time $t = N - n$ is $u_t = K_t x_t$ with cost-to-go $J_t(x) = x^T P_t x$
-
-where the states are predicted forward in time according to linear dynamics.
-
-## [Recall: LQG = LQR with stochastic dynamics]{.medium}
-
-Assume $x_{t+1} = Ax_t + Bu_t + w_t$ and $c(x_t, u_t) = x_t^T Q x_t + u_t^T R u_t$
-
-::: {.red-annotation .absolute left="370" top="110"}
-$\uparrow$\
-zero mean Gaussian
-:::
-
-<br><br>
-
-Then the form of the optimal policy is the same as in LQR: $u_t = K \hat{x}_t$ $\color{red} \leftarrow$ [estimate of the state]{.red-annotation}
-
-No need to change the algorithm, as long as you observe the state at each step (closed-loop policy)
-
-::: {.red .absolute bottom="0" right="0"}
-Linear Quadratic Gaussian LQG
-:::
-
-## Deterministic Nonlinear Cost & Deterministic Nonlinear Dynamics
-
-$$
-\begin{align}
-u_0^*, \ldots, u_{N-1}^* &= \underset{{u_0, \ldots, u_N}}{\arg\min} \sum_{t=0}^{N} c(x_t, u_t) \\
-& \text{s.t.} \\
-& x_1 = f(x_0, u_0) \\
-& x_2 = f(x_1, u_1) \\
-& ... \\
-& x_N = f(x_{N-1}, u_{N-1})
-\end{align}
-$$
-
-::: {.red-annotation .absolute right="0" bottom="50%"}
-Arbitrary differentiable functions $c$, $f$
-:::
-
-::: red-annotation
-**iLQR**: iteratively approximate solution by solving linearized versions of the problem via LQR
-:::
-
-## Deterministic Nonlinear Cost & Stochastic Nonlinear Dynamics
-
-$$
-\begin{align}
-u_0^*, \ldots, u_{N-1}^* &= \underset{{u_0, \ldots, u_N}}{\arg\min} \sum_{t=0}^{N} c(x_t, u_t) \\
-& \text{s.t.} \\ 
-& x_1 = f(x_0, u_0) + w_0 \\
-& x_2 = f(x_1, u_1) + w_1 \\
-& ... \\
-& x_N = f(x_{N-1}, u_{N-1}) + w_{N-1}
-\end{align}
-$$
-
-::: {.red-annotation .absolute .right-align right="0" bottom="50%"}
-Arbitrary differentiable functions $c$, $f$
-
-[$w_t \sim N(0, W_t)$]{.black}
-:::
-
-::: red-annotation
-**iLQG**: iteratively approximate solution by solving linearized versions of the problem via LQG
-:::
-
-## Recall from Guided Policy Search
-
-::::::::: small-math
-$\underset{q(\tau)}{\text{argmin}} \quad \mathbb{E}_{\tau \sim q(\tau)}[c(\tau)]$
-
-$\text{subject to} \quad q(x_{t+1}|x_t, u_t) = \mathcal{N}(x_{t+1}; f_{xt}x_t + f_{ut}u_t, F_t) \qquad \color{red}\Leftarrow \quad \text{Learn linear Gaussian dynamics}$
-
-$\qquad \qquad \text{KL}(q(\tau) || q_{\text{prev}}(\tau)) \leq \epsilon$
-
-::: fragment
-![](images/downarrow.png){height="50"}
-
-$q_{\text{gps}}(\tau) = \underset{q(\tau)}{\text{argmin}} \quad \mathbb{E}_{\tau \sim q(\tau)}[c(\tau)] - \mathcal{H}(q(\tau))$
-
-$\qquad \qquad \text{subject to} \quad q(x_{t+1}|x_t, u_t) = \mathcal{N}(x_{t+1}; f_{xt}x_t + f_{ut}u_t, F_t)$
-:::
-
-:::: fragment
-![](images/downarrow.png){height="50"}
-
-$q_{\text{gps}}(\tau) = q(x_0) \prod_{t=0}^{T-1} q(x_{t+1}|x_t, u_t)q(u_t|x_t)$
-
-::: {.absolute bottom="80" left="200"}
-$\qquad \color{red} \uparrow \qquad \quad \uparrow$\
-[Linear Gaussian\
-dynamics and controller]{.red}
-:::
-::::
-
-::::: fragment
-![](images/rightuparrow.png){.absolute height="300" right="190" bottom="150"}
-
-::: {.red .absolute right="250" bottom="80"}
-Run controller on the robot\
-Collect trajectories
-:::
-
-::: {.absolute right="50" bottom="40%"}
-$q_{prev} = q_{gps}$
+::: {.column width="50%"}
+![](images/dial-domain-graph.png)
 :::
 :::::
-:::::::::
 
-## Recall from Guided Policy Search
+## Summary: TACO - Temporal Alignment for Control
 
-::: small-math
-$\arg\min_{q(\tau)} \; \mathbb{E}_{\tau \sim q(\tau)} [c(\tau)]$
+-   Modular LfD
 
-$\begin{align} \text{subject to} & \quad q(x_{t+1} \mid x_t, u_t) = \mathcal{N}(x_{t+1}; f_{xt}x_t + f_{ut}u_t, F_t) \color{red} \qquad \Leftarrow \text{Learn Linear Gaussian dynamics} \\
-& \text{KL}(q(\tau) \parallel q_{\text{prev}}(\tau)) \leq \epsilon \end{align}$
+-   Weak supervision - task sketch
 
-![](images/guided-policy-eqaution.png)
-:::
+-   Optimising the sub-policies over a distribution of possible alignments
 
-::: {.red-annotation .right-align}
-Given a fixed cost function c, the linear\
-Gaussian controllers that GPS computes\
-induce a distribution of trajectories close to\
-$\frac{\exp(-c(\tau))}{Z}$
+## Future Work & Limitation
 
-i.e. good for importance sampling of the partition function Z
-:::
+Limitation:
 
-## Guided Cost Learning \[rough sketch\]
-
-Collect demonstration trajectories D\
-Initialize cost parameters $\theta_0$
-
-:::::: columns
-::: {.column width="10%"}
-![](images/black-arrow.png)
-:::
-
-:::: {.column width="90%"}
-Do forward optimization using Guided Policy Search for cost function $c_{\theta_t} (\tau)$\
-and compute linear Gaussian distribution of trajectories $q_{gps} (\tau)$
-
-$\nabla_{\theta} L(\theta) = -\frac{1}{|D|} \sum_{\tau \in D} \nabla_{\theta} c_{\theta}(\tau) + \underbrace{\sum_{\tau} p(\tau \mid \theta) \nabla_{\theta} c_{\theta}(\tau)}$
-
-::: {.right-align .small-math}
-Importance sample trajectories from $q_{gps} (\tau)$
-:::
+-   Sub-tasks in the task sketch has to be placed in the correct order
 
 <br>
 
-$\theta_{t+1} = \theta_t + \gamma \nabla_{\theta} L(\theta_t)$
-::::
-::::::
+Future work:
 
-## Regularization of learned cost functions
+-   Task sketches are dissimilar to natural human communication. Combination of TACO with architectures that can handle natural language.
 
-$$
-g_{\text{lcr}}(\tau) = \sum_{x_t \in \tau} \left[ \left(c_{\theta}(x_{t+1}) - c_{\theta}(x_t)\right) - \left(c_{\theta}(x_t) - c_{\theta}(x_{t-1})\right) \right]^2 
-$$
+-   Hierarchical task decomposition.
+
+## Today’s agenda
+
+::: grey-text
+• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
+
+• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
+
+• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
+:::
+
+• Learning to search in Task and Motion Planning (TAMP)
+
+• Generalization through imitation – using hierarchical policies
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
+:::
+
+## Task and Motion Planning
+
+::::: columns
+::: {.column width="50%"}
+![](images/task-motion-planning.png)
+:::
+
+::: {.column width="50%"}
+[Goal]{.underline}: move [green box]{.green} and [blue box]{.blue-text} on the goal surface
+
+[Problem]{.underline}: [grey box]{.grey-text} is obstructing
+
+[Task plan]{.underline}:
+
+1.  move [grey box]{.grey-text} where it doesn’t obstruct
+2.  move [blue box]{.blue-text} on goal surface
+3.  move [green box]{.green} on goal surface
+:::
+:::::
+
+## Task and Motion Planning
+
+::::: columns
+::: {.column .red-annotation width="50%"}
+![](images/task-motion-planning.png)
+
+Discrete action space: 3 objects x 4 operations\
+Continuous action space: 5 joint angles on the robot arm x T timesteps
+:::
+
+::: {.column width="50%"}
+find-grasp(b, hand)
+
+place(b, hand, sur face)
+
+find-traj(hand, goal)
+
+collides(arm, b, objects)
 
 <br>
 
-$$
-g_{\text{mono}}(\tau) = \sum_{x_t \in \tau} \left[ \max\left(0, c_{\theta}(x_t) - c_{\theta}(x_{t-1}) - 1\right) \right]^2
-$$
+$b \in \{b_0, b_1, b_2 \}$
+:::
+:::::
+
+## Task and Motion Planning
+
+::::: columns
+::: {.column .red-annotation width="50%"}
+![](images/task-motion-planning.png)
+
+Discrete action space: M objects x N operations\
+Continuous action space: 5 joint angles on the robot arm x T timesteps
+:::
+
+::: {.column width="50%"}
+find-grasp(b, hand)
+
+place(b, hand, sur face)
+
+find-traj(hand, goal)
+
+collides(arm, b, objects)
+
+pour(b, b')
+
+stir(b)
+
+shake(b)
+
+.\
+.\
+.
+:::
+:::::
+
+## Task and Motion Planning
+
+::::: columns
+::: {.column .red-annotation width="50%"}
+![](images/task-motion-planning.png)
+
+Discrete action space: M objects x N operations\
+Continuous action space: 5 joint angles on the robot arm x T timesteps
+:::
+
+::: {.column .small-math width="50%"}
+Discrete + Continuous Optimization
+
+![](images/task-motion-graph.png){height="250"}
+
+Expanding 1 and 2 requires solving continuous optimization problems with constraints
+:::
+:::::
+
+## 
+
+Solubility experiment
+
+{{< video https://www.youtube.com/watch?v=NjpZmaKQWls?rel=0&enablejsapi=1 width="80%" height="60%" >}}
+
+[<https://www.youtube.com/watch?v=NjpZmaKQWls>]{.tiny-font}
+
+## [Constrained Motion Planner to Avoid Spilling]{.medium}
+
+{{< video https://www.youtube.com/watch?v=NjpZmaKQWls?rel=0&enablejsapi=1 width="80%" height="60%" >}}
+
+[<https://www.youtube.com/watch?v=NjpZmaKQWls>]{.tiny-font}
 
 ##  {.center}
 
-{{< video https://www.youtube.com/watch?v=hXxaepw0zAw&ab_channel=RAIL?rel=0&enablejsapi=1 aspect-ratio="16x9" width="900" >}}
+These plans are useful, but unfortunately discrete + continuous optimization is [slow]{.red}
 
-[Source: <https://www.youtube.com/watch?v=hXxaepw0zAw&ab_channel=RAIL>]{.small-math}
+Q: How can we [learn to plan]{.red} from past experience of having solved similar problems?
 
-## Today's agenda
+## [Learning to Rank Objects and Operations from Past Experience]{.medium}
+
+![](images/rank-obj1.png){fig-align="center"}
+
+## [Learning to Rank Objects and Operations from Past Experience]{.medium}
+
+![](images/rank-obj2.png){fig-align="center"}
+
+## 
+
+{{< video https://www.youtube.com/watch?v=pzzpR4wh_Zk&t=15s?enablejsapi=1&rel=0 width="100%" height="80%" >}}
+
+[<https://www.youtube.com/watch?v=pzzpR4wh_Zk&t=15s>]{.tiny-font}
+
+## Learned (Informed) Planner Finds Solutions Faster
+
+![](images/learned-planner.png)
+
+[\*Learning to Search in Task and Motion Planning with Streams, Khodeir et al, Robotics and Automation Letters. 2022]{.tiny-font}
+
+## Today’s agenda
 
 ::: grey-text
-• Learning linear rewards from trajectory demonstrations in 2D
+• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)
 
-• Learning nonlinear rewards from trajectory demonstrations in 2D
+• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)
 
-• Guided cost learning in any D
+• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)
+
+• Learning to search in Task and Motion Planning (TAMP)
 :::
 
-• Updating distributions over reward parameters using preference elicitation
-
-• Human-robot dialog with uncertainty quantification
+• Generalization through imitation – using hierarchical policies\
+[source: <https://www.youtube.com/watch?v=hlvRmLlYHZ0&t=111s&ab_channel=RoboticsScienceandSystems>]{.tiny-font}
 
 ::: aside
-Acknowledgments:\
-Today's slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao
-:::
-
-## Active Preference-Based Learning of Reward Functions {.center}
-
-By: Dorsa Sadigh, Anca D. Dragan, Shankar Sastry, and Sanjit A. Seshia
-
-## 
-
-{{< video videos/active-preference-based.mp4 width="800" height="550" >}}
-
-Source: <https://rss2017.lids.mit.edu/static/slides/04.mp4>
-
-## Preference Based Learning
-
-::::: columns
-::: {.column width="60%"}
-Learn rewards from expert preference
-
-1.  Have an estimate of reward function
-
-2.  Pick two candidate trajectories
-
-3.  Ask the human which trajectory is preferred
-
-4.  Use preference as feedback to update reward function
-
-| • Preference based learning is active
-| • Rewards updated directly
-|   • No inner RL loop
-|   • No probability estimation required
-:::
-
-::: {.column width="40%"}
-![](images/preference-diagram.png)
-:::
-:::::
-
-## Problem Statement: Autonomous Driving
-
-::::: columns
-::: {.column width="60%"}
--   2 vehicles on the road:
-    -   Our orange vehicle denoted 𝐻
-    -   Other white vehicle/robot denoted 𝑅
--   States: $(x_H, x_R)$
--   Inputs: $(u_H, u_R)$
--   Dynamics: $x^{t+1} = f_{HR}(x^t, u_H, u_R)$
--   Finite Trajectories: $\xi = \{(x^0, u^0_H, u^0_R), \ldots, (x^N, u^N_H, u^N_R)\}$
--   Feasible Trajectories: $\xi \in \Xi$
-:::
-
-::: {.column width="40%"}
-![](images/autonomous-driving.png)
-:::
-:::::
-
-## Reward Function
-
--   Reward at a state:
-
-$$
-r_H(x^t, u_H^t, u_R^t) = w^T \phi(x^t, u_H^t, u_R^t) 
-$$
-
--   Reward over a finite trajectory: $$
-    \begin{align}
-    R_H(\xi) &= R_H(x_0, \mathbf{u}_H, \mathbf{u}_R) = \sum_{t=0}^{N} r_H(x^t, u_H^t, u_R^t) \\
-    &= w^T \Phi(\xi)
-    \end{align}
-    $$
-
-## Preference
-
-::::: columns
-::: {.column width="60%"}
--   Given 2 trajectories $\xi_A$ and $\xi_B$
-
--   Preference variable 𝐼
-
-$$
-I = 
-\begin{cases}
-+1, & \text{if } \xi_A \text{ is preferred} \\
--1, & \text{if } \xi_B \text{ is preferred}
-\end{cases} \\
-$$
-
-$\xi_A \text{ or } \xi_B \rightarrow I$
-
-![](images/preference-diagram3.png)
-:::
-
-::: {.column width="40%"}
-![](images/preference-diagram2.png)
-:::
-:::::
-
-## Weight Update
-
-::::: columns
-::: {.column width="60%"}
--   Assume probabilistic model: weights come from a distribution\
--   Preference is noisy:
-
-$$
-P(I|w) = 
-\begin{cases} 
-\frac{\exp(R_H(\xi_A))}{\exp(R_H(\xi_A)) + \exp(R_H(\xi_B))}, & \text{if } I = +1 \\ 
-\frac{\exp(R_H(\xi_B))}{\exp(R_H(\xi_A)) + \exp(R_H(\xi_B))}, & \text{if } I = -1 
-\end{cases}
-$$
-
--   Some simplification:
-
-$\varphi = \Phi(\xi_A) - \Phi(\xi_B) \qquad \quad f_{\varphi}(w) = P(I|w) = \frac{1}{1 + \exp(-I w^T \varphi)}$
-:::
-
-::: {.column width="40%"}
-![](images/preference-diagram4.png)
-:::
-:::::
-
-## Generate Trajectories
-
-::::: columns
-::: {.column width="60%"}
--   Two feasible trajectories: $𝜉_𝐴$,$𝜉_𝐵$
-
--   Want each update to give most information
-
--   Maximize minimum volume removed with a query:
-
-$\underset{{\xi_A, \xi_B}}{\max} \min\left( \mathbb{E}_W[1 - f_{\phi}(w)], \; \mathbb{E}_W[1 - f_{-\phi}(w)] \right)$
-
--   A binary query corresponds to selecting sides of hyperplane $𝒘^𝑻 𝜑=0$
-
--   Response increases probability of weights on one side of hyperplane and decreases the other side.
-:::
-
-::: {.column width="40%"}
-![](images/preference-diagram5.png){height="200"}
-
-![](images/trajectories-diagram.png){height="300"}
-:::
-:::::
-
-## 
-
-![](images/generate-trajectories-note.png)
-
-## Algorithm Summary
-
-![](images/algo-summary.png)
-
-## Algorithm Summary
-
-![](images/algo-summary2.png)
-
-## Algorithm Summary
-
-![](images/algo-summary3.png)
-
-## Algorithm Summary
-
-![](images/algo-summary4.png)
-
-## Algorithm Summary
-
-![](images/algo-summary5.png)
-
-## Results
-
--   Weights begin with uniform probability
--   Convergence after 200 iterations
-
-![](images/result-fig3.png){width="300"}
-
-## Results
-
--   Rate of convergence, active synthesis is faster!
--   Blue curve: generated feasible trajectories not optimized for weight updates
--   Black curve: non active trajectories, equivalent to expert dataset
--   Lighter colours: training on non feasible trajectories
-
-![](images/results-diagram.png)
-
-## Results
-
-::::: columns
-::: {.column width="60%"}
--   Perturbation of weights
-    -   Learned weights: $𝒘^∗$
-    -   Slightly perturbed weights: $𝒘^1$
-    -   Largely perturbed weights: $𝒘^𝟐$
--   Users prefer $𝒘^∗$
-
-![](images/results-graph.png)
-:::
-
-::: {.column width="40%"}
-![](images/results-car.png){height="500"}
-:::
-:::::
-
-## Check out their library for preference learning
-
-<br><br>
-
-<https://github.com/Stanford-ILIAD/APReL>
-
-## Today's agenda
-
-::: grey-text
-• Learning linear rewards from trajectory demonstrations in 2D
-
-• Learning nonlinear rewards from trajectory demonstrations in 2D
-
-• Guided cost learning in any D
-
-• Updating distributions over reward parameters using preference elicitation
-:::
-
-• Human-robot dialog with uncertainty quantification
-
-::: aside
-Acknowledgments:\
-Today's slides are based on student presentations from 2019 by: Sergio Casas, Sean Liu, Jacky Liao
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu
 :::
 
 ## 
 
-{{< video https://www.youtube.com/watch?v=xCXx09gfhx4&t=3s?rel=0&enablejsapi=1 aspect-ratio="16x9" width="900" >}}
-
-[<https://www.youtube.com/watch?v=xCXx09gfhx4&t=3s>]{.tiny-font}
+{{< video https://www.youtube.com/watch?v=hlvRmLlYHZ0?rel=0&enablejsapi=1 width="100%" height="80%" >}}
