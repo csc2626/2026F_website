@@ -32,7 +32,7 @@
     "href": "lecs/w01/lec01.html#grading",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Grading",
-    "text": "Grading\nTwo assignments: 30%\nCourse project: 60%\n\n• Project proposal: 10%\n• Project presentation: 25%\n• Final project report (6-8 pages) + code: 25%\nProject guidelines https://csc2626.github.io/2026F_website/project-description.html\n\nIn-class panel discussions: 10%\n\n\\(\\leftarrow\\) Individual submissions\n\\(\\leftarrow\\) Individual submissions"
+    "text": "Grading\nTwo assignments: 30%\nCourse project: 60%\n\n• Project proposal: 10%\n• Project presentation: 25%\n• Final project report (6-8 pages) + code: 25%\nProject guidelines https://csc2626.github.io/2026F_website/project-description.html\n\nIn-class panel discussions: 10%\n\n\\(\\leftarrow\\) Individual submissions\n\\(\\leftarrow\\) Group submissions\n\\(\\leftarrow\\) Individual submissions"
   },
   {
     "objectID": "lecs/w01/lec01.html#evaluation-environments-simulators-real-robots",
@@ -60,7 +60,7 @@
     "href": "lecs/w01/lec01.html#applications",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Applications",
-    "text": "Applications\n\n\nAny control problem where:\n\nwriting down a dense cost function is difficult\nthere is a hierarchy of decision-making processes\nour engineered solutions might not cover all cases\nunrestricted exploration during learning is slow or dangerous\n\n\n\n\n\n\nhttps://www.youtube.com/watch?v=M8r0gmQXm1Y"
+    "text": "Applications\n\n\nAny control problem where:\n\nwriting down a dense cost function is difficult\nthere is a hierarchy of interacting decision-making processes\nour engineered solutions might not cover all cases\nunrestricted exploration during learning is slow or dangerous\n\n\n\n\n\n\nhttps://www.youtube.com/watch?v=M8r0gmQXm1Y"
   },
   {
     "objectID": "lecs/w01/lec01.html#applications-1",
@@ -95,7 +95,7 @@
     "href": "lecs/w01/lec01.html#back-to-the-future",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Back to the future",
-    "text": "Back to the future\n\n\n\n\nhttps://www.youtube.com/watch?v=I39sxwYKlEE\nErnst Dickmans + Mercedes (1986-2003)\n\n\nhttps://www.youtube.com/watch?v=2KMAAmkz9go\nNavlab 1 (1986-1989)\n\n\nhttps://www.youtube.com/watch?v=ilP4aPDTBPE\nNavlab 2 + ALVINN, Dean Pomerleau’s PhD thesis (1989-1993)\n30 x 32 pixels, 3-layer network, outputs steering command, ~5 minutes of training per road type"
+    "text": "Back to the future\n\n\n\n\nhttps://www.youtube.com/watch?v=I39sxwYKlEE\nErnst Dickmans + Mercedes (1986-2003)\n\n\nhttps://www.youtube.com/watch?v=2KMAAmkz9go\nNavlab 1 (1986-1989)\n\n\nhttps://www.youtube.com/watch?v=HmLafSKdCRs\nNavlab 2 + ALVINN, Dean Pomerleau’s PhD thesis (1989-1993)\n30 x 32 pixels, 3-layer network, outputs steering command, ~5 minutes of training per road type"
   },
   {
     "objectID": "lecs/w01/lec01.html#alvinn-architecture",
@@ -301,6 +301,13 @@
     "text": "No-Regret Online Learners\nIntuition: No matter what the distribution of input data, your online policy/classifier will do asymptotically as well as the best-in-hindsight policy/classifier.\n\n\n\n\\[\nr_N = \\frac{1}{N} \\sum_{i=1}^{N} L_i(\\theta_i) - \\min_{\\theta \\in \\Theta} \\left[ \\frac{1}{N} \\sum_{i=1}^{N} L_i(\\theta) \\right]\n\\]\n\n\\(\\qquad \\qquad \\quad \\big\\uparrow\\)\nPolicy has access to\ndata up to round N\n\n\n\\(\\qquad \\quad \\big\\uparrow\\)\nPolicy has access to\ndata up to round i\n\n\nNo-regret: \\(\\lim_{N \\to \\infty} r_N = 0\\)\n\nWe can see Dagger as an adversarial game between the imitation learner (policy) and an adversary (environment):"
   },
   {
+    "objectID": "lecs/w01/lec01.html#llms-also-do-behavioral-cloning.-why-dont-they-suffer-from-compounding-errors",
+    "href": "lecs/w01/lec01.html#llms-also-do-behavioral-cloning.-why-dont-they-suffer-from-compounding-errors",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "LLMs also do behavioral cloning. Why don’t they suffer from compounding errors?",
+    "text": "LLMs also do behavioral cloning. Why don’t they suffer from compounding errors?"
+  },
+  {
     "objectID": "lecs/w01/lec01.html#is-the-quadratic-regret-in-horizon-unavoidable-for-behavioral-cloningno",
     "href": "lecs/w01/lec01.html#is-the-quadratic-regret-in-horizon-unavoidable-for-behavioral-cloningno",
     "title": "CSC2626 Imitation Learning for Robotics",
@@ -315,6 +322,13 @@
     "text": "Is the quadratic regret in horizon unavoidable for behavioral cloning?No\n\n\n\n\n\n\n\n• Dagger’s analysis uses 0-1 loss to show quadratic regret in horizon for BC. It also only considers deterministic and linear policies.\n\n• If instead we use log-loss BC:\n\\[\n\\hat{\\pi} = \\arg\\min_{\\pi \\in \\Pi} \\left[ -\\sum_{i=1}^{N} \\sum_{t=1}^{T} \\log \\pi(a_t^i | x_t^i) \\right]\n\\]\nand we normalize the reward then\n\n• BC can be shown to have linear regret in horizon, even for neural network policies."
   },
   {
+    "objectID": "lecs/w01/lec01.html#regret-upper-bound-on-bc",
+    "href": "lecs/w01/lec01.html#regret-upper-bound-on-bc",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Regret upper bound on BC",
+    "text": "Regret upper bound on BC"
+  },
+  {
     "objectID": "lecs/w01/lec01.html#todays-agenda-2",
     "href": "lecs/w01/lec01.html#todays-agenda-2",
     "title": "CSC2626 Imitation Learning for Robotics",
@@ -322,18 +336,81 @@
     "text": "Today’s agenda\n\n• Administrivia\n• Topics covered by the course\n• Behavioral cloning\n• Imitation learning\n\n• Teleoperation interfaces for manipulation\n• Imitation via multi-modal generative models (diffusion policy)\n• (Time permitting) Query the expert only when policy is uncertain"
   },
   {
-    "objectID": "lecs/w01/lec01.html#appendix-2-why-do-behavioral-cloning-errors-accumulate-quadratically",
-    "href": "lecs/w01/lec01.html#appendix-2-why-do-behavioral-cloning-errors-accumulate-quadratically",
+    "objectID": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation",
+    "href": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Appendix 2: Why do behavioral cloning errors accumulate quadratically?",
-    "text": "Appendix 2: Why do behavioral cloning errors accumulate quadratically?\n\n\n\n\n\n\n\n\nEfficient reductions for imitation learning. Ross & Bagnell, AISTATS 2010."
+    "section": "Teleoperation interfaces for manipulation",
+    "text": "Teleoperation interfaces for manipulation\nALOHA: A Low-cost Open-source Hardware System for Bimanual Teleoperation (Zhao, Kumar, Levine, Finn — RSS 2023)\n\nTwo leader-follower arm pairs (~$20k) let a human teleoperate precise, bimanual manipulation\nPaired with Action Chunking Transformer (ACT) for imitation learning from ~50 demos per task\n\nhttps://tonyzhaozh.github.io/aloha/"
   },
   {
-    "objectID": "lecs/w01/lec01.html#appendix-3-types-of-uncertainty-query-efficient-imitation",
-    "href": "lecs/w01/lec01.html#appendix-3-types-of-uncertainty-query-efficient-imitation",
+    "objectID": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation-1",
+    "href": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation-1",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Appendix 3: Types of Uncertainty & Query-Efficient Imitation",
-    "text": "Appendix 3: Types of Uncertainty & Query-Efficient Imitation\nLet’s revisit the two main ideas from query-efficient imitation:\n\n1. DropoutDAgger:\n          Keep an ensemble of learner policies, and only query the expert when they significantly disagree\n\n2. SHIV, SafeDagger, MMD-IL:\n          (Roughly) Query expert only if input is too close to the decision boundary of the learner’s policy\n\n\nNeed to review a few concepts about different types of uncertainty."
+    "section": "Teleoperation interfaces for manipulation",
+    "text": "Teleoperation interfaces for manipulation\n\nhttps://tonyzhaozh.github.io/aloha/"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation-2",
+    "href": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation-2",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Teleoperation interfaces for manipulation",
+    "text": "Teleoperation interfaces for manipulation\nMobile ALOHA: whole-body teleoperation for mobile bimanual tasks (Fu, Zhao, Finn — 2024)\n\n\n\nhttps://www.youtube.com/watch?v=HaaZ8ss-HP4\n\n\nUntethered, whole-body teleop: a human backpacks the mobile base’s controls while operating the leader arms\nCo-training on static ALOHA data improves mobile task success with as few as 50 demos"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation-3",
+    "href": "lecs/w01/lec01.html#teleoperation-interfaces-for-manipulation-3",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Teleoperation interfaces for manipulation",
+    "text": "Teleoperation interfaces for manipulation\nUMI: Universal Manipulation Interface (Chi et al, RSS 2024)\n\nA hand-held, GoPro-instrumented gripper decouples data collection from any specific robot embodiment\nDemonstrations collected “in the wild” (no robot needed) transfer zero-shot to deployable, dynamic/bimanual/precise policies\n\n\nhttps://umi-gripper.github.io/"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-implicit-behavioral-cloning",
+    "href": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-implicit-behavioral-cloning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Imitation via multi-modal generative models (Implicit Behavioral Cloning)",
+    "text": "Imitation via multi-modal generative models (Implicit Behavioral Cloning)\nImplicit Behavioral Cloning (Florence et al, CoRL 2021)\n\nExplicit policy: train a network to directly regress \\(\\hat{a} = F_\\theta(o)\\) (or a simple Gaussian/mixture head), a continuous function, so it cannot represent discontinuous or multi-valued action targets\nImplicit policy: train an energy-based model \\(E_\\theta(o,a)\\) with an InfoNCE-style contrastive loss (classify the demonstrated action against sampled negatives), then act via \\(\\hat{a} = \\arg\\min_a E_\\theta(o,a)\\), solved with derivative-free sampling/optimization at inference time\nComposing energy landscapes lets implicit models fit sharp discontinuities and multimodal action distributions that explicit regression smooths over\n\nhttps://implicitbc.github.io/"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-implicit-behavioral-cloning-1",
+    "href": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-implicit-behavioral-cloning-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Imitation via multi-modal generative models (Implicit Behavioral Cloning)",
+    "text": "Imitation via multi-modal generative models (Implicit Behavioral Cloning)\n\n\n\nOn a toy pixel-coordinate regression task, the implicit (EBM) model stays accurate even for query points outside the convex hull of the training examples, while the explicit (MSE) model’s error blows up there\nOn real-robot precision tasks (tight insertion, sorting, pushing) implicit policies trained with the same architecture/data as explicit baselines achieve substantially higher success\nSame recipe generalizes to image observations and high-dimensional action spaces, without needing an explicit likelihood or partition function"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-diffusion-policy",
+    "href": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-diffusion-policy",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Imitation via multi-modal generative models (Diffusion Policy)",
+    "text": "Imitation via multi-modal generative models (Diffusion Policy)\nDiffusion Policy: Visuomotor Policy Learning via Action Diffusion (Chi et al, RSS 2023)\n\nExplicit policies (\\(\\hat a = F_\\theta(o)\\)): mode-average multimodal demos, e.g. “left or right” collapses to “straight through”\nImplicit policies (\\(\\arg\\min_a E_\\theta(o,a)\\)): multimodal, but the energy landscape is unstable/hard to train\nDiffusion policy: iteratively denoises \\(\\hat a\\) along \\(\\nabla E(a)\\), same expressiveness, stable DDPM-style training\n\nhttps://diffusion-policy.cs.columbia.edu/"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-diffusion-policy-1",
+    "href": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-diffusion-policy-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Imitation via multi-modal generative models (Diffusion Policy)",
+    "text": "Imitation via multi-modal generative models (Diffusion Policy)\n\nhttps://diffusion-policy.cs.columbia.edu/"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-diffusion-policy-2",
+    "href": "lecs/w01/lec01.html#imitation-via-multi-modal-generative-models-diffusion-policy-2",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Imitation via multi-modal generative models (Diffusion Policy)",
+    "text": "Imitation via multi-modal generative models (Diffusion Policy)\n\n\n\nConditions on a short history of observations \\(O_t\\), denoises a whole action sequence \\(A_t\\) (not a single action) — action chunking again reduces compounding error and captures temporally consistent multimodal behavior\nExecutes a receding horizon: run a few actions from the predicted sequence, then re-observe and re-plan"
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#appendix-1-why-do-behavioral-cloning-errors-accumulate-quadratically",
+    "href": "lecs/w01/lec01.html#appendix-1-why-do-behavioral-cloning-errors-accumulate-quadratically",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Appendix 1: Why do behavioral cloning errors accumulate quadratically?",
+    "text": "Appendix 1: Why do behavioral cloning errors accumulate quadratically?\n\n\n\n\n\n\n\n\nEfficient reductions for imitation learning. Ross & Bagnell, AISTATS 2010."
+  },
+  {
+    "objectID": "lecs/w01/lec01.html#appendix-2-types-of-uncertainty-query-efficient-imitation",
+    "href": "lecs/w01/lec01.html#appendix-2-types-of-uncertainty-query-efficient-imitation",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Appendix 2: Types of Uncertainty & Query-Efficient Imitation",
+    "text": "Appendix 2: Types of Uncertainty & Query-Efficient Imitation\nLet’s revisit the two main ideas from query-efficient imitation:\n\n1. DropoutDAgger:\n          Keep an ensemble of learner policies, and only query the expert when they significantly disagree\n\n2. SHIV, SafeDagger, MMD-IL:\n          (Roughly) Query expert only if input is too close to the decision boundary of the learner’s policy\n\n\nNeed to review a few concepts about different types of uncertainty."
   },
   {
     "objectID": "lecs/w01/lec01.html#biased-coin",
