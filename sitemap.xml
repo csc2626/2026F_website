@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://csc2626.github.io/2026F_website/course-grading.html</loc>
-    <lastmod>2026-09-07T23:10:10.119Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/rubric-project-presentation.html</loc>
+    <lastmod>2026-09-08T00:46:12.483Z</lastmod>
   </url>
   <url>
     <loc>https://csc2626.github.io/2026F_website/lecs/w01/lec01.html</loc>
@@ -25,31 +25,35 @@
     <lastmod>2026-09-07T23:10:10.276Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/course-syllabus.html</loc>
-    <lastmod>2026-09-07T23:10:10.120Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/exams/exam-2.html</loc>
-    <lastmod>2026-09-07T23:10:10.121Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/exams/exam-1.html</loc>
-    <lastmod>2026-09-07T23:10:10.121Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/course-schedule.html</loc>
-    <lastmod>2026-09-07T23:10:10.120Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/computing-pipelines.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/computing-troubleshooting.html</loc>
     <lastmod>2026-09-07T23:10:10.119Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/supplemental/log-transformations.html</loc>
-    <lastmod>2026-09-07T23:10:11.275Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/project-description.html</loc>
+    <lastmod>2026-09-07T23:10:11.239Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/supplemental/model-diagnostics-matrix.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/exams/exam-3.html</loc>
+    <lastmod>2026-09-07T23:10:10.121Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/course-support.html</loc>
+    <lastmod>2026-09-07T23:19:55.536Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/course-faq.html</loc>
+    <lastmod>2026-09-07T23:10:10.119Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/supplemental/model-selection-criteria.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/supplemental/slr-derivations.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/supplemental/mlr-matrix.html</loc>
     <lastmod>2026-09-07T23:10:11.276Z</lastmod>
   </url>
   <url>
@@ -117,199 +121,15 @@
     <lastmod>2026-09-07T23:10:11.747Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/course-team.html</loc>
-    <lastmod>2026-09-07T23:10:10.120Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/index.html</loc>
+    <lastmod>2026-09-08T01:08:10.608Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/course-overview.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/computing-access.html</loc>
     <lastmod>2026-09-07T23:10:10.119Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/project-tips-resources.html</loc>
-    <lastmod>2026-09-07T23:10:11.240Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-10-flight-delays.html</loc>
-    <lastmod>2026-09-07T23:10:10.109Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-3-duke-forest.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-7-exam-2-review.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-12-exam-3-review.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-8-rail-trail.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-4-exam-1-review.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-5-the-office.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/hw/hw-2.html</loc>
-    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/hw/hw-4.html</loc>
-    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-14.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-8.html</loc>
-    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-12.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-11.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-2.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-1.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-5.html</loc>
-    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-6.html</loc>
-    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/course-links.html</loc>
-    <lastmod>2026-09-07T23:10:10.119Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-7.html</loc>
-    <lastmod>2026-09-07T23:10:10.161Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-4.html</loc>
-    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/Week4_Experts_Privileged_Information.html</loc>
-    <lastmod>2026-09-07T23:10:10.142Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-3.html</loc>
-    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/Week5_IRL_MaxEnt.html</loc>
-    <lastmod>2026-09-07T23:10:10.144Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/Week11_Imitation_Learning_Videos.html</loc>
-    <lastmod>2026-09-07T23:10:11.745Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/Week5_Preference_Reward_Infer.html</loc>
-    <lastmod>2026-09-07T23:10:10.144Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/Week11_Causal_Confusion_Imitation_Learning.html</loc>
-    <lastmod>2026-09-07T23:10:10.140Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-2.html</loc>
-    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-1.html</loc>
-    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-0.html</loc>
-    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-5.html</loc>
-    <lastmod>2026-09-07T23:10:10.161Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/labs/lab-6.html</loc>
-    <lastmod>2026-09-07T23:10:10.161Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/LICENSE.html</loc>
-    <lastmod>2026-09-07T23:10:09.679Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-7.html</loc>
-    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-4.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-3.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-10.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-13.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-9.html</loc>
-    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/weeks/week-15.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/hw/hw-5.html</loc>
-    <lastmod>2026-09-07T23:10:10.123Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/hw/hw-3.html</loc>
-    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/hw/hw-1.html</loc>
-    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-11-volcanoes.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-6-the-office-cv.html</loc>
-    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-1-dcbikeshare.html</loc>
-    <lastmod>2026-09-07T23:10:10.109Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-9-odds.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-2-dcbikeshare.html</loc>
     <lastmod>2026-09-07T23:10:10.110Z</lastmod>
   </url>
   <url>
@@ -317,16 +137,196 @@
     <lastmod>2026-09-07T23:10:10.109Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/ae/ae-2-dcbikeshare.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-9-odds.html</loc>
     <lastmod>2026-09-07T23:10:10.110Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/computing-access.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-1-dcbikeshare.html</loc>
+    <lastmod>2026-09-07T23:10:10.109Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-6-the-office-cv.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-11-volcanoes.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/hw/hw-1.html</loc>
+    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/hw/hw-3.html</loc>
+    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/hw/hw-5.html</loc>
+    <lastmod>2026-09-07T23:10:10.123Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-15.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-9.html</loc>
+    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-13.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-10.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-3.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-4.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-7.html</loc>
+    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/LICENSE.html</loc>
+    <lastmod>2026-09-07T23:10:09.679Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-6.html</loc>
+    <lastmod>2026-09-07T23:10:10.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-5.html</loc>
+    <lastmod>2026-09-07T23:10:10.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-0.html</loc>
+    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-1.html</loc>
+    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-2.html</loc>
+    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/Week11_Causal_Confusion_Imitation_Learning.html</loc>
+    <lastmod>2026-09-07T23:10:10.140Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/Week5_Preference_Reward_Infer.html</loc>
+    <lastmod>2026-09-07T23:10:10.144Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/Week11_Imitation_Learning_Videos.html</loc>
+    <lastmod>2026-09-07T23:10:11.745Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/Week5_IRL_MaxEnt.html</loc>
+    <lastmod>2026-09-07T23:10:10.144Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-3.html</loc>
+    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/Week4_Experts_Privileged_Information.html</loc>
+    <lastmod>2026-09-07T23:10:10.142Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-4.html</loc>
+    <lastmod>2026-09-07T23:10:10.160Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/labs/lab-7.html</loc>
+    <lastmod>2026-09-07T23:10:10.161Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/course-links.html</loc>
     <lastmod>2026-09-07T23:10:10.119Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/index.html</loc>
-    <lastmod>2026-09-07T23:10:10.138Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-6.html</loc>
+    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-5.html</loc>
+    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-1.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-2.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-11.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-12.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-8.html</loc>
+    <lastmod>2026-09-07T23:10:11.277Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/weeks/week-14.html</loc>
+    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/hw/hw-4.html</loc>
+    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/hw/hw-2.html</loc>
+    <lastmod>2026-09-07T23:10:10.122Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-5-the-office.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-4-exam-1-review.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-8-rail-trail.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-12-exam-3-review.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-7-exam-2-review.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-3-duke-forest.html</loc>
+    <lastmod>2026-09-07T23:10:10.110Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/ae/ae-10-flight-delays.html</loc>
+    <lastmod>2026-09-07T23:10:10.109Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/project-tips-resources.html</loc>
+    <lastmod>2026-09-07T23:10:11.240Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/course-overview.html</loc>
+    <lastmod>2026-09-07T23:22:20.148Z</lastmod>
   </url>
   <url>
     <loc>https://csc2626.github.io/2026F_website/slides/lec-15.html</loc>
@@ -393,36 +393,40 @@
     <lastmod>2026-09-07T23:10:11.254Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/supplemental/mlr-matrix.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/rubric-panel-discussion.html</loc>
+    <lastmod>2026-09-08T00:51:24.641Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/supplemental/model-diagnostics-matrix.html</loc>
     <lastmod>2026-09-07T23:10:11.276Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/supplemental/slr-derivations.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/supplemental/log-transformations.html</loc>
+    <lastmod>2026-09-07T23:10:11.275Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/supplemental/model-selection-criteria.html</loc>
-    <lastmod>2026-09-07T23:10:11.276Z</lastmod>
-  </url>
-  <url>
-    <loc>https://csc2626.github.io/2026F_website/course-faq.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/computing-pipelines.html</loc>
     <lastmod>2026-09-07T23:10:10.119Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/course-support.html</loc>
-    <lastmod>2026-09-07T23:10:10.120Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/rubric-final-project-report.html</loc>
+    <lastmod>2026-09-08T00:44:40.779Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/exams/exam-3.html</loc>
+    <loc>https://csc2626.github.io/2026F_website/exams/exam-1.html</loc>
     <lastmod>2026-09-07T23:10:10.121Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/project-description.html</loc>
-    <lastmod>2026-09-07T23:10:11.239Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/exams/exam-2.html</loc>
+    <lastmod>2026-09-07T23:10:10.121Z</lastmod>
   </url>
   <url>
-    <loc>https://csc2626.github.io/2026F_website/computing-troubleshooting.html</loc>
-    <lastmod>2026-09-07T23:10:10.119Z</lastmod>
+    <loc>https://csc2626.github.io/2026F_website/course-syllabus.html</loc>
+    <lastmod>2026-09-07T23:10:10.120Z</lastmod>
+  </url>
+  <url>
+    <loc>https://csc2626.github.io/2026F_website/rubric-project-proposal.html</loc>
+    <lastmod>2026-09-08T00:46:08.536Z</lastmod>
   </url>
   <url>
     <loc>https://csc2626.github.io/2026F_website/lecs/w04/lec04.html</loc>
