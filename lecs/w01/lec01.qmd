@@ -118,7 +118,9 @@ In-class panel discussions: 10%
 ::: {.red-annotation .fragment}
 [$\leftarrow$ Individual submissions]{style="position: absolute; top: 95px; left: 300px;"}
 
-[$\leftarrow$ Individual submissions]{style="position: absolute; top: 145px; left: 300px;"}
+[$\leftarrow$ Group submissions]{style="position: absolute; top: 145px; left: 300px;"}
+
+[$\leftarrow$ Individual submissions]{style="position: absolute; top: 345px; left: 480px;"}
 :::
 
 ## Evaluation environments: simulators & real robots
@@ -185,7 +187,7 @@ Any control problem where:
 
 -   **writing down a dense cost function is difficult**
 
--   there is a hierarchy of decision-making processes
+-   there is a hierarchy of interacting decision-making processes
 
 -   our engineered solutions might not cover all cases
 
@@ -876,6 +878,10 @@ We can see Dagger as an adversarial game between the imitation learner (policy) 
 :::
 :::::::
 
+
+## [LLMs also do behavioral cloning. Why don't they suffer from compounding errors?]{style="font-size:0.8em;"}
+
+
 ## [Is the quadratic regret in horizon unavoidable for behavioral cloning?]{style="font-size:0.8em;"}[No]{style="color:red;"}
 
 ![](images/behavior-cloning.png)
@@ -910,6 +916,11 @@ and we normalize the reward then
 :::
 ::::::
 
+## [Regret upper bound on BC]{style="font-size:0.8em;"}
+
+![](images/logloss_bc.png)
+
+
 ## Today’s agenda
 
 ::: grey-text
@@ -928,7 +939,105 @@ and we normalize the reward then
 
 • (Time permitting) Query the expert only when policy is uncertain
 
-## [Appendix 2: Why do behavioral cloning errors accumulate quadratically?]{style="font-size:0.8em;"}
+
+## Teleoperation interfaces for manipulation
+
+ALOHA: A Low-cost Open-source Hardware System for Bimanual Teleoperation (Zhao, Kumar, Levine, Finn — RSS 2023)
+
+-   Two leader-follower arm pairs (\~\$20k) let a human teleoperate precise, bimanual manipulation
+-   Paired with Action Chunking Transformer (ACT) for imitation learning from \~50 demos per task
+
+[<https://tonyzhaozh.github.io/aloha/>]{.small-math}
+
+## Teleoperation interfaces for manipulation
+
+![](images/aloha_setup.jpg)
+
+[<https://tonyzhaozh.github.io/aloha/>]{.small-math}
+
+## Teleoperation interfaces for manipulation
+
+Mobile ALOHA: whole-body teleoperation for mobile bimanual tasks (Fu, Zhao, Finn — 2024)
+
+:::::: columns
+::: {.column width="45%"}
+{{< video https://www.youtube.com/watch?v=HaaZ8ss-HP4 width="100%" height="280" >}}
+
+[<https://www.youtube.com/watch?v=HaaZ8ss-HP4>]{.small-math}
+:::
+
+::: {.column width="55%"}
+-   Untethered, whole-body teleop: a human backpacks the mobile base's controls while operating the leader arms
+-   Co-training on static ALOHA data improves mobile task success with as few as 50 demos
+:::
+::::::
+
+## Teleoperation interfaces for manipulation
+
+UMI: Universal Manipulation Interface (Chi et al, RSS 2024)
+
+-   A hand-held, GoPro-instrumented gripper decouples data collection from any specific robot embodiment
+-   Demonstrations collected "in the wild" (no robot needed) transfer zero-shot to deployable, dynamic/bimanual/precise policies
+
+![](images/umi_hardware.jpg){width="850"}
+
+[<https://umi-gripper.github.io/>]{.small-math}
+
+## Imitation via multi-modal generative models (Implicit Behavioral Cloning)
+
+Implicit Behavioral Cloning (Florence et al, CoRL 2021)
+
+-   **Explicit policy**: train a network to directly regress $\hat{a} = F_\theta(o)$ (or a simple Gaussian/mixture head), a continuous function, so it cannot represent discontinuous or multi-valued action targets
+-   **Implicit policy**: train an energy-based model $E_\theta(o,a)$ with an InfoNCE-style contrastive loss (classify the demonstrated action against sampled negatives), then act via $\hat{a} = \arg\min_a E_\theta(o,a)$, solved with derivative-free sampling/optimization at inference time
+-   Composing energy landscapes lets implicit models fit sharp discontinuities and multimodal action distributions that explicit regression smooths over
+
+
+[<https://implicitbc.github.io/>]{.small-math}
+
+## Imitation via multi-modal generative models (Implicit Behavioral Cloning)
+
+:::::: columns
+::: {.column width="55%"}
+-   On a toy pixel-coordinate regression task, the implicit (EBM) model stays accurate even for query points *outside* the convex hull of the training examples, while the explicit (MSE) model's error blows up there
+-   On real-robot precision tasks (tight insertion, sorting, pushing) implicit policies trained with the same architecture/data as explicit baselines achieve substantially higher success 
+-   Same recipe generalizes to image observations and high-dimensional action spaces, without needing an explicit likelihood or partition function
+:::
+
+::: {.column width="45%"}
+![](images/ibc_coordreg.png){width="600"}
+:::
+::::::
+
+## Imitation via multi-modal generative models (Diffusion Policy)
+
+Diffusion Policy: Visuomotor Policy Learning via Action Diffusion (Chi et al, RSS 2023)
+
+-   **Explicit policies** ($\hat a = F_\theta(o)$): mode-average multimodal demos, e.g. "left or right" collapses to "straight through"
+-   **Implicit policies** ($\arg\min_a E_\theta(o,a)$): multimodal, but the energy landscape is unstable/hard to train
+-   **Diffusion policy**: iteratively denoises $\hat a$ along $\nabla E(a)$, same expressiveness, stable DDPM-style training
+
+[<https://diffusion-policy.cs.columbia.edu/>]{.small-math}
+
+## Imitation via multi-modal generative models (Diffusion Policy)
+
+![](images/diffusion_policy_formulations.png)
+
+[<https://diffusion-policy.cs.columbia.edu/>]{.small-math}
+
+## Imitation via multi-modal generative models (Diffusion Policy)
+
+:::::: columns
+::: {.column width="55%"}
+-   Conditions on a short history of observations $O_t$, denoises a whole **action sequence** $A_t$ (not a single action) — action chunking again reduces compounding error and captures temporally consistent multimodal behavior
+-   Executes a **receding horizon**: run a few actions from the predicted sequence, then re-observe and re-plan
+:::
+
+::: {.column width="85%"}
+![](images/diffusion_policy_architecture.png){width="600"}
+:::
+::::::
+
+## [Appendix 1: Why do behavioral cloning errors accumulate quadratically?]{style="font-size:0.8em;"}
 
 :::::: columns
 ::: {.column width="60%"}
@@ -945,7 +1054,7 @@ and we normalize the reward then
 
 [Efficient reductions for imitation learning. Ross & Bagnell, AISTATS 2010.]{.small-math}
 
-## Appendix 3: Types of Uncertainty & Query-Efficient Imitation
+## Appendix 2: Types of Uncertainty & Query-Efficient Imitation
 
 Let’s revisit the two main ideas from query-efficient imitation:
 

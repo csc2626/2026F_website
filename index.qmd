@@ -32,7 +32,8 @@ You need to be comfortable with: introductory machine learning concepts (such as
 ### Teaching Staff {#teaching-staff}
 
 
-[**Florian Shkurti**](https://www.cs.toronto.edu/~florian/) (Instructor)   [**Quentin Clark**](https://qtcc-uoft.github.io) (TA)
+[**Florian Shkurti**](https://www.cs.toronto.edu/~florian/) (Instructor, csc2626-instructor@cs.toronto.edu)\   
+[**Quentin Clark**](https://qtcc-uoft.github.io) (TA, csc2626-tas@cs.toronto.edu)
 
 ### Grading {#grading}
 
