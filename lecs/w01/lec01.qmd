@@ -328,9 +328,9 @@ Navlab 1 (1986-1989)
 :::
 
 ::: {.column .small-math width="33%"}
-{{< video https://www.youtube.com/watch?v=ilP4aPDTBPE width="500" height="250" >}}
+{{< video https://www.youtube.com/watch?v=HmLafSKdCRs width="500" height="250" >}}
 
-[<https://www.youtube.com/watch?v=ilP4aPDTBPE>]{.tiny-font}
+[<https://www.youtube.com/watch?v=HmLafSKdCRs>]{.tiny-font}
 
 Navlab 2 + ALVINN, Dean Pomerleau’s PhD thesis (1989-1993)
 
