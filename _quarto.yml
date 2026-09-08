@@ -3,11 +3,12 @@ project:
 
 website:
   page-navigation: true
-  title: "CSC2626 - Fall 2024"
-  description: "Homepage for CSC2626 - Imitation Learning for Robotics, Fall 2024."
-  site-url: "https://csc2626.github.io/website/"
+  title: "CSC2626 - Fall 2026"
+  description: "Homepage for CSC2626 - Imitation Learning for Robotics, Fall 2026."
+  site-url: "https://csc2626.github.io/2026F_website/"
+  image: "images/DrawingHands.jpg"
 
-  repo-url: https://github.com/csc2626/website
+  repo-url: https://github.com/csc2626/2026F_website
   repo-actions: [edit, issue]
 
   open-graph: true
@@ -17,7 +18,7 @@ website:
 
   page-footer:
     right: "This page is built with ❤️ and [Quarto](https://quarto.org/)."
-    left: "&copy; Copyright 2024, Florian Shkurti"
+    left: "&copy; Copyright 2026, Florian Shkurti"
     background: "#D9E3E4"
 
   sidebar:
@@ -25,20 +26,20 @@ website:
     logo: "images/DrawingHands.jpg"
     pinned: true
     align: center
-    title: "CSC2626 Imitation Learning for Robotics"
+    title: "CSC2626 Imitation Learning for Robotics - Fall 2026"
     
     tools:
       - icon: github
         href: https://github.com/csc2626
         text: "Github workspace for the course"
       - icon: chat-quote
-        href: https://piazza.com/utoronto.ca/fall2024/csc2626/home
+        href: https://piazza.com/utoronto.ca/fall2026/csc2626/home
         text: "Discuss on Piazza"
       - icon: megaphone
-        href: https://q.utoronto.ca/courses/354032
+        href: https://q.utoronto.ca/courses/440859
         text: "Official announcements on Quercus"
       - icon: envelope-at
-        href: course-team.html
+        href: index.html#teaching-staff
         text: "Email teaching staff"
       - icon: robot
         href: https://robotics.utoronto.ca/
@@ -51,15 +52,15 @@ website:
     contents:
       - href: index.qmd
         text: Overview
-      - href: https://piazza.com/utoronto.ca/fall2024/csc2626/home
+      - href: https://piazza.com/utoronto.ca/fall2026/csc2626/home
         text: Piazza
-      - href: https://q.utoronto.ca/courses/354032
+      - href: https://q.utoronto.ca/courses/440859
         text: Quercus	
-      - href: course-grading.qmd
+      - href: index.qmd#grading
         text: Grading
-      - href: course-team.qmd
+      - href: index.qmd#teaching-staff
         text: Teaching Staff
-      - href: course-schedule.qmd
+      - href: index.qmd#schedule
         text: Schedule
       - href: course-links.qmd
         text: Robotics Simulators

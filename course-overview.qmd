@@ -1,5 +1,5 @@
 ---
-title: "Fall 2024 - CSC 2626: Imitation Learning for Robotics"
+title: "Fall 2026 - CSC 2626: Imitation Learning for Robotics"
 ---
 
 ### Course Overview

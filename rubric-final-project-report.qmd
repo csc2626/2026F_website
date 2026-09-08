@@ -1,0 +1,17 @@
+---
+title: "Marking Rubric: Final Project Report"
+---
+
+* Abstract (2 pts) that summarizes the main idea of the project and your contributions.
+* Introduction (3 pts) that states the problem being solved and any applications / implications.
+* Figure or diagram (2 pts) that shows the overall idea in a way that is easily understandable.
+* Related work (2 pts) and bibliography. Highlight how your method is different from other approaches.
+          Present other approaches in the proper light without diminishing their contributions.
+* Methodology (7 pts). Describe your method in detail as well as any assumptions it relies on. Explain
+prerequisite concepts clearly and succinctly. Include algorithm descriptions, figures, and equations as you
+wish.
+* Evaluation (8 pts). Include any figures or tables that illustrate your experimental results. Do not forget to include error bars if applicable. Analyze your findings, and comment on their statistical significance. In your
+evaluation please take into account [Joelle Pineau's ML reproducibility checklist](https://www.cs.mcgill.ca/~jpineau/ReproducibilityChecklist.pdf).
+* Limitations (2 pts). Describe some settings in which your approach performs poorly, and list a few ideas for
+how to adddress them. Describe opportunities for future work, as well as open problems.
+* Conclusions (1 pts). A summary of your contributions and results.

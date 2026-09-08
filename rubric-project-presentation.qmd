@@ -1,0 +1,16 @@
+---
+title: "Marking Rubric: Project Presentation"
+---
+
+### Quality of presentation
+* Slide design (2 pts)
+* Delivery of presentation (3 pts)
+* Respecting time constraints (2 pts)
+* Response to questions (3 pts)
+
+### Technical content
+* Motivation and definition of the problem (2 pts)
+* Putting prior work into context (3 pts)
+* Methodology explanation (3 pts)
+* Discussion of experiments (5 pts)
+* Discussion of limitations (2 pts)

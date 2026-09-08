@@ -1,0 +1,13 @@
+---
+title: "Marking Rubric: Project Proposal"
+---
+
+* Introduction (1 pts), which states the proposed problem being solved and any applications / implications.
+* Figure or diagram (1 pts), showing an overview of your proposed solution, i.e. shows the overall idea in a way that is easily understandable without even reading the rest of the report.
+* Related work (1 pts) and bibliography. Highlight how your method is different from other approaches.
+          Present other approaches in the proper light without diminishing their contributions.
+* Methodology (2 pts). Describe your proposed methodology as well as any assumptions it relies on. Explain
+prerequisite concepts clearly and succinctly.
+* Evaluation (2 pts). What experiments are you planning to do and why? What are the questions you want to answer through these experiments?
+* Timeline (1 pts). What are the milestones required to complete your project and by when do you plan to complete them?
+* Anticipated risks and mitigation plan (2 pts). What issues might arise with your proposed project and timeline and how will you address these issues if they occur?
