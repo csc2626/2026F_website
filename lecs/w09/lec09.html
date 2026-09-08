@@ -6,7 +6,9 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/quarto-contrib/videojs/video.min.js"></script>
+<link href="../../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Florian Shkurti">
@@ -125,11 +127,11 @@
     }
   </style>
 <meta property="og:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2026">
-<meta property="og:description" content="Week 9: Adversarial Imitation Learning">
+<meta property="og:description" content="Week 9: Shared Autonomy and Human-in-the-Loop Learning">
 <meta property="og:image" content="https://csc2626.github.io/2026F_website/lecs/w09/images/DrawingHands.jpg">
 <meta property="og:site_name" content="CSC2626 - Fall 2026">
 <meta name="twitter:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2026">
-<meta name="twitter:description" content="Week 9: Adversarial Imitation Learning">
+<meta name="twitter:description" content="Week 9: Shared Autonomy and Human-in-the-Loop Learning">
 <meta name="twitter:image" content="https://csc2626.github.io/2026F_website/lecs/w09/images/DrawingHands.jpg">
 <meta name="twitter:card" content="summary">
 </head>
@@ -139,7 +141,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">CSC2626 Imitation Learning for Robotics</h1>
-  <p class="subtitle">Week 9: Adversarial Imitation Learning</p>
+  <p class="subtitle">Week 9: Shared Autonomy and Human-in-the-Loop Learning</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -152,578 +154,686 @@ Florian Shkurti
 </section>
 <section id="todays-agenda" class="slide level2">
 <h2>Today’s agenda</h2>
-<p>• Adversarial optimization for imitation learning (GAIL)</p>
-<p>• Adversarial optimization with multiple inferred behaviors (InfoGAIL)</p>
-<p>• Model based adversarial optimization (MGAIL)</p>
-<p>• Multi-agent imitation learning</p>
+<p>• Shared autonomy for assistive robotics</p>
+<p>• Shared autonomy with human in the loop in deep RL</p>
+<p>• Hindsight optimization and interactive goal prediction</p>
+<p>• Relaxed inverse kinematics for fluid interaction with robot arms</p>
 
 <aside><div>
 <p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong</p>
+Today’s slides are based on student presentations from 2019 by: Andrei Barsan, Bin Yang, and Tingwu Wang</p>
 </div></aside></section>
-<section id="detour-solving-mdps-via-linear-programming" class="slide level2">
-<h2>Detour: solving MDPs via linear programming</h2>
-<p><span class="math inline">\(\underset{v}{\arg\min} \quad \underset{s \in S}{\sum} d_s v_s\)</span></p>
-<p><span class="math inline">\(\text{subject to:} \quad v_s \geq r_{s,a} + \gamma \underset{s' \in S}{\sum} T_{s,a}^{s'} v_{s'} \quad \forall s \in S, a \in A\)</span></p>
-<p><span class="math inline">\(\qquad \qquad \quad d\)</span> is the initial state distribution.</p>
-<p><br><br></p>
-<div class="right-align">
-<p>Optimal policy</p>
-<p><span class="math inline">\(\pi^*(s) = \underset{a \in A}{\text{argmax}} Q^*(s, a)\)</span></p>
+<section id="section" class="slide level2">
+<h2></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/wjnhrzugBj4?rel=0" width="90%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/Wvh-uixQrGI" width="90%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</section>
+<section id="shared-autonomy-via-deep-reinforcement-learning" class="slide level2">
+<h2>Shared Autonomy via Deep Reinforcement Learning</h2>
+<p>Siddharth Reddy, Anca Dragan, Sergey Levine UC Berkeley</p>
+<p>Presented by Ioan Andrei Bârsan on February 22, 2019</p>
+<p>iab@cs.toronto.edu</p>
+<div class="quarto-figure quarto-figure-right">
+<figure>
+<p><img data-src="images/shared-autonomy.jpg" class="quarto-figure quarto-figure-right" width="400" height="200"></p>
+</figure>
 </div>
 </section>
-<section id="detour-solving-mdps-via-linear-programming-1" class="slide level2">
-<h2>Detour: solving MDPs via linear programming</h2>
-<p><span class="math inline">\(\underset{\mu}{\text{argmax}} \underset{s \in S, a \in A}{\sum} \mu_{s,a} r_{s,a}\)</span></p>
-<p><span class="math inline">\(\text{subject to} \quad \underset{a \in A}{\sum} \mu_{s',a} = d_{s'} + \gamma \underset{s \in S, a \in A}{\sum} T_{s,a}^{s'} \mu_{s,a} \quad \forall s' \in S\)</span></p>
-<p><span class="math inline">\(\qquad \qquad \quad \mu_{s,a} \geq 0\)</span></p>
-<p><br></p>
-<div class="right-align">
-<p>Discounted state action counts / occupancy measure</p>
-<p><span class="math inline">\(\mu(s,a) = \underset{t=0}{\sum}^{\infty} \gamma^t p(s_t = s, a_t = a)\)</span></p>
-<p>Optimal policy</p>
-<p><span class="math inline">\(\pi^*(s) = \underset{a \in A}{\text{argmax}} \, \mu(s,a)\)</span></p>
-</div>
+<section id="key-question" class="slide level2">
+<h2>Key Question</h2>
+<p><img data-src="images/robot-hand.jpg" width="400" height="200"></p>
+<p>How can a robot <strong>collaborating</strong> with a human infer the human’s goals with as few <strong>assumptions</strong> as possible?</p>
 </section>
-<section id="detour-solving-mdps-via-linear-programming-2" class="slide level2">
-<h2>Detour: solving MDPs via linear programming</h2>
+<section id="motivation" class="slide level2">
+<h2>Motivation</h2>
 <div class="columns">
-<div class="column" style="width:85%;">
-<p><span class="math inline">\(\underset{v}{\text{argmin}} \underset{s \in S}{\sum} d_s v_s\)</span></p>
-<p><span class="math inline">\(\text{subject to} \quad v_s \geq r_{s,a} + \gamma \underset{s' \in S}{\sum} T_{s,a}^{s'} v_{s'} \quad \forall s \in S, a \in A\)</span></p>
-<p><span class="math inline">\(\qquad \qquad \quad d\)</span> is the initial state distribution</p>
-<p><br><br></p>
-<p><span class="math inline">\(\underset{\mu}{\text{argmax}} \underset{s \in S, a \in A}{\sum} \mu_{s,a} r_{s,a}\)</span></p>
-<p><span class="math inline">\(\text{subject to} \quad \underset{a \in A}{\sum} \mu_{s',a} = d_{s'} + \underset{s \in S, a \in A}{\sum} T_{s,a}^{s'} \mu_{s,a} \quad \forall s' \in S\)</span></p>
-<p><span class="math inline">\(\qquad \qquad \quad \mu_{s,a} \geq 0\)</span></p>
-</div><div class="column" style="width:15%;">
-<p>Primal LP</p>
-<p><br><br><br><br></p>
-<p><br></p>
-<p>Dual LP</p>
+<div class="column" style="width:60%;">
+<p>• <strong>Hard</strong>: Actuating a robot with many DoF and/or unfamiliar dynamics.</p>
+<p>• <strong>Hard</strong>: Specifying a goal formally (e.g., coordinates).</p>
+<p>• <strong>Easy</strong>: Demonstrating the goal indirectly.</p>
+<p>• …let the machine figure out what I want!</p>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/robot-chair.jpg" height="400"></p>
+<div class="tiny-font">
+<p>Image source: “Multihierarchical Interactive Task Planning. Application to Mobile Robotics” Galindo et al., 2008</p>
+</div>
 </div></div>
 </section>
-<section id="background" class="slide level2">
-<h2>Background</h2>
-<p>▶ <strong>Definitions:</strong> Action space <span class="math inline">\(\mathcal{A}\)</span> and sample space <span class="math inline">\(\mathcal{S}\)</span>. <span class="math inline">\(\Pi\)</span> is the set of all policies. Also assume <span class="math inline">\(P(s'|s,a)\)</span> is the dynamics model. In this paper, <span class="math inline">\(\pi_E\)</span> denotes the expert policy.</p>
-<p>▶ <strong>Imitation Learning:</strong> Learning to perform a task from expert demonstrations without querying the expert while training.</p>
-<p>▶ <strong>Behavioral cloning:</strong> Its success depends on large amounts of data.</p>
-<p>▶ <strong>Inverse RL:</strong> The paper adopts the maximum causal entropy IRL which fits a cost function <span class="math inline">\(c\)</span> with the following problem.</p>
-<p><span class="math display">\[\pi^* = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]\]</span></p>
-<p><span class="math display">\[\tilde{c} = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi^*}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)]\]</span></p>
-<p>where <span class="math inline">\(H(\pi) = \mathbb{E}_\pi[-\log \pi(a|s)]\)</span> is the entropy of the policy.</p>
+<section id="motivation-unknown-dynamics-are-hard-for-humans" class="slide level2">
+<h2>Motivation: Unknown Dynamics are Hard for Humans</h2>
+
+<img data-src="images/unknown-dynamics.png" class="r-stretch"></section>
+<section id="it-can-get-even-worse-than-lunar-lander" class="slide level2">
+<h2>It can get even worse than Lunar Lander…</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<p><img data-src="images/lunar-lander.jpg"></p>
+</div><div class="column small-math" style="width:30%;">
+<p><a href="https://www.foddy.net/Athletics.html" class="uri">https://www.foddy.net/Athletics.html</a> or Google “qwop”</p>
+</div></div>
+</section>
+<section id="challenges" class="slide level2">
+<h2>Challenges</h2>
+<p>• <strong>Recall</strong>: Want to demonstrate the goal indirectly with <strong>minimal assumptions</strong>.</p>
+<p>• → We expect the computer to start helping <strong>while it is still learning.</strong></p>
+<p>• <strong>Challenge #1</strong>: How to actually infer user’s goal?</p>
+<p>• <strong>Challenge #2</strong>: How can we learn this online with low latency?</p>
+</section>
+<section id="main-hypothesis" class="slide level2">
+<h2>Main Hypothesis</h2>
+<p>Shared autonomy can improve human performance without any assumptions about:</p>
+<ol type="1">
+<li><p>dynamics,</p></li>
+<li><p>the human’s policy,</p></li>
+<li><p>the nature of the goal.</p></li>
+</ol>
+</section>
+<section id="formulation-reward" class="slide level2">
+<h2>Formulation: Reward</h2>
+<p><br></p>
+<p><span class="math display">\[
+R(s, a, s') = \underbrace{R_{\text{general}}(s, a, s')}_{\text{known}} + \underbrace{R_{\text{feedback}}(s, a, s')}_{\text{unknown, but observed}}
+\]</span></p>
+<div class="small-math">
+<div class="absolute" style="top: 210px; left: 100px; ">
+<p><span class="math inline">\(\qquad \qquad \quad \uparrow\)</span><br>
+Agent’s reward<br>
+(what we want to maximize)</p>
+</div>
+<div class="absolute" style="top: 230px; left: 350px; ">
+<p><span class="math inline">\(\qquad \qquad \qquad \uparrow\)</span><br>
+Handcrafted “common sense”<br>
+knowledge: do not crash, do<br>
+not tip, etc.</p>
+</div>
+<div class="absolute" style="top: 230px; right: 150px; ">
+<p><span class="math inline">\(\uparrow\)</span><br>
+Stuﬀ inferred from the human<br>
+(<span class="red">Main focus of this paper!</span>)</p>
+</div>
+</div>
 </section>
 <section id="formulation" class="slide level2">
 <h2>Formulation</h2>
-<p>▶ We first study the policies found by RL on costs learned by IRL on the largest possible set of cost functions <span class="math inline">\(\mathcal{C} = \{c : S \times A \to \mathbb{R}\}\)</span>.</p>
-<p>▶ Also need to define a convex cost function regularizer <span class="math inline">\(\psi : \mathbb{R}_{S \times A} \to \mathbb{R}\)</span>, which turns out to be important in this paper.</p>
-<p>▶ Re-write the Eq. 1 as the following:</p>
-<p><span class="math display">\[IRL_\psi(\pi_E) = \arg \max_{c \in \mathcal{C}} -\psi(c) + (\min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)])\]</span></p>
-<p><span class="math display">\[- \mathbb{E}_{\pi_E}[c(s,a)]\]</span></p>
-<p>▶ Define <span class="math inline">\(RL(c) = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]\)</span>.<br>
-Let <span class="math inline">\(\tilde{c} \in IRL_\psi(\pi_E)\)</span>. We are interested in characterizing the induced policy <span class="math inline">\(RL(\tilde{c})\)</span>.</p>
+<div class="absolute" style="top: 0px; right: 0px; ">
+<p><span class="math display">\[
+\underbrace{R_{\text{feedback}}(s, a, s')}_{\text{unknown, but observed}}
+\]</span></p>
+</div>
+<p><br></p>
+<div class="columns">
+<div class="column tiny-font" style="width:5%;">
+<p><br><br></p>
+<p>Needs<br>
+virtual<br>
+“user”!</p>
+</div><div class="column" style="width:65%;">
+<p>• The authors introduce three variants of their method:</p>
+<ol type="1">
+<li><p>Known goal space, known user policy.</p></li>
+<li><p>Known goal space, unknown user policy.</p></li>
+<li><p>Unknown goal space, unknown user policy.</p></li>
+</ol>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/fewer-assumption.png"></p>
+</div></div>
 </section>
-<section id="derivations" class="slide level2">
-<h2>Derivations</h2>
-<p>▶ It is easier to characterize <span class="math inline">\(RL(\tilde{c})\)</span> if we transform optimization problems over policies into convex problems.</p>
-<p>▶ So the paper introduces an occupancy measure <span class="math inline">\(\rho_\pi : S \times A \to \mathbb{R}\)</span>:</p>
-<p><span class="math display">\[\rho_\pi(s,a) = \pi(a|s) \sum_{t=0}^{\infty} \gamma^t P(s_t = s|\pi) \qquad (1)\]</span></p>
-<p>It can be interpreted as the distribution of state-action pairs when roll-out with policy <span class="math inline">\(\pi\)</span>.</p>
-<p>▶ There is an <strong>one-to-one</strong> correspondence between policy and occupancy measure. It also allows us to re-write the expected cost as</p>
-<p><span class="math display">\[\mathbb{E}_\pi[c(s,a)] = \sum_{s,a} \rho_\pi(s,a)c(s,a) \qquad (2)\]</span></p>
+<section id="the-method" class="slide level2">
+<h2>The Method</h2>
+<ul>
+<li><p>Based on Q-Learning.</p></li>
+<li><p>User input has <strong>two</strong> roles:</p>
+<ol type="1">
+<li><p>A <strong>prior policy</strong> we should fine-tune.</p></li>
+<li><p>A sensor which can be used to decode the <strong>goal</strong>.</p></li>
+</ol></li>
+<li><p>Short version: Like Q-Learning, but execute closest high-value action to the user’s input, instead of highest-value action.</p></li>
+</ul>
 </section>
-<section id="derivations-1" class="slide level2">
-<h2>Derivations</h2>
-<p>▶ <strong>Lemma 1:</strong> If we define</p>
-<p><span class="math display">\[\hat{H}(\rho) = -\sum_{s,a} \rho(s,a) \log(\rho(s,a)/\sum_{a'} \rho(s,a')) \qquad (3)\]</span></p>
-<p>then we have <span class="math inline">\(\hat{H}(\rho) = H(\pi_\rho)\)</span> and <span class="math inline">\(H(\pi) = \hat{H}(\rho_\pi)\)</span>. So we can represent the entropy of a policy <span class="math inline">\(\pi\)</span> with the occupancy measure <span class="math inline">\(\rho_\pi\)</span>.</p>
-<p>▶ <strong>Lemma 2:</strong> If we define,</p>
-<p><span class="math display">\[L(\pi, c) = -H(\pi) + \mathbb{E}_\pi[c(s,a)]\]</span></p>
-<p><span class="math display">\[\hat{L}(\rho, c) = -\hat{H}(\rho) + \sum_{s,a} \rho(s,a)c(s,a)\]</span></p>
-<p>then we have <span class="math inline">\(L(\pi, c) = \hat{L}(\rho_\pi, c)\)</span> and <span class="math inline">\(\hat{L}(\rho, c) = L(\pi_\rho, c)\)</span>. The Lemma allows us to transform the problem from optimizing <span class="math inline">\(\pi\)</span> to <span class="math inline">\(\rho\)</span>.</p>
+<section id="the-method-continued" class="slide level2">
+<h2>The Method (Continued)</h2>
+
+<img data-src="images/method-algo1.png" class="r-stretch"></section>
+<section id="the-method-continued-1" class="slide level2">
+<h2>The Method (Continued)</h2>
+
+<img data-src="images/method-2.png" class="r-stretch"></section>
+<section id="but-where-is-textr_textfeedback" class="slide level2">
+<h2>But where is <span class="math inline">\(\text{R}_{\text{feedback}}\)</span>?</h2>
+<ul>
+<li>The choice of <span class="math inline">\(\text{R}_{\text{feedback}}\)</span> determines what kind of <strong>input</strong> we give to the Q- Learning agent in addition to state!</li>
+</ul>
+<ol type="1">
+<li><p>Known goal space &amp; user policy → exact goal.</p></li>
+<li><p>Known goal space &amp; unknown policy → predicted goal (pretrained LSTM).</p></li>
+<li><p>Unknown goal space &amp; policy → the user’s input <span class="green">(main focus)</span></p></li>
+</ol>
 </section>
-<section id="convex-conjugate" class="slide level2">
-<h2>Convex Conjugate</h2>
-<p>▶ Given a function <span class="math inline">\(f\)</span>, it can be represented by the supremum of all affine functions that are majorized by <span class="math inline">\(f\)</span>.</p>
-<p>▶ For any given slope <span class="math inline">\(m\)</span>, there may be many different constants <span class="math inline">\(b\)</span> such that the affine function <span class="math inline">\(\langle m, x \rangle - b\)</span> is majorized by <span class="math inline">\(f\)</span>. We only need the best such constant.</p>
-<p>▶ That’s what the convex conjugate <span class="math inline">\(f^*\)</span> does. Given a slope <span class="math inline">\(m\)</span>, <span class="math inline">\(f^*\)</span> returns the best constant <span class="math inline">\(b\)</span> such that <span class="math inline">\(\langle m, x \rangle - b\)</span> is majorized by <span class="math inline">\(f\)</span>. Thus,</p>
-<p><span class="math display">\[f^*(m) = \sup_x \langle m, x \rangle - f(x)\]</span></p>
-<p>▶ Note that <span class="math inline">\(f^{**} = f\)</span>.</p>
-<div class="small-math">
-<p>There is a nice visualization of convex conjugate at <a href="https://remilepriol.github.io/dualityviz/" class="uri">https://remilepriol.github.io/dualityviz/</a></p>
+<section id="input-to-rl-agent" class="slide level2">
+<h2>Input to RL Agent</h2>
+
+<img data-src="images/rl-agent.png" class="r-stretch"></section>
+<section id="experiments" class="slide level2">
+<h2>Experiments</h2>
+<p><br><br></p>
+<ul>
+<li><p><strong>Virtual</strong> experiments with Lunar Lander in OpenAI gym.</p></li>
+<li><p><strong>Physical</strong> experiments with an actual drone.</p></li>
+</ul>
+</section>
+<section id="real-world-experiments" class="slide level2">
+<h2>Real-World Experiments</h2>
+<p><img data-src="images/realworld-ex.png" class="absolute" style="top: 50px; right: 0px; width: 300px; "></p>
+<p><br></p>
+<ul>
+<li><p><strong>Goal</strong>: Land drone on pad <strong>facing a certain way</strong>.</p></li>
+<li><p><strong>Pilot</strong>: Human, knows target orientation.</p></li>
+<li><p><strong>Copilot</strong>: Our Agent, knows where pad is, but not target orientation.</p></li>
+</ul>
+</section>
+<section id="real-world-results" class="slide level2">
+<h2>Real-World Results</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/realworld-results.jpg" class="quarto-figure quarto-figure-center" height="450"></p>
+</figure>
+</div>
+<p><strong>Important observation: Only n = 4 humans in drone study.</strong></p>
+</section>
+<section id="experimental-results-assumptions" class="slide level2">
+<h2>Experimental Results: Assumptions</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/ex-results-assumption.jpg" class="quarto-figure quarto-figure-center" height="400"></p>
+</figure>
+</div>
+<ul>
+<li><p>Higher alpha means we take any action. α = 1.0 means we ignore the pilot.</p></li>
+<li><p>Experimented in virtual environment.</p></li>
+</ul>
+</section>
+<section id="recap-strengths" class="slide level2">
+<h2>Recap: Strengths</h2>
+<ul>
+<li><p>Good results even when making no assumptions about user/goal.</p></li>
+<li><p>Writing is very clear!</p></li>
+<li><p>Possible applications in many fields, including e.g.&nbsp;<strong>prosthetics, wheelchairs</strong>.</p></li>
+<li><p>Source code released on GitHub!</p></li>
+</ul>
+</section>
+<section id="recap-weaknesses" class="slide level2">
+<h2>Recap: Weaknesses</h2>
+<ul>
+<li><p>User studies could have had more participants.</p></li>
+<li><p>Could have shown results on more Gym environments.</p></li>
+<li><p>Solution does not generalize to sophisticated long-term goals.</p></li>
+</ul>
+</section>
+<section id="conclusion" class="slide level2">
+<h2>Conclusion</h2>
+<ul>
+<li>Can do shared autonomy with minimal assumptions!</li>
+<li>Idea: Q-Learning &amp; pick high-value action most similar to user’s action.</li>
+<li>Works well in virtual environments (real humans).</li>
+<li>Seems to work well in real environments, too.</li>
+</ul>
+</section>
+<section id="thanks-for-your-attention" class="slide level2">
+<h2>Thanks for your attention!</h2>
+<p>Q&amp;A, if time permits it.</p>
+<p>Project website: <a href="https://sites.google.com/view/deep-assist" class="uri">https://sites.google.com/view/deep-assist</a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/lader-video.png" class="quarto-figure quarto-figure-center" height="300"></p>
+</figure>
+</div>
+<p>Video of computer-assisted human piloting the lander.</p>
+</section>
+<section id="shared-autonomy-via-hindsight-optimization" class="slide level2">
+<h2>Shared Autonomy via Hindsight Optimization</h2>
+</section>
+<section id="teleoperation" class="slide level2">
+<h2>Teleoperation</h2>
+<p><img data-src="images/teleportation1.jpg" style="width:30.0%"> <img data-src="images/teleporation2.jpg" style="width:30.0%" height="200"> <img data-src="images/teleporation3.jpg" style="width:30.0%" height="200"></p>
+<p><img data-src="images/teleporation4.jpg" style="width:30.0%"> <img data-src="images/teleporation5.jpg" style="width:30.0%"> <img data-src="images/teleporation6.jpg" style="width:30.0%" height="200"></p>
+<p><strong>Noisy, insuﬃcient degrees of freedom, tedious</strong></p>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p>Image credit: Javdani RSS2015 talk</p>
 </div>
 </section>
-<section id="derivations-2" class="slide level2">
-<h2>Derivations</h2>
-<p>▶ By Lemma 2, if <span class="math inline">\(\psi\)</span> is a constant regularizer and <span class="math inline">\(\tilde{c} \in IRL_\psi(\pi_E)\)</span> and <span class="math inline">\(\hat{\pi} \in RL(\hat{c})\)</span>, then <span class="math inline">\(\rho_{\hat{\pi}} = \rho_{\pi_E}\)</span>.</p>
-<p>▶ Furthermore, we can also get the main result of the paper</p>
-<p><span class="math display">\[RL \circ IRL_\psi(\pi_E) = \arg \min_{\pi \in \Pi} -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E}) \qquad (4)\]</span></p>
-<p>where <span class="math inline">\(\psi^*\)</span> is the convex conjugate of <span class="math inline">\(\psi\)</span>, which is defined as</p>
-<p><span class="math display">\[\psi^*(m) = \sup_{x \in \mathbb{R}^{S \times A}} m^T x - \psi(x)\]</span></p>
-<p>▶ It tells us that the <span class="math inline">\(\psi\)</span>-regularized inverse RL seeks a policy whose occupancy measure is close to the expert’s as measured by the convex function <span class="math inline">\(\psi^*\)</span>.</p>
-<p>▶ A good imitation learning algorithm boils down to a good choice of the regularizer <span class="math inline">\(\psi\)</span>.</p>
+<section id="shared-autonomy" class="slide level2">
+<h2>Shared Autonomy</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p><img data-src="images/user-input.png"> <strong>User Input</strong></p>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p>+</p>
+</div><div class="column" style="width:30%;">
+<p><br><br></p>
+<p><img data-src="images/autonoumous.jpg"> <strong>Autonomous Assistance</strong></p>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p><strong>=</strong></p>
+</div><div class="column" style="width:30%;">
+<p><br></p>
+<p><img data-src="images/acheive-goal.jpg"> <strong>Achieve Goal</strong></p>
+</div></div>
 </section>
-<section id="occupancy-measure-matching" class="slide level2">
-<h2>Occupancy Measure Matching</h2>
-<p>▶ As we showed previously, if <span class="math inline">\(\psi\)</span> is a constant, then the resulting policy would have the same occupancy measures with expert at all states and actions.</p>
-<p>▶ It is not practically useful because most of the occupancy measure of the expert values are exactly zero, due to the limited expert samples.</p>
-<p>▶ Thus, exact occupancy measure matching will force the learned policy to never visit the unseen state-action pairs.</p>
-<p>▶ If we restrict the class of cost function <span class="math inline">\(\mathcal{C}\)</span> to be convex and set the regularizer <span class="math inline">\(\psi\)</span> to be the indicator function of the set <span class="math inline">\(\mathcal{C}\)</span>. Then optimization problem in (6) can be written as</p>
-<p><span class="math display">\[\min_\pi -H(\pi) + \max_{c \in \mathcal{C}} \mathbb{E}_\pi[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] \qquad (5)\]</span></p>
-<p>which is a entropy-regularized apprenticeship learning problem.</p>
+<section id="shared-autonomy-1" class="slide level2">
+<h2>Shared Autonomy</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p><img data-src="images/user-input.png"> <strong>User Input</strong></p>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p>+</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/autonomous-assistance.png"> <strong>Autonomous Assistance</strong></p>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p><strong>=</strong></p>
+</div><div class="column" style="width:30%;">
+<p><br></p>
+<p><img data-src="images/acheive-goal.jpg"> <strong>Achieve Goal</strong></p>
+</div></div>
 </section>
-<section id="apprenticeship-learning" class="slide level2">
-<h2>Apprenticeship Learning</h2>
-<p>▶ Policy gradient method can be used to update the parameterized policy <span class="math inline">\(\pi_\theta\)</span> to optimize the apprenticeship objective, Eq. 7.</p>
-<p><span class="math display">\[\nabla_\theta \max_{c \in \mathcal{C}} \mathbb{E}_{\pi_\theta}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] = \nabla_\theta \mathbb{E}_{\pi_\theta}[c^*(s,a)]\]</span></p>
-<p><span class="math display">\[= \mathbb{E}_{\pi_\theta}[\nabla_\theta \log \pi_\theta(a|s) Q_{c^*}(s,a)]\]</span></p>
-<p>where</p>
-<p><span class="math display">\[c^* = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi_\theta}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)] \qquad (6)\]</span></p>
-<p><span class="math display">\[Q_{c^*}(\bar{s}, \bar{a}) = \mathbb{E}_{\pi_\theta}[c^*(\bar{s}, \bar{a})|s_0 = \bar{s}, a_0 = \bar{a}] \qquad (7)\]</span></p>
-<p>▶ Fit <span class="math inline">\(c_i^*\)</span> as defined above. Analytical solution is feasible if <span class="math inline">\(\mathcal{C}\)</span> is restricted to Convex or Linear cost classes.</p>
-<p>▶ Given the <span class="math inline">\(c_i^*\)</span>, compute the policy gradient and take a TRPO step to produce <span class="math inline">\(\pi_{\theta_{i+1}}\)</span>.</p>
+<section id="shared-autonomy-2" class="slide level2">
+<h2>Shared Autonomy</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>Predict goal Assist for single goal</p>
+<div class="small-math">
+<p>[Dragan and Srinivasa 13]<br>
+[Kofman et al.&nbsp;05]<br>
+[Kragic et al.&nbsp;05]<br>
+[Yu et al.&nbsp;05]<br>
+[McMullen et al.&nbsp;14]<br>
+…</p>
+</div>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p>+</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/autonomous-assistance.png"> <strong>Autonomous Assistance</strong></p>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p><strong>=</strong></p>
+</div><div class="column" style="width:30%;">
+<p><br></p>
+<p><img data-src="images/acheive-goal-number.png"> <strong>Achieve Goal</strong></p>
+</div></div>
 </section>
-<section id="gail" class="slide level2">
-<h2>GAIL</h2>
-<p>▶ Apprenticeship learning via TRPO is tractable in large environments but is incapable of exactly matching occupancy measures without careful tuning due to the restrictive cost classes <span class="math inline">\(\mathcal{C}\)</span>.</p>
-<p>▶ Constant regularizer <span class="math inline">\(\psi\)</span> leads to exact matching but is intractable in large environments. Thus, GAIL is proposed to combine the best of both methods.</p>
-<p><span class="math display">\[
-\psi_{GA}(c) \triangleq \begin{cases}
-\mathbb{E}_{\pi_E}[g(c(s,a))] &amp; \text{if } c &lt; 0 \\
-+\infty &amp; \text{otherwise}
-\end{cases}
-\]</span></p>
-<p>where</p>
-<p><span class="math display">\[
-g(x) = \begin{cases}
--x - \log(1 - e^x) &amp; \text{if } x &lt; 0 \\
-+\infty &amp; \text{otherwise}
-\end{cases}
-\]</span></p>
+<section id="shared-autonomy-3" class="slide level2">
+<h2>Shared Autonomy</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<p>Predict goal Assist for single goal</p>
+<div class="small-math">
+<p>[Dragan and Srinivasa 13]<br>
+[Kofman et al.&nbsp;05]<br>
+[Kragic et al.&nbsp;05]<br>
+[Yu et al.&nbsp;05]<br>
+[McMullen et al.&nbsp;14]<br>
+…</p>
+</div>
+<p>Predict goal distribution Assist for distribution</p>
+<div class="small-math">
+<p>[Hauser 13]<br>
+This work!</p>
+</div>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p>+</p>
+</div><div class="column" style="width:30%;">
+<p><img data-src="images/autonomous-assistance.png"> <strong>Autonomous Assistance</strong></p>
+</div><div class="column" style="width:3%;">
+<p><br><br><br></p>
+<p><strong>=</strong></p>
+</div><div class="column" style="width:30%;">
+<p><br></p>
+<p><img data-src="images/acheive-goal-arrow.png"> <strong>Achieve Goal</strong></p>
+</div></div>
 </section>
-<section id="gail-1" class="slide level2">
-<h2>GAIL</h2>
-<p>▶ The GAIL regularizer <span class="math inline">\(\psi_{GA}\)</span> places low penalty on cost functions <span class="math inline">\(c\)</span> that assign an amount of negative cost to expert state-action pairs; It havily penalizes <span class="math inline">\(c\)</span> if it assigns large cost to the expert.</p>
-<p>▶ <span class="math inline">\(\psi_{GA}\)</span> is an average over expert data so it can adjust to arbitrary expert datasets.</p>
-<p>▶ In comparison, if <span class="math inline">\(\psi\)</span> is an indicator function (Apprenticeship Learning), then it’s always fixed.</p>
-<p>▶ Another property of <span class="math inline">\(\psi_{GA}\)</span> is its convex conjugate <span class="math inline">\(\psi_{GA}^*(\rho_\pi - \rho_{\pi_E})\)</span> can be derived in the following form:</p>
-<p><span class="math display">\[\max_{D \in (0,1)^{S \times A}} \mathbb{E}_\pi[\log(D(s,a))] + \mathbb{E}_{\pi_E}[\log(1 - D(s,a))] \qquad (8)\]</span></p>
-<p>▶ It can be interpreted to find a discriminator that distinguishes trajectory between learned policy and expert policy. t</p>
+<section id="method" class="slide level2">
+<h2>Method</h2>
+<ul>
+<li>System dynamics: <span class="math inline">\(x’ = T(x, a)\)</span></li>
+</ul>
+<p><img data-src="images/system-dynamics.png" class="absolute" style="bottom: 0px; right: 0px; width: 400px; "></p>
 </section>
-<section id="gail-2" class="slide level2">
-<h2>GAIL</h2>
-<p>▶ Combining with the main result Eq. (6) in the paper,</p>
-<p><span class="math display">\[RL \circ IRL_\psi(\pi_E) = \arg \min_{\pi \in \Pi} -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E})\]</span></p>
-<p>The imitation learning problem is equivalent to find a saddle point <span class="math inline">\((\pi, D)\)</span> of the expression</p>
-<p><span class="math display">\[\mathbb{E}_\pi[\log(D(s,a))] + \mathbb{E}_{\pi_E}[\log(1 - D(s,a))] - \lambda H(\pi) \qquad (9)\]</span></p>
-<p>▶ In terms of implementation, we just need to fit a parameterized policy <span class="math inline">\(\pi_\theta\)</span> with weights <span class="math inline">\(\theta\)</span> and a discriminator network <span class="math inline">\(D_w : S \times A \to (0,1)\)</span> with weights <span class="math inline">\(w\)</span>.</p>
-<p>▶ Update <span class="math inline">\(D_w\)</span> with Adam and update <span class="math inline">\(\pi_\theta\)</span> with TRPO iteratively.</p>
+<section id="method-1" class="slide level2">
+<h2>Method</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li><p>System dynamics: <span class="math inline">\(x' = T(x, a)\)</span></p></li>
+<li><p>User (MDP) as <span class="math inline">\((X, U, T, C_g^{\text{usr}})\)</span></p>
+<ul>
+<li>User policy: <span class="math inline">\(\pi_g^{\text{usr}}(x) = p(u|x, g)\)</span></li>
+<li>MaxEnt IOC: <span class="math inline">\(C_g^{\text{usr}} : X \times U \to \mathcal{R}\)</span></li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/system-dynamic-user.png"></p>
+</div></div>
 </section>
-<section id="algorithm" class="slide level2">
-<h2>Algorithm</h2>
-
-<img data-src="images/algo.jpg" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="method-2" class="slide level2">
+<h2>Method</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li><p>System dynamics: <span class="math inline">\(x' = T(x, a)\)</span></p></li>
+<li><p>User (MDP) as <span class="math inline">\((X, U, T, C_g^{\text{usr}})\)</span></p>
+<ul>
+<li>User policy: <span class="math inline">\(\pi_g^{\text{usr}}(x) = p(u|x, g)\)</span></li>
+<li>MaxEnt IOC: <span class="math inline">\(C_g^{\text{usr}} : X \times U \to \mathcal{R}\)</span></li>
+</ul></li>
+<li><p>System (POMDP) as <span class="math inline">\((S, A, T, C^{\text{rob}}, U, \Omega)\)</span></p>
+<ul>
+<li>Uncertainty over user’s goal</li>
+<li>System state: <span class="math inline">\(s = X \times G\)</span></li>
+<li>Observation: user inputs <span class="math inline">\(U\)</span></li>
+<li>Observation model <span class="math inline">\(\Omega\)</span></li>
+</ul>
+<p><span class="math inline">\(p(g|\xi^{0 \to t}) = \frac{p(\xi^{0 \to t}|g)p(g)}{\sum_{g'} p(\xi^{0 \to t}|g')p(g')}\)</span></p>
+<ul>
+<li>Cost function <span class="math inline">\(C^{\text{rob}} : S \times A \times U \to \mathcal{R}\)</span></li>
+</ul></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/method-goal-belief.png"></p>
+</div></div>
+</section>
+<section id="hindsight-optimization" class="slide level2">
+<h2>Hindsight Optimization</h2>
+<div class="columns">
+<div class="column small-math" style="width:35%;">
+<ul>
+<li><p>MDP solution:</p>
+<p><span class="math display">\[V^{\pi^r}(s) = \mathbb{E}\left[\sum_t C^r(s_t, u_t, a_t) \mid s_0 = s\right]\]</span></p>
+<p><span class="math display">\[V^*(s) = \min_{\pi^r} V^{\pi^r}(s)\]</span></p></li>
+</ul>
+<div class="fragment">
+<ul>
+<li><p>POMDP solution:</p>
+<p><span class="math display">\[V^{\pi^r}(b) = \mathbb{E}\left[\sum_t C^r(s_t, u_t, a_t) \mid b_0 = b\right]\]</span></p>
+<p><span class="math display">\[V^*(b) = \min_{\pi^r} V^{\pi^r}(b)\]</span></p></li>
+</ul>
+</div>
+<div class="fragment">
+<ul>
+<li><p>HOP approximation:</p>
+<p><span class="math display">\[V^{\text{HS}}(b) = \mathbb{E}_b\left[\min_{\pi^r} V^{\pi^r}(s)\right]\]</span></p>
+<p><span class="math display">\[= \mathbb{E}_g[V_g(x)]\]</span></p></li>
+</ul>
+</div>
+</div><div class="column" style="width:65%;">
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/optimization.png" class="quarto-figure quarto-figure-center" width="500" height="400"></p>
+</figure>
+</div>
+<div class="absolute small-math" style="bottom: 200px; right: 0px; ">
+<p>Deterministic<br>
+problem for<br>
+each future</p>
+</div>
+</div>
+</div></div>
+</section>
+<section id="results-video" class="slide level2">
+<h2>Results (video)</h2>
+<video id="video_shortcode_videojs_video1" width="800" height="500" class="video-js vjs-default-skin " controls="" preload="auto" data-setup="{}" title=""><source src="https://www.cs.cmu.edu/~sjavdani/videos/rss_2015_hindsight_presentation.mp4"></video>
+</section>
 <section id="results" class="slide level2">
 <h2>Results</h2>
-
-<img data-src="images/results.png" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="todays-agenda-1" class="slide level2">
-<h2>Today’s agenda</h2>
-<div class="grey-text">
-<p>• Adversarial optimization for imitation learning (GAIL)</p>
-</div>
-<p>• Adversarial optimization with multiple inferred behaviors (InfoGAIL)</p>
-<p>• Model based adversarial optimization (MGAIL)</p>
-<p>• Multi-agent imitation learning</p>
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong</p>
-</div></aside></section>
-<section id="infogail-interpretable-imitation-learning-from-visual-demonstrations" class="slide level2 center">
-<h2>InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations</h2>
-<p>Presenter: Yin-Hung Chen</p>
-</section>
-<section>
-<section id="motivation" class="title-slide slide level1 center">
-<h1>Motivation</h1>
-
-</section>
-<section id="gail-3" class="slide level2">
-<h2>GAIL</h2>
-<p>A generator producing a policy 𝜋 competes with a discriminator distinguishing 𝜋 and the expert.</p>
-
-<img data-src="images/gail-diagram.png" class="r-stretch"></section>
-<section id="drawbacks-of-gail" class="slide level2">
-<h2>Drawbacks of GAIL</h2>
-<ul>
-<li><p>Expert demonstrations can show significant <strong>variability</strong>.</p></li>
-<li><p>The observations might have been sampled from <strong>different experts with different skills and habits</strong>.</p></li>
-<li><p><strong>External latent factors</strong> of variation are not explicitly captured by GAIL, but they can significantly affect the observed behaviors.</p></li>
-</ul>
-</section></section>
-<section>
-<section id="infogail" class="title-slide slide level1 center">
-<h1>InfoGAIL</h1>
-
-</section>
-<section id="modified-gail" class="slide level2">
-<h2>Modified GAIL</h2>
-
-<img data-src="images/modified-gail.png" class="r-stretch"></section>
-<section id="objective-function" class="slide level2">
-<h2>Objective Function</h2>
-<p>GAIL: <span class="math display">\[
-\underset{\pi}{\min} \underset{𝐷\in(0,1)^{S×A}}{\max} + 𝔼_{𝜋_𝐸}  [ 𝑙𝑜𝑔(1 − 𝐷(𝑠, a))] − 𝜆𝐻(𝜋)
-\]</span></p>
-<p>where 𝜋 is learner policy, and <span class="math inline">\(𝜋_𝐸\)</span> is expert policy.</p>
-<p>InfoGAIL:</p>
-<ul>
-<li>Discriminator: same with GAIL</li>
-<li>Generator: simply introducing latent factor c into 𝜋 → 𝜋 𝑎 𝑠, 𝑐<br>
-<span class="orange">However, applying GAIL to 𝜋(𝑎 | 𝑠, 𝑐) could simply ignore c and fail to separate different expert behaviors → <strong>adding more constraints over c</strong></span></li>
-</ul>
-</section>
-<section id="constraints-over-latent-features" class="slide level2">
-<h2>Constraints over Latent Features</h2>
-<p>There should be high mutual information between the latent factor c and learner trajectory τ.</p>
-<p><span class="math display">\[
-I(c; \tau) = \sum_{\tau} p(\tau) \sum_c p(c|\tau) \log_2 \frac{p(c|\tau)}{p(c)}
-\]</span></p>
-<p>Independence between c and trajectory τ:</p>
-<p><span class="math display">\[
-p(c|\tau) = \frac{p(c)p(\tau)}{p(\tau)}, \quad \frac{p(c|\tau)}{p(c)} = 1, \quad \log_2 \frac{p(c|\tau)}{p(c)} = 0
-\]</span></p>
-<p>Maximizing mutual information <span class="math inline">\(I(c; \tau)\)</span><br>
-→ hard to maximize directly as it requires the posterior <span class="math inline">\(P(c|\tau)\)</span><br>
-→ using <span class="math inline">\(Q(c|\tau)\)</span> to estimate <span class="math inline">\(P(c|\tau)\)</span> There should be high mutual information between the latent factor c and learner trajectory 𝜏.</p>
-</section>
-<section id="constraints-over-latent-features-1" class="slide level2">
-<h2>Constraints over Latent Features</h2>
-<p>Introducing the lower bound <span class="math inline">\(L_I(\pi, Q)\)</span> of <span class="math inline">\(I(c; \tau)\)</span></p>
-<p><span class="math display">\[
-\begin{align}
-&amp; I(c; \tau) \\
-&amp;= H(c) - H(c|\tau) \\
-&amp;= \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ \mathbb{E}_{c' \sim P(c|\tau)} [log P(c'|\tau)] \right] + H(c) \\
-&amp;= \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ D_{KL}(P(\cdot|\tau) \| Q(\cdot|\tau)) + \mathbb{E}_{c' \sim P(c|\tau)} [log Q(c'|\tau)] \right] + H(c) \\
-&amp;\geq \mathbb{E}_{a \sim \pi(\cdot|s,c)} \left[ \mathbb{E}_{c' \sim P(c|\tau)} [log Q(c'|\tau)] \right] + H(c) \\
-&amp;= \mathbb{E}_{c \sim P(c), a \sim \pi(\cdot|s,c)} [log Q(c|\tau)] + H(c) \\
-&amp;= L_I(\pi, Q)
-\end{align}
-\]</span></p>
-</section>
-<section id="constraints-over-latent-features-2" class="slide level2">
-<h2>Constraints over Latent Features</h2>
-<p>There should be high mutual information between the latent factor c and learner trajectory 𝜏.</p>
-<p><br></p>
-<p>Maximizing mutual information 𝐼(𝑐; 𝜏)<br>
-→ hard to maximize directly as it requires the posterior 𝑃(𝑐|𝜏)<br>
-→ using 𝑄(𝑐|𝜏) to estimate 𝑃(𝑐|𝜏)</p>
-<p><br></p>
-<p>Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound 𝐿𝐼(𝜋, 𝑄)</p>
-</section>
-<section id="objective-function-1" class="slide level2">
-<h2>Objective Function</h2>
-<p>GAIL:</p>
-<p><span class="math display">\[
-\min_\pi \max_{D \in (0,1)^{S \times A}} \mathbb{E}_\pi [log D(s, a)] + \mathbb{E}_{\pi_E} [log(1 - D(s, a))] - \lambda H(\pi)
-\]</span></p>
-<p>where <span class="math inline">\(\pi\)</span> is learner policy, and <span class="math inline">\(\pi_E\)</span> is expert policy.</p>
-<p><br></p>
-<p>InfoGAIL:</p>
-<p><span class="math display">\[
-\min_{\pi,Q} \max_D \mathbb{E}_\pi [log D(s, a)] + \mathbb{E}_{\pi_E} [log(1 - D(s, a))] - \lambda_1 L_I(\pi, Q) - \lambda_2 H(\pi)
-\]</span></p>
-<p><span class="math inline">\(\qquad \qquad \qquad \qquad \qquad \qquad\)</span> where <span class="math inline">\(\lambda_1 &gt; 0\)</span> and <span class="math inline">\(\lambda_2 &gt; 0\)</span>.</p>
-</section>
-<section id="infogail-1" class="slide level2">
-<h2>InfoGAIL</h2>
-
-<img data-src="images/infogail.png" class="r-stretch"></section>
-<section id="section" class="slide level2">
-<h2></h2>
-
-<img data-src="images/algo-infogail.png" class="r-stretch"></section></section>
-<section>
-<section id="additional-optimization" class="title-slide slide level1 center">
-<h1>Additional Optimization</h1>
-
-</section>
-<section id="improved-optimization" class="slide level2">
-<h2>Improved Optimization</h2>
-<p>The traditional GAN objective suffers from vanishing gradient and mode collapse problems.<br>
-Vanishing gradient</p>
 <div class="columns">
-<div class="column" style="width:40%;">
-<p><span class="math display">\[
-\frac{\partial C}{\partial b_1} = \frac{\partial C}{\partial y_3} \frac{\partial y_3}{\partial z_3} \frac{\partial z_3}{\partial x_3} \frac{\partial x_3}{\partial z_2} \frac{\partial z_2}{\partial x_2} \frac{\partial x_2}{\partial z_1} \frac{\partial z_1}{\partial b_1}
-\]</span></p>
-<p><span class="math display">\[
-= \frac{\partial C}{\partial y_{3}} \sigma'(z_{3}) w_{3} \sigma'(z_{2}) w_{2} \sigma'(z_{1})
-\]</span></p>
-<p><img data-src="images/improved-opt.png"></p>
-</div><div class="column" style="width:60%;">
-<div class="quarto-figure quarto-figure-right">
+<div class="column" style="width:35%;">
+<p>Compare with method that predicts one goal, the proposed method has:</p>
+<ul>
+<li><p>Faster execution time</p></li>
+<li><p>Fewer user inputs</p></li>
+</ul>
+</div><div class="column" style="width:65%;">
+<div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="images/sigmold-func.png" class="quarto-figure quarto-figure-right"></p>
+<p><img data-src="images/result-methods.jpg" class="quarto-figure quarto-figure-center" height="500"></p>
 </figure>
 </div>
 </div></div>
 </section>
-<section id="improved-optimization-1" class="slide level2">
-<h2>Improved Optimization</h2>
-<p>The traditional GAN objective suffers from vanishing gradient and mode collapse problems.</p>
-<p><br></p>
-<p>Mode collapse: generator tends to produce the same type of data → generator yields the same G(z) for different z</p>
-</section>
-<section id="improved-optimization-2" class="slide level2">
-<h2>Improved Optimization</h2>
-<p>The traditional GAN objective suffers from vanishing gradient and mode collapse problems.</p>
-<p>→ using the Wasserstein GAN (WGAN)</p>
-<p><span class="math display">\[
-\min_{\theta, \psi} \max_{\omega} \mathbb{E}_{\pi_\theta}[D_\omega(s, a)] - \mathbb{E}_{\pi_E}[D_\omega(s, a)] - \lambda_0 \eta(\pi_\theta) - \lambda_1 L_I(\pi_\theta, Q_\psi) - \lambda_2 H(\pi_\theta)
-\]</span></p>
-</section>
-<section id="section-1" class="slide level2">
-<h2></h2>
+<section id="user-study" class="slide level2">
+<h2>User Study</h2>
 
-<img data-src="images/infogail-algo2.png" class="r-stretch"></section></section>
-<section>
-<section id="experiments" class="title-slide slide level1 center">
-<h1>Experiments</h1>
-
-</section>
-<section id="learning-to-distinguish-trajectories" class="slide level2">
-<h2>Learning to Distinguish Trajectories</h2>
+<img data-src="images/user-study.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="limitations" class="slide level2">
+<h2>Limitations</h2>
 <ul>
-<li>The observations at time t are positions from t − 4 to t.</li>
-<li>The latent code is a one-hot encoded vector with 3 dimensions and a uniform prior.</li>
-</ul>
-
-<img data-src="images/trajectory-observation.png" class="r-stretch"></section>
-<section id="self-driving-car-in-the-torcs-environment" class="slide level2">
-<h2>Self-driving car in the TORCS Environment</h2>
-<p>• The demonstrations collected by manually driving</p>
-<p>• Three-dimensional continuous action composed of steering, acceleration,and <em>braking</em></p>
-<p>• Raw visual inputs as the only external inputs for the state</p>
-<p>• Auxiliary information as internal input, including velocity at time t, actions at time t − 1 and t − 2, and damage of the car</p>
-<p>• Pre-trained ResNet on ImageNet</p>
-
-<img data-src="images/self-drivingcar.png" class="quarto-figure quarto-figure-right r-stretch"></section>
-<section id="section-2" class="slide level2">
-<h2></h2>
-
-<img data-src="images/torcs-env.png" class="r-stretch"></section>
-<section id="performance" class="slide level2">
-<h2>Performance</h2>
-<p><strong>Turn</strong></p>
-<p>[0, 1] corresponds to using the inside lane (blue lines), while [1, 0] corresponds to the outside lane (red lines).</p>
-
-<img data-src="images/perf1.png" class="r-stretch"></section>
-<section id="performance-1" class="slide level2">
-<h2>Performance</h2>
-<p><strong>Pass</strong></p>
-<p>[0, 1] corresponds to passing from right (red lines), while [1, 0] corresponds to passing from left (blue lines).</p>
-
-<img data-src="images/perf2.png" class="r-stretch"><div class="vertical-align">
-<p>infoGAIL</p>
-<p>GAIL</p>
-</div>
-</section>
-<section id="performance-2" class="slide level2">
-<h2>Performance</h2>
-<p>• Classification accuracies of 𝑄(𝑐|𝜏)</p>
-<p>• Reward augmentation encouraging the car to drive faster</p>
-
-<img data-src="images/perf-table.png" class="r-stretch"></section>
-<section id="section-3" class="slide level2">
-<h2></h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/YtNPBAW6h5k?rel=0" width="80%" height="60%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<p><span class="small-math"><a href="https://www.youtube.com/watch?v=YtNPBAW6h5k" class="uri">https://www.youtube.com/watch?v=YtNPBAW6h5k</a></span></p>
-</section>
-<section id="todays-agenda-2" class="slide level2">
-<h2>Today’s agenda</h2>
-<div class="grey-text">
-<p>• Adversarial optimization for imitation learning (GAIL)</p>
-<p>• Adversarial optimization with multiple inferred behaviors (InfoGAIL)</p>
-</div>
-<p>• Model based adversarial optimization (MGAIL)</p>
-<p>• Multi-agent imitation learning</p>
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong</p>
-</div></aside></section>
-<section id="model-based-adversarial-imitation-learning" class="slide level2 center">
-<h2>Model-based Adversarial Imitation Learning</h2>
-<p>Nir Baram, Oron Anschel, Shie Mannor</p>
-<p>Presented by Yuwen Xiong, Mar 1 st</p>
-</section>
-<section id="recap-gail-algorithm" class="slide level2">
-<h2>Recap: GAIL algorithm</h2>
-<p><span class="math display">\[
-\underset{\pi}{\text{argmin}} \quad \underset{D \in (0,1)}{\text{argmax}} \mathbb{E}_{\pi}[\log D(s, a)] + \mathbb{E}_{\pi_E}[\log(1 - D(s, a))] - \lambda H(\pi)
-\]</span></p>
+<li><p>Requires prior knowledge about the world:</p>
 <ul>
-<li>We use Adam to optimize the discriminator and use TRPO to optimize the policy</li>
-<li>The optimization of the discriminator can be done by using backpropagation, but this is not the case for the optimization of the policy</li>
-<li><span class="math inline">\(\pi\)</span> affects the data distribution but do not appear in the objective itself</li>
-<li>We use these two equations to get gradient estimation for <span class="math inline">\(\pi_{\theta}\)</span></li>
-</ul>
-<p><span class="math display">\[
-\nabla_{\theta} \mathbb{E}_{\pi}[\log D(s, a)] \cong \mathbb{\hat{E}}_{\tau_i}[\nabla_{\theta} \log \pi_{\theta}(a|s) Q(s, a)]
-\]</span></p>
-<p><span class="math display">\[Q(\hat{s}, \hat{a}) = \mathbb{\hat{E}}_{\tau_i}[\log D(s, a) \mid s_0 = \hat{s}, a_0 = \hat{a}]\]</span></p>
-</section>
-<section id="motivation-1" class="slide level2">
-<h2>Motivation</h2>
-<ul>
-<li>A model-free approach like GAIL has its limitations
-<ul>
-<li>The generative model can no longer be trained by simply backpropagating the gradient from the loss function defined over the discriminator</li>
-<li>Has to resort to high-variance gradient estimations</li>
+<li><p>a dynamics model that predicts the consequences of taking a given action in a given state of the environment;</p></li>
+<li><p>the set of possible goals for the user;</p></li>
+<li><p>the user’s control policy given their goal.</p></li>
 </ul></li>
+<li><p>Suitable in constrained domains where where this knowledge can be directly hard-coded or learned.</p></li>
+<li><p>Unsuitable for unstructured environments with ill-defined goals and unpredictable user behavior.</p></li>
 </ul>
-<div class="fragment">
-<p><br></p>
-<ul>
-<li>If we have a model-based version of adversarial imitation learning
-<ul>
-<li>The system can be easily trained end-to-end using regular backpropagation</li>
-<li>The policy gradient can be derived directly from the gradient of the discriminator</li>
-<li>Policies can be more robust and training requires fewer interactions with the environment</li>
-</ul></li>
-</ul>
-</div>
 </section>
-<section id="algorithm---overview" class="slide level2">
-<h2>Algorithm - overview</h2>
+<section id="references" class="slide level2">
+<h2>References</h2>
+<ul>
+<li><p>Javdani, S., Srinivasa, S. S., &amp; Bagnell, J. A. (2015). Shared autonomy via hindsight optimization. Robotics science and systems: online proceedings, 2015.</p></li>
+<li><p>RSS2015 talk: “Shared autonomy via hindsight optimization”</p></li>
+<li><p>Javdani, S., Admoni, H., Pellegrinelli, S., Srinivasa, S. S., &amp; Bagnell, J. A. (2018). Shared autonomy via hindsight optimization for teleoperation and teaming. The International Journal of Robotics Research, 37(7), 717-742.</p></li>
+<li><p>ICAPS 2015 talk: “Hindsight Optimization for Probabilistic Planning with Factored Actions”</p></li>
+</ul>
+</section>
+<section id="relaxedik-real-time-synthesis-of-accurate-and-feasible-robot-arm-motion" class="slide level2">
+<h2>RelaxedIK: Real-time Synthesis of Accurate and Feasible Robot Arm Motion</h2>
+</section>
+<section id="recap-forward-kinematics-fk" class="slide level2">
+<h2>Recap: Forward Kinematics (FK)</h2>
+<ol type="1">
+<li><p>Forward Kinematics</p>
+<ul>
+<li><p>A common robotic skeleton is a tree of rigid bones</p></li>
+<li><p>The relative Euler angles of all the joints determine the end-effector</p>
+<ul>
+<li>End-effectors? A tool that’s connected to the end of a robot arm</li>
+</ul>
 <div class="columns">
-<div class="column" style="width:70%;">
-<p>The model-free approach treats the state s as fixed and only tries to optimize the behavior.</p>
-<div class="fragment">
-<p>Instead, we treat s as a function of the policy: <span class="math display">\[s' = f(s, a)\]</span></p>
-<p>So that, by using the law of total derivative we can get:</p>
-<p><span class="math display">\[
-\begin{align}
-\left.\nabla_{\theta} D(s_t, a_t)\right|_{s=s_t, a=a_t} &amp;= \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \left.\frac{\partial D}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_t} \\
-&amp;= \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \frac{\partial D}{\partial s} \left(\left.\frac{\partial f}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_{t-1}} + \left.\frac{\partial f}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_{t-1}}\right)
-\end{align}
-\]</span></p>
-</div>
-</div><div class="column" style="width:30%;">
-<p><img data-src="images/algo-diagram.png" height="300"></p>
-</div></div>
-</section>
-<section id="algorithm---preparation" class="slide level2">
-<h2>Algorithm - preparation</h2>
-<p>First, we know that <span class="math inline">\(D(s, a) = p(y|s, a)\)</span>, where <span class="math inline">\(y = \{\pi_E, \pi\}\)</span></p>
-<div class="fragment">
-<p>By using Bayes rule and the law of total probability we can get:</p>
-<p><span class="math display">\[D(s, a) = p(\pi|s, a) = \frac{p(s, a|\pi)p(\pi)}{p(s, a)}\]</span></p>
-<p><span class="math display">\[\qquad \qquad \qquad = \frac{p(s, a|\pi)p(\pi)}{p(s, a|\pi)p(\pi) + p(s, a|\pi_E)p(\pi_E)}\]</span></p>
-</div>
-<div class="fragment">
-<p><span class="math display">\[\qquad = \frac{p(s, a|\pi)}{p(s, a|\pi) + p(s, a|\pi_E)}\]</span></p>
+<div class="column" style="width:35%;">
+<p><img data-src="images/fk.png" height="100"></p>
+<p><img data-src="images/twist-bend-twist.gif" height="200"></p>
+</div><div class="column" style="width:65%;">
+<p><img data-src="images/fk-robotarm.gif" height="300"></p>
+</div></div></li>
+</ul></li>
+</ol>
+<div class="tiny-font absolute" style="bottom: 0px; ">
+<p>materials from <a href="https://github.com/alecjacobson/computer-graphics-csc418" class="uri">https://github.com/alecjacobson/computer-graphics-csc418</a></p>
 </div>
 </section>
-<section id="algorithm---preparation-1" class="slide level2">
-<h2>Algorithm - preparation</h2>
-<p>Re-writing it as following:</p>
-<p><span class="math display">\[
-D(s, a) = \frac{1}{\frac{p(s,a|\pi)+p(s,a|\pi_E)}{p(s,a|\pi)}} = \frac{1}{1 + \frac{p(s,a|\pi_E)}{p(s,a|\pi)}} = \frac{1}{1 + \frac{p(a|s,\pi_E)}{p(a|s,\pi)} \cdot \frac{p(s|\pi_E)}{p(s|\pi)}}\]</span></p>
-<div class="fragment">
-<p>Let <span class="math inline">\(\varphi(s, a) = \frac{p(a|s,\pi_E)}{p(a|s,\pi)}\)</span> and <span class="math inline">\(\psi(s) = \frac{p(s|\pi_E)}{p(s|\pi)}\)</span>, we can get:</p>
-<p><span class="math display">\[
-D(s, a) = \frac{1}{1 + \varphi(s, a) \cdot \psi(s)}
-\]</span></p>
+<section id="recap-inverse-kinematics-ik" class="slide level2">
+<h2>Recap: Inverse Kinematics (IK)</h2>
+<ol type="1">
+<li><p>Inverse Kinematics</p>
+<ul>
+<li><p>We formulate the inverse kinematics function as: <span class="math inline">\(\Theta = IK(p)\)</span> , which can be easily written in an analytic form for a simple tree skeleton.</p>
+<ul>
+<li><p>Pose contains velocity?</p></li>
+<li><p>Hard to find feasible state space?</p></li>
+</ul></li>
+<li><p>In reality, IK is often treated as an optimization problem <span class="math display">\[
+\chi_p(\Theta) = \| p_g - FK(\Theta) \|_2
+\]</span></p></li>
+</ul></li>
+</ol>
+<div class="quarto-figure quarto-figure-right">
+<figure>
+<p><img data-src="images/hand-moving.gif" class="quarto-figure quarto-figure-right" height="200"></p>
+</figure>
 </div>
 </section>
-<section id="algorithm---preparation-2" class="slide level2">
-<h2>Algorithm - preparation</h2>
-<p>Here <span class="math inline">\(\varphi(s, a) = \frac{p(a|s,\pi_E)}{p(a|s,\pi)}\)</span> stands for policy likelihood ratio</p>
-<p>And <span class="math inline">\(\psi(s) = \frac{p(s|\pi_E)}{p(s|\pi)}\)</span> stands for state distribution likelihood ratio</p>
-<div class="fragment">
-<p>By using differentiation rule we can easily get:</p>
-<p><span class="math display">\[
-\nabla_a D = -\frac{\varphi_a(s, a)\psi(s)}{(1 + \varphi(s, a)\psi(s))^2}
-\]</span></p>
-<p><span class="math display">\[
-\nabla_s D = -\frac{\varphi_s(s, a)\psi(s) + \varphi(s, a)\psi_s(s)}{(1 + \varphi(s, a)\psi(s))^2}
-\]</span></p>
-</div>
-<div class="fragment">
-<p>Recall what we need: <span class="math inline">\(\left.\nabla_\theta D(s_t, a_t)\right|_{s=s_t,a=a_t} = \left.\frac{\partial D}{\partial a} \frac{\partial a}{\partial \theta}\right|_{a=a_t} + \left.\frac{\partial D}{\partial s} \frac{\partial s}{\partial \theta}\right|_{s=s_t}\)</span></p>
+<section id="imitation-learning" class="slide level2">
+<h2>Imitation Learning</h2>
+<ol type="1">
+<li><p>Imitation learning using IK</p>
+<ul>
+<li><p>Basic idea: Using IK to bridge between target pose and agent’s angles</p></li>
+<li><p>Input: M (consecutive) expert (goal) poses</p></li>
+<li><p>Output: M (consecutive) frames of agent’s euler joints</p></li>
+<li><p>Constraints:</p>
+<ul>
+<li><p>IK constraints (goal constraints)</p></li>
+<li><p>Between-frames constraints</p></li>
+</ul></li>
+</ul></li>
+</ol>
+</section>
+<section id="imitation-learning-1" class="slide level2">
+<h2>Imitation Learning</h2>
+<ol type="1">
+<li><p>Imitation learning using IK</p>
+<ul>
+<li>Basic idea: minimize the difference of target pose and agent pose</li>
+</ul></li>
+<li><p>Direct point-to-point approach</p>
+<ul>
+<li><p>TRAC-IK (previous state-of-the-art)</p></li>
+<li><p>Pose2pose / frame2frame imitation learning</p>
+<ul>
+<li>Ignore most of the constraints between frames</li>
+</ul></li>
+<li><p>Problems</p>
+<ul>
+<li><p>Self-collision</p></li>
+<li><p>Time constraints</p></li>
+</ul></li>
+</ul></li>
+</ol>
+</section>
+<section id="imitation-learning-2" class="slide level2">
+<h2>Imitation Learning</h2>
+<p>Self-collision</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/self-collision.gif" class="quarto-figure quarto-figure-center" height="450"></p>
+</figure>
 </div>
 </section>
-<section id="algorithm---re-parameterization-of-distribution" class="slide level2">
-<h2>Algorithm - re-parameterization of distribution</h2>
-<p>Assuming the policy is given by</p>
-<p><span class="math display">\[
-\pi_\theta(a|s) = \mathcal{N}(a|\mu_\theta(s), \sigma_\theta^2(s))
-\]</span></p>
-<div class="fragment">
-<p>We can rewrite it to</p>
-<p><span class="math display">\[
-\pi_\theta(a|s) = \mu_\theta(s) + \xi\sigma_\theta(s), \text{ where } \xi \sim \mathcal{N}(0, 1)
-\]</span></p>
-</div>
-<div class="fragment">
-<p>So that we can get a Monte-Carlo estimator of the derivative</p>
-<p><span class="math display">\[
-\begin{align}
-\nabla_\theta \mathbb{E}_\pi(a|s) D(s, a) &amp;= \mathbb{E}_{\rho(\xi)} \nabla_a D(a, s) \nabla_\theta \pi_\theta(a|s) \\
-&amp; \cong \frac{1}{M} \sum_{i=1}^M \left.\nabla_a D(s, a) \nabla_\theta \pi_\theta(a|s)\right|_{\xi=\xi_i}
-\end{align}
-\]</span></p>
+<section id="imitation-learning-3" class="slide level2">
+<h2>Imitation Learning</h2>
+<p>Discontinuities</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/discontinuities.gif" class="quarto-figure quarto-figure-center" height="450"></p>
+</figure>
 </div>
 </section>
-<section id="algorithm-1" class="slide level2">
-<h2>Algorithm</h2>
-
-<img data-src="images/algo-model-diagram.png" class="r-stretch"></section>
-<section id="algorithm-2" class="slide level2">
-<h2>Algorithm</h2>
-<p>To maximize the reward function, we can view reward as <span class="math inline">\(r(s, a) = -D(s, a)\)</span>, and then maximizing the total reward is equivalent to minimizing the total discriminator beliefs along a trajectory.</p>
-<div class="fragment">
-<p>So that we can define: <span class="math display">\[
-J(\theta) = \mathbb{E} \left[ \sum_{t=0} \gamma^t D(s_t, a_t) \mid \theta \right]
-\]</span></p>
-<p>And write down the derivatives: (this follows SVG paper [Heess et al.&nbsp;2015]) <span class="math display">\[
-J_s = \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\mid s,a,s')}
-\left[ D_s + D_a\pi_s + \gamma J'_{s'}(f_s + f_a\pi_s)
-\right]
-\]</span></p>
-<p><span class="math display">\[
-J_\theta =  \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\mid s,a,s')}
-[D_a\pi_\theta +  \gamma(J'_{s'}f_a\pi_\theta + J'_\theta)]
-\]</span></p>
+<section id="imitation-learning-4" class="slide level2">
+<h2>Imitation Learning</h2>
+<p>Goal mistracking</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/goal-mistracking.gif" class="quarto-figure quarto-figure-center" height="450"></p>
+</figure>
 </div>
 </section>
-<section id="algorithm-3" class="slide level2">
-<h2>Algorithm</h2>
-
-<img data-src="images/algo1.png" class="r-stretch"></section>
-<section id="experiments-1" class="slide level2">
-<h2>Experiments</h2>
-
-<img data-src="images/experiments.png" class="r-stretch"></section>
-<section id="todays-agenda-3" class="slide level2">
-<h2>Today’s agenda</h2>
-<div class="grey-text">
-<p>• Adversarial optimization for imitation learning (GAIL)</p>
-<p>• Adversarial optimization with multiple inferred behaviors (InfoGAIL)</p>
-<p>• Model based adversarial optimization (MGAIL)</p>
+<section id="imitation-learning-5" class="slide level2">
+<h2>Imitation Learning</h2>
+<p>Unpredictable behaviors <img data-src="images/unpredictable.gif" class="quarto-figure quarto-figure-center" height="450"></p>
+</section>
+<section id="relaxed-ik" class="slide level2">
+<h2>Relaxed IK</h2>
+<ol type="1">
+<li>Basic Idea: Using soft (Relaxed) IK loss that considers self-collision and singularity for faster optimization</li>
+</ol>
+<p><span class="math display">\[
+f(\Theta) = \sum_{i=1}^{k} w_i f_i(\Theta, \Omega_i)
+\]</span></p>
+<ol type="1">
+<li><p>Loss functions</p>
+<ol type="a">
+<li><p>End-effector position &amp; orientation matching</p></li>
+<li><p>Minimize joint velocity, acceleration, jerk</p></li>
+<li><p>Self-collision loss (fast)</p></li>
+<li><p>Singularity loss</p></li>
+</ol></li>
+</ol>
+</section>
+<section id="relaxed-ik-1" class="slide level2">
+<h2>Relaxed IK</h2>
+<p>Self-collision loss</p>
+<ul>
+<li><p>Common approach: very slow</p></li>
+<li><p>Relaxed IK:</p>
+<ul>
+<li><p>Approximate how imminent the robot is to a collision state</p></li>
+<li><p>Using simulated data to train a network to predict the distances between links</p></li>
+</ul>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><span class="math display">\[
+\text{col}(\Theta) = \sum_{i,j} b \cdot \exp\left( -\frac{\text{dis}(l_i, l_j)^2}{2c^2} \right)
+\]</span></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/collision-avoidance.gif"></p>
+</div></div></li>
+</ul>
+</section>
+<section id="relaxed-ik-2" class="slide level2">
+<h2>Relaxed IK</h2>
+<ol type="1">
+<li>Singularity loss</li>
+</ol>
+<ul>
+<li><p>Kinematic singularities are well studied in robotics</p></li>
+<li><p>Relaxed IK:</p>
+<ul>
+<li><p>Find a metric that can approximate distance to a singularity</p></li>
+<li><p>Jacobian’s condition number is used as a proxy distance to singularity<br>
+Why?</p></li>
+</ul>
+<p><span class="math display">\[
+\dot{\mathbf{x}} = \mathbf{J}(\Theta) \dot{\Theta}
+\]</span></p>
+<ul>
+<li><p>Penalize condition values less than mean - b * std</p></li>
+<li><p>Estimate mean, std from simulated data</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="relaxed-ik-3" class="slide level2">
+<h2>Relaxed IK</h2>
+<p>Pros</p>
+<ul>
+<li>Much faster and smoother performance
+<ul>
+<li>combining neural network and traditional robotics</li>
+</ul></li>
+<li>Data driven, less human-engineering
+<ul>
+<li>novel singularity metric</li>
+</ul></li>
+<li>Easy to deploy
+<ul>
+<li>sim2Real</li>
+</ul></li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/square-tracing.gif" class="quarto-figure quarto-figure-center" height="200"></p>
+</figure>
 </div>
-<p>• Multi-agent imitation learning</p>
 
 
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong</p>
-</div></aside></section></section>
+</section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -1127,6 +1237,7 @@ Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yi
     });
     </script>
     <script type="text/javascript" src="../custom_curtain.js"></script>
+    <script>videojs(video_shortcode_videojs_video1);</script>
     
 
 </body></html>

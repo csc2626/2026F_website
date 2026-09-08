@@ -6,9 +6,7 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../site_libs/quarto-contrib/videojs/video.min.js"></script>
-<link href="../../site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet"><meta charset="utf-8">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.6.42">
 
   <meta name="author" content="Florian Shkurti">
@@ -127,11 +125,11 @@
     }
   </style>
 <meta property="og:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2026">
-<meta property="og:description" content="Week 11: Learning from Videos">
+<meta property="og:description" content="Week 11: Representation Learning for Imitation &amp; Provable Generalization">
 <meta property="og:image" content="https://csc2626.github.io/2026F_website/lecs/w11/images/DrawingHands.jpg">
 <meta property="og:site_name" content="CSC2626 - Fall 2026">
 <meta name="twitter:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2026">
-<meta name="twitter:description" content="Week 11: Learning from Videos">
+<meta name="twitter:description" content="Week 11: Representation Learning for Imitation &amp; Provable Generalization">
 <meta name="twitter:image" content="https://csc2626.github.io/2026F_website/lecs/w11/images/DrawingHands.jpg">
 <meta name="twitter:card" content="summary">
 </head>
@@ -141,7 +139,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">CSC2626 Imitation Learning for Robotics</h1>
-  <p class="subtitle">Week 11: Learning from Videos</p>
+  <p class="subtitle">Week 11: Representation Learning for Imitation &amp; Provable Generalization</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -152,311 +150,158 @@ Florian Shkurti
 </div>
 
 </section>
-<section id="learning-to-act-from-videos" class="slide level2">
-<h2>Learning to act from videos</h2>
-<div class="medium">
-<p><span class="green">• The argument</span>: we have billions of videos on the internet, many of which show how humans interact with objects. Let’s try to use these videos to teach robots how to act. A tantalizing possibility for scaling up robot learning.</p>
-<p><span class="red">• Problem #1</span>: Actions labels are missing!</p>
-<p><span class="red">• Problem #2</span>: Morphology and mechanics of the human body are different than the robot’s</p>
-<p><span class="red">• Problem #3</span>: The camera viewpoint during the recording of the video is likely different than the one during deployment.</p>
-<p><br></p>
-<div class="fragment">
-<p><u>What can we realistically learn from videos?</u></p>
-<p>• Learn representations for pretraining policy backbones</p>
-<p>• Learn video dynamics</p>
-<p>• Extract actions from videos</p>
-<p>• Learn affordances (how humans interact with objects)</p>
-</div>
-</div>
-</section>
 <section id="todays-agenda" class="slide level2">
-<h2>Today’s agenda</h2>
+<h2>Today’s Agenda</h2>
 <ul>
-<li>Extracting actions from videos
+<li><p>Representation Learning for Imitation</p>
 <ul>
-<li>Physics–based human motion estimation &amp; prediction</li>
-<li>Hand motion estimation</li>
-<li>Motion retargeting to a robot</li>
+<li>Is it better to separate representation learning from policy learning?</li>
 </ul></li>
-<li>Learning video dynamics
+<li><p>Provable generalization</p>
 <ul>
-<li>Video predictive models</li>
-<li>Action spaces for learning from videos</li>
+<li>PAC-Bayes generalization bounds</li>
 </ul></li>
-<li>Learning object affordances from video</li>
+<li><p>Robustness and safety</p>
+<ul>
+<li>Robustness as stability</li>
+</ul></li>
 </ul>
 </section>
-<section id="smpl-skinned-multi-person-linear-model" class="slide level2">
-<h2>SMPL (Skinned Multi-Person Linear Model)</h2>
-<p><img data-src="images/smpl.png"></p>
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="images/smpl2.png" class="quarto-figure quarto-figure-center" width="150"></p>
-</figure>
-</div>
-</section>
-<section id="section" class="slide level2">
-<h2></h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/kuBlUyHeV5U?rel=0" width="100%" height="75%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<p><span class="small-math"><a href="https://www.youtube.com/watch?v=kuBlUyHeV5U" class="uri">https://www.youtube.com/watch?v=kuBlUyHeV5U</a></span></p>
-</section>
-<section id="smpl-hands" class="slide level2">
-<h2>SMPL + Hands</h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/_1o21xc3TD0?rel=0" width="100%" height="75%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<p><span class="small-math"><a href="https://mano.is.tue.mpg.de" class="uri">https://mano.is.tue.mpg.de</a></span></p>
-</section>
-<section id="biomechanics-models" class="slide level2">
-<h2>Biomechanics models</h2>
-<p>• SMPL is a kinematic model of the human body</p>
-<p>• For more accurate models we could try to model the muscle structure of the human body</p>
-<p><br></p>
+<section id="learning-dense-representations-for-manipulation" class="slide level2">
+<h2>Learning dense representations for manipulation</h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/L5UW1VapKNE?rel=0" width="80%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <div class="small-math">
-<p><a href="https://myosuite.readthedocs.io/en/latest/index.html" class="uri">https://myosuite.readthedocs.io/en/latest/index.html</a></p>
-<p><a href="https://sites.google.com/view/myodex" class="uri">https://sites.google.com/view/myodex</a></p>
+<p><span class="red">Dense Object Nets: Learning Dense Visual Object Descriptors By and For Robotic Manipulation.</span> Florence, Manuelli, Tedrake. 2018</p>
 </div>
 </section>
-<section id="hand-motion-estimation-in-arvr-headsets" class="slide level2">
-<h2>Hand motion estimation in AR/VR headsets</h2>
-
-<img data-src="images/hand-animation.jpeg" class="r-stretch"></section>
-<section id="frame-by-frame-human-pose-detectors" class="slide level2">
-<h2>Frame-by-frame human pose detectors</h2>
-
-<img data-src="images/frame-by-frame.png" class="r-stretch"><div class="small-math">
-<p><span class="red">KAMA: 3D Keypoint Aware Body Mesh Articulation</span>. Iqbal, Xie et al.&nbsp;3DV 2021. <a href="https://arxiv.org/abs/2104.13502" class="uri">https://arxiv.org/abs/2104.13502</a></p>
-</div>
-</section>
-<section id="motivation" class="slide level2">
-<h2>Motivation</h2>
-<div class="red">
-<p>Frame-by-frame human pose estimators exist but are <strong>not good enough</strong>. We can <strong>correct</strong> them with physics.</p>
-</div>
-<div class="columns">
-<div class="column" style="width:40%;">
-<p><img data-src="images/human-pose.gif" height="400"></p>
-</div><div class="column left-align" style="width:5%;">
-<p><span class="math inline">\(\Rightarrow\)</span></p>
-</div><div class="column small-math" style="width:50%;">
-<p><img data-src="images/human-pose2.gif" height="400"></p>
-</div><p><img data-src="images/camera-arrow.png" class="absolute" style="bottom: 90px; right: 0px; height: 400px; "></p>
-</div>
-</section>
-<section id="system-overview" class="slide level2">
-<h2>System overview</h2>
-<p><img data-src="images/sys-overview.png"></p>
+<section id="learning-policies-on-top-of-pretrained-representations" class="slide level2">
+<h2>Learning policies on top of pretrained representations</h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/RBvaazKSOAc?rel=0" width="80%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <div class="small-math">
-<p><span class="red">Physics-based Human Motion Estimation and Synthesis from Videos.</span><br>
-Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.</p>
-</div>
-<div class="absolute tiny-font" style="top: 0px; right: 0px; ">
-<p><img data-src="images/kevin-xie.jpeg" height="100"><br>
-Kevin Xie</p>
+<p><span class="red">Self-Supervised Correspondence in Visuomotor Policy Learning.</span> Florence, Manuelli, Tedrake. 2020</p>
 </div>
 </section>
-<section id="physics-constraints-reduce-slip" class="slide level2">
-<h2>Physics constraints reduce slip</h2>
-<iframe src="https://drive.google.com/file/d/1MrQTNIgOpeHlwS3IXcnZxgD5AT4K8Ygv/preview" width="960" height="500">
-</iframe>
-<div class="small-math">
-<p><span class="red">Physics-based Human Motion Estimation and Synthesis from Videos.</span><br>
-Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.</p>
-</div>
+<section id="another-example-of-policy-learning-on-pretrained-representations" class="slide level2">
+<h2>Another example of policy learning on pretrained representations</h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/bIzWADZjdoA?rel=0" width="80%" height="70%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 </section>
-<section id="section-1" class="slide level2">
-<h2></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="images/physics1.gif" height="300"></p>
-<p><img data-src="images/physics3.gif" height="300"></p>
-</div><div class="column" style="width:50%;">
-<p><img data-src="images/physics2.gif" height="300"></p>
-<p><img data-src="images/physics4.gif" height="300"></p>
-</div></div>
-</section>
-<section id="section-2" class="slide level2">
-<h2></h2>
-<iframe src="https://drive.google.com/file/d/18nc9BU2ESapwftihBZ_8QmnSTVNAPdPw/preview" width="960" height="550">
-</iframe>
-<div class="small-math">
-<p><span class="red">Physics-based Human Motion Estimation and Synthesis from Videos.</span><br>
-Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.</p>
-</div>
-</section>
-<section id="motion-generation" class="slide level2">
-<h2>Motion generation</h2>
-<iframe src="https://drive.google.com/file/d/1VEInU7_l1lUrgM3oNAN4skYl6vrgNGMn/preview" width="960" height="500">
-</iframe>
+<section id="can-we-show-theoretically-that-representation-learning-helps" class="slide level2">
+<h2>Can we show theoretically that representation learning helps?</h2>
+<p>[switch to notes]</p>
 </section>
 <section id="todays-agenda-1" class="slide level2">
-<h2>Today’s agenda</h2>
-<ul>
-<li><p>Extracting actions from videos</p>
-<ul>
-<li><p><span class="grey-text">Physics–based human motion estimation &amp; prediction</span></p></li>
-<li><p><span class="grey-text">Hand motion estimation</span></p></li>
-<li><p>Motion retargeting to a robot</p></li>
-</ul></li>
-<li><p>Learning video dynamics</p>
-<ul>
-<li>Video predictive models</li>
-<li>Action spaces for learning from videos</li>
-</ul></li>
-<li><p>Learning object affordances from video</p></li>
-</ul>
-</section>
-<section id="motion-retargeting-formulating-a-loss-function" class="slide level2">
-<h2>Motion retargeting: formulating a loss function</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<p><img data-src="images/motion-retarget.png"></p>
-</div><div class="column small-math" style="width:40%;">
-<p>Motion retargeting loss function:</p>
-<ol type="1">
-<li>Tracking error</li>
-<li>Respecting joint limits</li>
-<li>Avoiding self-collisions</li>
-<li>Respecting dynamics</li>
-<li>Smooth motion</li>
-</ol>
-<p><span class="red">Issue</span>: source and target system have different dimensionality!</p>
-<p><span class="green">Potential fix</span>: need to decide joint mappings from source to target</p>
-</div></div>
-</section>
-<section id="motion-retargeting-from-human-to-robot-hands" class="slide level2">
-<h2><span class="medium">Motion retargeting from human to robot hands</span></h2>
-<p><img data-src="images/robothands1.png" style="width:30.0%"> <img data-src="images/robothands2.png" style="width:30.0%"> <img data-src="images/robothands3.png" style="width:30.0%"></p>
-<div class="columns">
-<div class="column" style="width:65%;">
-<p><img data-src="images/robot-cup.gif"></p>
-</div><div class="column small-math" style="width:35%;">
-<p>Motion retargeting loss terms:</p>
-<ol type="1">
-<li>Tracking error</li>
-<li>Respecting target joint limits</li>
-<li>Avoiding self-collisions in target</li>
-<li>Respecting target dynamics</li>
-<li>Smooth motion for target</li>
-</ol>
-<p><span class="red">Issue</span>: source and target system have different dimensionality!</p>
-<p><span class="green">Potential fix</span>: need to decide joint mappings from source to target</p>
-</div></div>
-</section>
-<section id="section-3" class="slide level2">
-<h2></h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/x7OriVj7dYM?rel=0" width="100%" height="80%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-</section>
-<section id="modeling-human-object-interaction" class="slide level2">
-<h2>Modeling human-object interaction</h2>
-<video id="video_shortcode_videojs_video1" width="900" height="500" class="video-js vjs-default-skin " controls="" preload="auto" data-setup="{}" title=""><source src="videos/human-object-interactions.mp4"></video>
-<div class="small-math">
-<p><span class="red">NIFTY: Neural Object Interaction Fields for Guided Human Motion Synthesis.</span> Kulkarni et al.&nbsp;2023</p>
-</div>
-</section>
-<section id="section-4" class="slide level2">
-<h2></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<video id="video_shortcode_videojs_video2" width="500" height="660" class="video-js vjs-default-skin " controls="" preload="auto" data-setup="{}" title=""><source src="videos/human-handpose.mp4"></video>
-</div><div class="column small-math" style="width:50%;">
-<div class="absolute" style="bottom: 100px; ">
-<p>Need to estimate human hand poses + unknown object geometry</p>
-<p><br></p>
-<p><br></p>
-<p><br><br><br><br></p>
-<p><span class="red">Learning to Imitate Object Interactions from Internet Videos.</span> Patel et al.&nbsp;2022</p>
-</div>
-</div></div>
-</section>
-<section id="section-5" class="slide level2 center">
-<h2></h2>
-<p>A lot of nuance and engineering details that matter in estimating the motions of the human body, the hands, and the geometry of objects they interact with.</p>
-<p><br></p>
-<p><span class="green">Open questions:</span> Do we have to infer 3D geometry and actions from video? Do we have to do 3D perception?</p>
-</section>
-<section id="todays-agenda-2" class="slide level2">
-<h2>Today’s agenda</h2>
+<h2>Today’s Agenda</h2>
 <div class="grey-text">
 <ul>
-<li><p>Extracting actions from videos</p>
+<li><p>Representation Learning for Imitation</p>
 <ul>
-<li><p>Physics–based human motion estimation &amp; prediction</p></li>
-<li><p>Hand motion estimation</p></li>
-<li><p>Motion retargeting to a robot</p></li>
+<li>Is it better to separate representation learning from policy learning?</li>
 </ul></li>
 </ul>
 </div>
 <ul>
-<li>Learning video dynamics
+<li><p>Provable generalization</p>
 <ul>
-<li>Video predictive models</li>
-<li>Action spaces for learning from videos</li>
+<li>PAC-Bayes generalization bounds</li>
 </ul></li>
-<li>Learning object affordances from video</li>
+<li><p>Robustness and safety</p>
+<ul>
+<li>Robustness as stability</li>
+</ul></li>
 </ul>
 </section>
-<section id="large-video-reconstruction-models" class="slide level2">
-<h2>Large video reconstruction models</h2>
+<section id="pac-bayes-generalization-bounds" class="slide level2">
+<h2>PAC-Bayes generalization bounds</h2>
 
-<img data-src="images/video-reconstruction.png" class="r-stretch"><div class="small-math">
-<p>If you learn a good token representation for videos, then you can learn a latent dynamics model over it.</p>
-<p>Cosmos model from NVIDIA. <a href="https://research.nvidia.com/labs/dir/cosmos-tokenizer/" class="uri">https://research.nvidia.com/labs/dir/cosmos-tokenizer/</a></p>
+<img data-src="images/pac-bayes.png" class="quarto-figure quarto-figure-center r-stretch"><div class="small-math">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.</span> Majumdar et al.&nbsp;2020</p>
 </div>
 </section>
-<section id="large-video-reconstruction-models-1" class="slide level2">
-<h2>Large video reconstruction models</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<!--   -->
-<video data-autoplay="" controls="" src="videos/prev-sota.mp4">
-</video>
-<p>Previous SOTA</p>
-</div><div class="column" style="width:50%;">
-<video data-autoplay="" controls="" src="videos/cosmos.mp4">
-</video>
-<p>Cosmos</p>
-</div></div>
+<section id="pac-bayes-bound-applied-to-control" class="slide level2">
+<h2>PAC-Bayes Bound Applied to Control</h2>
+
+<img data-src="images/pac-bayes2.png" class="quarto-figure quarto-figure-center r-stretch"><div class="small-math">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.</span> Majumdar et al.&nbsp;2020</p>
+</div>
+</section>
+<section id="pac-bayes-example" class="slide level2">
+<h2>PAC-Bayes Example</h2>
+
+<img data-src="images/pac-bayes-ex.png" class="quarto-figure quarto-figure-center r-stretch"><div class="small-math">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.</span> Majumdar et al.&nbsp;2020</p>
+</div>
+</section>
+<section id="pac-bayes-control-for-visuomotor-policies" class="slide level2">
+<h2><span class="medium">PAC-Bayes Control for Visuomotor Policies</span></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/nabtvOWoIlo?rel=0" width="100%" height="70%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <div class="small-math">
-<p>Cosmos model from NVIDIA. <a href="https://research.nvidia.com/labs/dir/cosmos-tokenizer/" class="uri">https://research.nvidia.com/labs/dir/cosmos-tokenizer/</a></p>
+<p><span class="red">Generalization Guarantees for Imitation Learning.</span> Ren, Veer, Majumdar. CoRL 2020.</p>
 </div>
 </section>
-<section id="large-video-reconstruction-models-2" class="slide level2">
-<h2>Large video reconstruction models</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<!--   -->
-<video data-autoplay="" controls="" src="videos/kitchen-prevsota.mp4">
-</video>
-<p>Previous SOTA</p>
-</div><div class="column" style="width:50%;">
-<video data-autoplay="" controls="" src="videos/kitchen-cosmos.mp4">
-</video>
-<p>Cosmos</p>
-</div></div>
-<div class="small-math">
-<p>Cosmos model from NVIDIA. <a href="https://research.nvidia.com/labs/dir/cosmos-tokenizer/" class="uri">https://research.nvidia.com/labs/dir/cosmos-tokenizer/</a></p>
+<section id="todays-agenda-2" class="slide level2">
+<h2>Today’s Agenda</h2>
+<div class="grey-text">
+<ul>
+<li><p>Representation Learning for Imitation</p>
+<ul>
+<li>Is it better to separate representation learning from policy learning?</li>
+</ul></li>
+<li><p>Provable generalization</p>
+<ul>
+<li>PAC-Bayes generalization bounds</li>
+</ul></li>
+</ul>
+</div>
+<ul>
+<li><p>Robustness and safety</p>
+<ul>
+<li>Robustness as stability</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-does-it-mean-for-a-policy-to-be-robust" class="slide level2">
+<h2>What does it mean for a policy to be robust?</h2>
+<p>• The system (policy, dynamics) must be such that the policy will achieve its goal point, even if a family of disturbances/noise affect it</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/robust-policies.png" class="quarto-figure quarto-figure-center" height="350"></p>
+</figure>
+</div>
+<div class="small-math absolute" style="bottom: 30%; right: 10px; ">
+<p>Composition of robust policies</p>
+<p><span class="red">LQR Trees.</span> Tedrake, RSS 2005.</p>
 </div>
 </section>
-<section id="how-can-we-use-video-models-in-robotics" class="slide level2">
-<h2>How can we use video models in robotics?</h2>
-<p><img data-src="images/viper-algo.png" height="350"></p>
-<div class="small-math">
-<p><span class="red">Video prediction models as rewards for RL. Escontrela et al.</span> NeurIPS 2023.</p>
-</div>
+<section id="robustness-as-stability-of-dynamical-systems" class="slide level2">
+<h2>Robustness as stability of dynamical systems</h2>
+<ul>
+<li><span class="red">Global asymptotic stability to a goal</span>: the region of attraction includes all states. The system will converge to the goal, no matter where it starts from.</li>
+</ul>
+<p><br></p>
+<ul>
+<li>How to ensure global asymptotic stability:
+<ul>
+<li>Show that there exists a positive energy (Lyapunov) function that</li>
+<li>Decreases over time along the system trajectories</li>
+<li>And will become 0 at the convergence point</li>
+</ul></li>
+</ul>
 </section>
-<section id="another-idea-dynamics-models-with-learned-action-spaces" class="slide level2">
-<h2>Another idea: dynamics models with learned action spaces</h2>
-
-<img data-src="images/dynamic-models.png" class="r-stretch"></section>
-<section id="need-to-manually-map-robot-actions-to-latent-actions" class="slide level2">
-<h2><span class="medium">Need to manually map robot actions to latent actions</span></h2>
-<p><img data-src="images/map-robot.gif" height="500"></p>
+<section id="examples-of-lyapunov-functions" class="slide level2">
+<h2>Examples of Lyapunov functions</h2>
+<p>[switches to notes]</p>
 </section>
-<section id="genie" class="slide level2">
-<h2>Genie</h2>
+<section id="two-examples-of-learning-lyapunov-functions" class="slide level2">
+<h2><span class="medium">Two examples of learning Lyapunov functions</span></h2>
+<p><img data-src="images/lyapunov-func.png" height="300"></p>
+<p><img data-src="images/imitation-flow.png"></p>
+</section>
+<section id="stability-via-contraction-theory" class="slide level2">
+<h2>Stability via Contraction Theory</h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/kmmJ6naGOfE?rel=0" width="100%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 
 
-
-<img data-src="images/genie.png" class="r-stretch"></section>
+</section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -860,10 +705,6 @@ Xie, Wang, Iqbal, Guo, Fidler, Shkurti. ICCV ’21.</p>
     });
     </script>
     <script type="text/javascript" src="../custom_curtain.js"></script>
-    <script>videojs(video_shortcode_videojs_video1);</script>
-    <script>videojs(video_shortcode_videojs_video2);</script>
-    <script>videojs(video_shortcode_videojs_video3);</script>
-    <script>videojs(video_shortcode_videojs_video4);</script>
     
 
 </body></html>
