@@ -9655,7 +9655,7 @@
     "href": "lecs/w02/lec02.html#todays-agenda",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n\n\n\n\n\nAcknowledgments\nToday’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (DeepRL), Ben Recht (ICML’18), Emo Todorov, Zico Kolter"
+    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Model Predictive Path Integral Control (MPPI)\n• Cross-Entropy Method (CEM)\n\n\n\n\n\nAcknowledgments\nToday’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (DeepRL), Ben Recht (ICML’18), Emo Todorov, Zico Kolter"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-1",
@@ -9711,7 +9711,7 @@
     "href": "lecs/w02/lec02.html#todays-agenda-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n\n\n\n\n\nAcknowledgments\nToday’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (DeepRL), Ben Recht (ICML’18), Emo Todorov, Zico Kolter"
+    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Model Predictive Path Integral Control (MPPI)\n• Cross-Entropy Method (CEM)\n\n\n\n\n\nAcknowledgments\nToday’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (DeepRL), Ben Recht (ICML’18), Emo Todorov, Zico Kolter"
   },
   {
     "objectID": "lecs/w02/lec02.html#what-you-can-do-with-variants-of-lqr-control",
@@ -9858,7 +9858,7 @@
     "href": "lecs/w02/lec02.html#todays-agenda-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL"
+    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Model Predictive Path Integral Control (MPPI)\n• Cross-Entropy Method (CEM)"
   },
   {
     "objectID": "lecs/w02/lec02.html#what-happens-in-the-general-nonlinear-case",
@@ -9886,7 +9886,7 @@
     "href": "lecs/w02/lec02.html#todays-agenda-3",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL"
+    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Model Predictive Path Integral Control (MPPI)\n• Cross-Entropy Method (CEM)"
   },
   {
     "objectID": "lecs/w02/lec02.html#open-loop-vs.-closed-loop",
@@ -9928,7 +9928,7 @@
     "href": "lecs/w02/lec02.html#todays-agenda-4",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL"
+    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Model Predictive Path Integral Control (MPPI)\n• Cross-Entropy Method (CEM)"
   },
   {
     "objectID": "lecs/w02/lec02.html#learning-a-dynamics-model",
@@ -10005,7 +10005,7 @@
     "href": "lecs/w02/lec02.html#todays-agenda-5",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Appendix"
+    "text": "Today’s agenda\n\n\n• Intro to Control & Reinforcement Learning\n• Linear Quadratic Regulator (LQR)\n• Iterative LQR\n• Model Predictive Control\n• Learning dynamics and model-based RL\n• Model Predictive Path Integral Control (MPPI)\n• Cross-Entropy Method (CEM)\n• Appendix"
   },
   {
     "objectID": "lecs/w02/lec02.html#appendix-1-optional-reading-lqr-extensions-time-varying-systems",
