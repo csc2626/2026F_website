@@ -8,7 +8,7 @@ format:
     embed-resources: false
     show-notes: false
     smaller: true
-    footer: '<a href="https://csc2626.github.io/website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩ Back to Course Website</a>'
+    footer: '<a href="https://csc2626.github.io/2026F_website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩ Back to Course Website</a>'
     chalkboard:
       src: chalkboard.json
       buttons: true
@@ -19,6 +19,7 @@ format:
     include-after-body:
       - text: |
           <script type="text/javascript" src="../custom_curtain.js"></script>
+          <script type="text/javascript" src="../mathjax-layout-fix.js"></script>
 html-math-method:
   method: mathjax
   url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"

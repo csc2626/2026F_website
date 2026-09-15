@@ -18,6 +18,7 @@ format:
     include-after-body:
       - text: |
           <script type="text/javascript" src="../custom_curtain.js"></script>
+          <script type="text/javascript" src="../mathjax-layout-fix.js"></script>
 html-math-method:
   method: mathjax
   url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
