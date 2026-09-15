@@ -23,7 +23,7 @@ You need to be comfortable with: introductory machine learning concepts (such as
 ### Course Delivery Details
 
 * Lectures: In-person, Tuesdays @ 3pm-5pm ET, Emmanuel College, room EM001
-* Office Hours: In-person, Tuesdays @ 5-6pm ET, Myhal Engineering Building 533, 5th floor
+* Office Hours: In-person, Tuesdays @ 2-3pm ET, Myhal Engineering Building 533, 5th floor
 * Announcements will be posted on Quercus
 * Discussions will take place on Piazza
 * Zoom recordings will be posted on Quercus after lectures
