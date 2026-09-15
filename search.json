@@ -9662,49 +9662,49 @@
     "href": "lecs/w02/lec02.html#section-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\n\\begin{aligned}\n&\\underset{\\pi_0, \\ldots, \\pi_{T-1}}{\\text{minimize}} \\quad \\mathbb{E}_{e_t} \\left[ \\sum_{t=0}^{T} c(\\mathbf{x}_t, \\mathbf{u}_t) \\right] \\\\\n&\\text{subject to} \\quad \\mathbf{x}_{t+1} = f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t) \\quad \\color{red}{\\text{known dynamics}} \\\\\n&\\qquad \\qquad \\quad \\mathbf{u}_t = \\pi_t(\\mathbf{x}_{0:t}, \\mathbf{u}_{0:t-1}) \\\\\n&\\qquad \\qquad \\qquad \\qquad \\qquad \\color{red}{\\text{control law / policy}}\n\\end{aligned}\n\\]\n\n\n\n\n\n\n\\[\n\\begin{aligned}\n&\\underset{\\theta}{\\text{maximize}} \\quad \\mathbb{E}_{\\tau \\sim p_\\theta(\\tau)} \\left[ \\sum_{t=0}^{T} r(\\mathbf{x}_t, \\mathbf{a}_t) \\right] \\\\\n\\\\\n&p_\\theta(\\tau) = p_\\theta(\\mathbf{x}_{0:T}, \\mathbf{a}_{0:T-1}) \\\\\n&\\quad = p(\\mathbf{x}_0) \\prod_{t=1}^{T} \\pi_\\theta(\\mathbf{a}_t | \\mathbf{x}_t) p(\\mathbf{x}_{t+1} | \\mathbf{x}_t, \\mathbf{u}_t) \\\\\n&\\qquad \\qquad \\qquad \\color{red}{\\text{policy}} \\quad \\color{red}{\\text{dynamics}}\n\\end{aligned}\n\\]\ncost = -reward"
+    "text": "\\[\n\\begin{aligned}\n&\\underset{\\pi_0, \\ldots, \\pi_{T-1}}{\\text{minimize}} \\quad \\mathbb{E}_{e_t} \\left[ \\sum_{t=0}^{T} c(\\mathbf{x}_t, \\mathbf{u}_t) \\right] \\\\\n&\\text{subject to} \\quad \\mathbf{x}_{t+1} = f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t) \\quad \\color{red}{\\text{dynamics}} \\\\\n&\\qquad \\qquad \\quad \\mathbf{u}_t = \\pi_t(\\mathbf{x}_{0:t}, \\mathbf{u}_{0:t-1}) \\quad \\color{red}{\\text{control law / policy}}\n\\end{aligned}\n\\]\n\n\n\n\n\n\n\\[\n\\begin{aligned}\n&\\underset{\\theta}{\\text{maximize}} \\quad \\mathbb{E}_{\\tau \\sim p_\\theta(\\tau)} \\left[ \\sum_{t=0}^{T} \\gamma^t r(\\mathbf{x}_t, \\mathbf{a}_t) \\right] \\\\\n\\\\\n&p_\\theta(\\tau) = p_\\theta(\\mathbf{x}_{0:T}, \\mathbf{a}_{0:T-1}) \\\\\n&\\quad = p(\\mathbf{x}_0) \\prod_{t=1}^{T} \\underbrace{\\pi_\\theta(\\mathbf{a}_t | \\mathbf{x}_t)}_{\\color{red}{\\text{policy}}} \\underbrace{p(\\mathbf{x}_{t+1} | \\mathbf{x}_t, \\mathbf{u}_t)}_{\\color{red}{\\text{dynamics}}}\n\\end{aligned}\n\\]\ncost = -reward"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-2",
     "href": "lecs/w02/lec02.html#section-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\nJ(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\\(\\color{red}\\uparrow\\)\n\nOptimal cost-to-go:\n“if you land at state x and you follow the optimal actions what is the expected cost you will pay?”"
+    "text": "\\[\nJ^{*}(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J^{*}(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\\(\\color{red}\\uparrow\\)\n\nOptimal cost-to-go:\n“if you land at state x and you follow the optimal actions what is the expected cost you will pay?”"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-3",
     "href": "lecs/w02/lec02.html#section-3",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\n\\textcolor{red}{\\swarrow \\text{For finite time horizon} \\searrow}\n\\]\n\n\n\n\\[\nJ(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]\n\n\\(\\uparrow\\)\n\nOptimal value function:\n“if you land at state x and you follow the optimal policy\nwhat is the expected reward you will accumulate?”"
+    "text": "\\[\nJ^{*}(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J^{*}(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]\n\n\\(\\uparrow\\)\n\nOptimal value function:\n“if you land at state x and you follow the optimal actions/policy\nwhat is the expected reward you will accumulate?”"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-4",
     "href": "lecs/w02/lec02.html#section-4",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\n\\textcolor{red}{\\swarrow \\text{For finite time horizon} \\searrow}\n\\]\n\n\n\n\\[\nJ(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\underbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]}_{Q^*(x_t, a_t)}\n\\]\n\n\\(\\uparrow\\)\nOptimal value function\n\n\n\n\\(\\qquad \\qquad \\qquad \\uparrow\\)\nOptimal state-action value function:\n“if you land at state x, and you commit\nto first execute action a, and then\nfollow the optimal policy how much\nreward will you accumulate?”"
+    "text": "\\[\nJ^{*}(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J^{*}(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\underbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]}_{Q^*(\\mathbf{x}_t, \\mathbf{a}_t)}\n\\]\n\n\\(\\uparrow\\)\nOptimal value function\n\n\n\n\\(\\qquad \\qquad \\qquad \\uparrow\\)\nOptimal state-action value function:\n“if you land at state \\(\\mathbf{x}_t\\), and you commit\nto first execute action \\(\\mathbf{a}_t\\), and then\nfollow the optimal actions/policy, how much\nreward will you accumulate?”"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-5",
     "href": "lecs/w02/lec02.html#section-5",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\n\\textcolor{red}{\\swarrow \\text{For finite time horizon} \\searrow}\n\\]\n\n\n\n\\[\nJ(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]\n\n\\(\\uparrow\\)\nOptimal value function\nValue function of policy pi: “if you land at state x and you follow policy pi what is the expected reward you will accumulate?”\n\\(\\downarrow\\)\n\n\\[\nV^\\pi(\\mathbf{x}_t) = \\mathbb{E}_{\\mathbf{a}_t \\sim \\pi(\\mathbf{a}|\\mathbf{x}_t)} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^\\pi(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]"
+    "text": "\\[\nJ^{*}(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J^{*}(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]\n\n\\(\\uparrow\\)\nOptimal value function\nValue function of policy \\(\\pi\\): “if you land at state \\(x_t\\) and you follow policy \\(\\pi\\) what is the expected reward you will accumulate?”\n\\(\\downarrow\\)\n\n\\[\nV^\\pi(\\mathbf{x}_t) = \\mathbb{E}_{\\mathbf{a}_t \\sim \\pi(\\mathbf{a}|\\mathbf{x}_t)} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^\\pi(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-6",
     "href": "lecs/w02/lec02.html#section-6",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\n\\textcolor{red}{\\swarrow \\text{For finite time horizon} \\searrow}\n\\]\n\n\n\n\\[\nJ(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]\n\n\\(\\uparrow\\)\nOptimal value\nfunction\nValue function\nof policy pi\n\\(\\downarrow\\)\n\n\\[\nV^\\pi(\\mathbf{x}_t) = \\mathbb{E}_{\\mathbf{a}_t \\sim \\pi(\\mathbf{a}|\\mathbf{x}_t)} \\overbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^\\pi(\\mathbf{x}_{t+1}) \\right] \\right]}^{Q^{\\pi} (x_t, a_t)}\n\\]\n\n\nState-action value function of policy pi:\n“if you land at state x, and you commit\nto first execute action a, and then follow\npolicy pi how much reward will you\naccumulate?”"
+    "text": "\\[\nJ^{*}(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J^{*}(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]\n\\]\n\n\\(\\uparrow\\)\nOptimal value\nfunction\nValue function\nof policy \\(\\pi\\)\n\\(\\downarrow\\)\n\n\\[\nV^\\pi(\\mathbf{x}_t) = \\mathbb{E}_{\\mathbf{a}_t \\sim \\pi(\\mathbf{a}|\\mathbf{x}_t)} \\overbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^\\pi(\\mathbf{x}_{t+1}) \\right] \\right]}^{Q^{\\pi} (\\textbf{x}_t, \\textbf{a}_t)}\n\\]\n\n\nState-action value function of policy \\(\\pi\\):\n“if you land at state \\(\\textbf{x}_t\\), and you commit\nto first execute action \\(\\textbf{a}_t\\), and then follow\npolicy \\(\\pi\\) how much reward will you\naccumulate in expectation?” \\(\\downarrow\\)"
   },
   {
     "objectID": "lecs/w02/lec02.html#section-7",
     "href": "lecs/w02/lec02.html#section-7",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\[\n\\textcolor{red}{\\swarrow \\text{For finite time horizon} \\searrow}\n\\]\n\n\n\n\\[\nJ(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\underbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]}_{Q^*(x_t, a_t)}\n\\]\n\n\\(\\uparrow\\)\nOptimal value\nfunction\n\nOptimal state-action\nvalue function\n\nValue function\nof policy pi\n\\(\\downarrow\\)\n\n\\[\nV^\\pi(\\mathbf{x}_t) = \\mathbb{E}_{\\mathbf{a}_t \\sim \\pi(\\mathbf{a}|\\mathbf{x}_t)} \\overbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^\\pi(\\mathbf{x}_{t+1}) \\right] \\right]}^{Q^{\\pi} (x_t, a_t)}\n\\]\n\n\nState-action value\nfunction of policy pi"
+    "text": "\\[\n\\textcolor{red}{\\swarrow \\text{For finite time horizon} \\searrow}\n\\]\n\n\n\n\\[\nJ^*(\\mathbf{x}_t) = \\min_{\\mathbf{u}_t} \\left[ c(\\mathbf{x}_t, \\mathbf{u}_t) + \\mathbb{E}_{e_t} \\left[ J^*(f_t(\\mathbf{x}_t, \\mathbf{u}_t, e_t)) \\right] \\right]\n\\]\n\n\\(\\qquad \\uparrow\\)\nOptimal cost-to-go\n\n\n\\[\nV^*(\\mathbf{x}_t) = \\max_{\\mathbf{a}_t} \\underbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^*(\\mathbf{x}_{t+1}) \\right] \\right]}_{Q^*(x_t, a_t)}\n\\]\n\n\\(\\uparrow\\)\nOptimal value\nfunction\n\n\\(\\uparrow\\)\nOptimal state-action\nvalue function\n\nValue function\nof policy \\(\\pi\\)\n\\(\\downarrow\\)\n\n\\[\nV^\\pi(\\mathbf{x}_t) = \\mathbb{E}_{\\mathbf{a}_t \\sim \\pi(\\mathbf{a}|\\mathbf{x}_t)} \\overbrace{\\left[ r(\\mathbf{x}_t, \\mathbf{a}_t) + \\gamma\\mathbb{E}_{\\mathbf{x}_{t+1} \\sim p(\\mathbf{x}_{t+1}|\\mathbf{x}_t, \\mathbf{a}_t)} \\left[ V^\\pi(\\mathbf{x}_{t+1}) \\right] \\right]}^{Q^{\\pi} (\\textbf{x}_t, \\textbf{a}_t)}\n\\]\n\n\nState-action value\nfunction of policy\n\\(\\pi\\) \\(\\downarrow\\)"
   },
   {
     "objectID": "lecs/w02/lec02.html#todays-agenda-1",
@@ -9760,63 +9760,63 @@
     "href": "lecs/w02/lec02.html#finite-horizon-lqr",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finite-Horizon LQR",
-    "text": "Finite-Horizon LQR\n• Idea: finding controls is an optimization problem\n• Compute the control variables that minimize the cumulative cost\n\n\n\\[\n\\begin{align}\nu_0^*, \\ldots, u_{N-1}^* &= argmin_{u_0, \\ldots, u_N} \\sum_{t=0}^{N} c(\\mathbf{x}_t, \\mathbf{u}_t) \\\\\n&\\text{s.t.} \\\\\n\\mathbf{x}_1 &= A\\mathbf{x}_0 + B\\mathbf{u}_0 \\\\\n\\mathbf{x}_2 &= A\\mathbf{x}_1 + B\\mathbf{u}_1 \\\\\n&\\vdots \\\\\n\\mathbf{x}_N &= A\\mathbf{x}_{N-1} + B\\mathbf{u}_{N-1}\n\\end{align}\n\\]\n\nWe could solve this as a constrained nonlinear optimization problem. But, there is a better way: we can find a closed-form solution.\n\n\nOpen-loop plan!\nGiven first state compute action sequence"
+    "text": "Finite-Horizon LQR\n• Idea: finding controls is an optimization problem\n• Compute the control variables that minimize the cumulative cost\n\n\n\\[\n\\begin{align}\nu_0^*, \\ldots, u_{N-1}^* &= \\text{argmin}_{u_0, \\ldots, u_N} \\sum_{t=0}^{N} c(\\mathbf{x}_t, \\mathbf{u}_t) \\\\\n&\\text{s.t.} \\\\\n\\mathbf{x}_1 &= A\\mathbf{x}_0 + B\\mathbf{u}_0 \\\\\n\\mathbf{x}_2 &= A\\mathbf{x}_1 + B\\mathbf{u}_1 \\\\\n&\\vdots \\\\\n\\mathbf{x}_N &= A\\mathbf{x}_{N-1} + B\\mathbf{u}_{N-1}\n\\end{align}\n\\]\n\nWe could solve this as a constrained nonlinear optimization problem. But, there is a better way: we can find a closed-form solution.\n\n\nOpen-loop plan:\nGiven first state, compute action sequence"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n• Let \\(J_n(x)\\) denote the cumulative cost-to-go starting from state x and moving for n time steps.\n• I.e. cumulative future cost from now till n more steps\n• \\(J_0(x) = x^TQx\\) is the terminal cost of ending up at state x, with no actions left to perform. Recall that \\(c(x, u) = x^TQx + \\cancel{\\mathbf{u}^T R \\mathbf{u}}\\)\n\nQ: What is the optimal cumulative cost-to-go function with 1 time step left?"
+    "text": "Finding the LQR controller in closed-form by recursion\n• Let \\(J_n(x)\\) denote the cumulative cost-to-go starting from state \\(x\\) and moving for \\(n\\) time steps.\n• I.e. cumulative future cost from now till \\(n\\) more steps\n• \\(J_0(x) = x^TQx\\) is the terminal cost of ending up at state \\(x\\), with no actions left to perform. Recall that \\(c(x, u) = x^TQx + \\cancel{u^T R u}\\)\n\nQ: What is the optimal cumulative cost-to-go function with 1 time step left?"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-1",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\n\\(J_0(x) = x^TQx\\)\n\nFor notational convenience later on\n\n\n\n\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} \\underbrace{[\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})]}_{\\color{red}\\textbf{In RL this would be the state-action value function}} \\\\\n\\end{align}\\]\nBellman Update\nDynamic Programming Value Iteration"
+    "text": "Finding the LQR controller in closed-form by recursion\n\n\\(J_0(x) = x^TQx\\)\n\nFor notational convenience later on, let’s define \\(P_0 = Q\\)\n\n\n\n\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} \\underbrace{[\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})]}_{\\color{red}\\text{In RL this would be the state-action value function}} \\\\\n\\end{align}\\]\nBellman Update\nDynamic Programming Value Iteration"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-2",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\\(J_0(x) = x^TQx\\)\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})]\n\\end{align}\\]\n\nQ: How do we optimize a multivariable function with respect to some variables (in our case, the controls)?"
+    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_0(\\mathbf{x}) &= \\mathbf{x}^TP_0\\mathbf{x} \\\\\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})]\n\\end{align}\\]\n\nQ: How do we optimize a multivariable function with respect to some variables (in our case, the controls)?"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-3",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-3",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\\(J_0(x) = x^TQx\\)\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\mathbf{x}^T Q \\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})]\n\\end{align}\\]"
+    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_0(\\mathbf{x}) &= \\mathbf{x}^TP_0\\mathbf{x} \\\\\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\mathbf{x}^T Q \\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})]\n\\end{align}\\]"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-4",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-4",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\\(J_0(x) = x^TQx\\)\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\mathbf{x}^T Q \\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}]\n\\end{align}\\]\n\n\n\\(\\uparrow\\)\nQuadratic\nterm in u\n\\(\\uparrow\\)\nLinear\nterm in u\n\\(\\uparrow\\)\nQuadratic\nterm in u\n\nA: Take the partial derivative w.r.t. controls and set it to zero. That will give you a critical point."
+    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_0(\\mathbf{x}) &= \\mathbf{x}^TP_0\\mathbf{x} \\\\\nJ_1(\\mathbf{x}) &= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + J_0(A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\min_{\\mathbf{u}} [\\mathbf{x}^T Q \\mathbf{x} + \\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\mathbf{x}^T Q \\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + (A\\mathbf{x} + B\\mathbf{u})^T P_0 (A\\mathbf{x} + B\\mathbf{u})] \\\\\n&= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}]\n\\end{align}\\]\n\n\n\\(\\uparrow\\)\nQuadratic\nterm in u\n\\(\\uparrow\\)\nLinear\nterm in u\n\\(\\uparrow\\)\nQuadratic\nterm in u\n\nA: Take the partial derivative w.r.t. controls and set it to zero. That will give you a critical point."
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-5",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-5",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}]\n\\end{align}\\]\n\n\nThe minimum is attained at:\n\\(2Ru + 2B^T P_0 Ax + 2B^T P_0 Bu = \\mathbf{0}\\) \\((R + B^T P_0 B)\\mathbf{u} = -B^T P_0 Ax\\)\n\\(\\color{red}\\uparrow\\)\nQ: Is this matrix invertible? Recall R, Po are positive definite matrices.\n\n\\(R + B^T P_0 B\\) is positive definite, so it is invertible\n\n\nFrom calculus/algebra:\n\\(\\frac{\\partial}{\\partial u}(u^T M u) = (M + M^T)u\\)\n\\(\\frac{\\partial}{\\partial u}(u^T M b) = M^T b\\)\nIf M is symmetric:\n\\(\\frac{\\partial}{\\partial u}(u^T M u) = 2Mu\\)"
+    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}]\n\\end{align}\\]\n\n\nThe minimum is attained at:\n\\(2R\\mathbf{u} + 2B^T P_0 A\\mathbf{x} + 2B^T P_0 B\\mathbf{u} = \\mathbf{0}\\)  \\((R + B^T P_0 B)\\mathbf{u} = -B^T P_0 A\\mathbf{x}\\)\n\\(\\color{red}\\uparrow\\)\nQ: Is this matrix invertible? Recall that \\(R\\), \\(P_0\\) are positive definite matrices.\n\n\\(R + B^T P_0 B\\) is positive definite, so it is invertible\n\n\nFrom calculus/algebra:\n\\(\\frac{\\partial}{\\partial \\mathbf{u}}(\\mathbf{u}^T M \\mathbf{u}) = (M + M^T)\\mathbf{u}\\)\n\\(\\frac{\\partial}{\\partial \\mathbf{u}}(\\mathbf{u}^T M \\mathbf{b}) = M^T \\mathbf{b}\\)\nIf M is symmetric:\n\\(\\frac{\\partial}{\\partial \\mathbf{u}}(\\mathbf{u}^T M \\mathbf{u}) = 2M\\mathbf{u}\\)"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-6",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-6",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}]\n\\end{align}\\]\n\n\nThe minimum is attained at:\n\\(2Ru + 2B^T P_0 Ax + 2B^T P_0 Bu = \\mathbf{0}\\) \\((R + B^T P_0 B)\\mathbf{u} = -B^T P_0 Ax\\)\nSo, the optimal control for the last time step is:\n\\(\\mathbf{u} = -(R + B^T P_0 B)^{-1} B^T P_0 Ax\\)\n\\(\\mathbf{u} = K_1 \\mathbf{x}\\)\n\nLinear controller in terms of the state\n\nWe computed the location of the minimum. Now, plug it back in and compute the minimum value"
+    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}]\n\\end{align}\\]\n\n\nThe minimum is attained at:\n\\(2R\\mathbf{u} + 2B^T P_0 A\\mathbf{x} + 2B^T P_0 B\\mathbf{u} = \\mathbf{0}\\)\n\\((R + B^T P_0 B)\\mathbf{u} = -B^T P_0 A\\mathbf{x}\\)\nSo, the optimal control for the last time step is:\n\\(\\mathbf{u} = -(R + B^T P_0 B)^{-1} B^T P_0 A \\mathbf{x}\\)\n\\(\\mathbf{u} = K_1 \\mathbf{x}\\)\n\nLinear controller in terms of the state\n\nWe computed the location of the minimum. Now, plug it back in and compute the minimum value"
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-7",
     "href": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-7",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finding the LQR controller in closed-form by recursion",
-    "text": "Finding the LQR controller in closed-form by recursion\n\\(J_0(x) = x^TQx\\) \\[\\begin{align}\nJ_1(\\mathbf{x}) &= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}] \\\\\n&= \\mathbf{x}^T \\underbrace{Q + K_1^T R K_1 + (A + B K_1)^T P_0 (A + B K_1)}_{P_1} \\mathbf{x}\n\\end{align}\\]\n\nQ: Why is this a big deal?\nA: The cost-to-go function remains quadratic after the first recursive step."
+    "text": "Finding the LQR controller in closed-form by recursion\n\\[\\begin{align}\nJ_0(\\mathbf{x}) &= \\mathbf{x}^TP_0\\mathbf{x}\\\\\nJ_1(\\mathbf{x}) &= \\mathbf{x}^T Q \\mathbf{x} + \\mathbf{x}^T A^T P_0 A\\mathbf{x} + \\min_{\\mathbf{u}} [\\mathbf{u}^T R \\mathbf{u} + 2\\mathbf{u}^T B^T P_0 A\\mathbf{x} + \\mathbf{u}^T B^T P_0 B\\mathbf{u}] \\\\\n&= \\mathbf{x}^T (\\underbrace{Q + K_1^T R K_1 + (A + B K_1)^T P_0 (A + B K_1)}_{P_1}) \\mathbf{x}\n\\end{align}\\]\n\nQ: Why is this a big deal?\nA: The cost-to-go function remains quadratic after the first recursive step."
   },
   {
     "objectID": "lecs/w02/lec02.html#finding-the-lqr-controller-in-closed-form-by-recursion-8",
@@ -9830,7 +9830,7 @@
     "href": "lecs/w02/lec02.html#finite-horizon-lqr-algorithm-summary",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Finite-Horizon LQR: algorithm summary",
-    "text": "Finite-Horizon LQR: algorithm summary\n\n\n\\(P_0 = Q\\)\n// n is the # of steps left\n\nPotential problem for states of dimension &gt;&gt; 100:\nMatrix inversion is expensive: O(k^2.3) for the best known algorithm and O(k^3) for Gaussian Elimination.\n\\(\\swarrow\\)\n\n\n\nfor n = 1…N\n\\(K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A\\)\n\\(P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)\\)\n\nOne pass backward in time:\nMatrix gains are precomputed based on the dynamics and the instantaneous cost\n\n\n\nOptimal control for time t = N – n is \\(\\mathbf{u}_t = K_t \\mathbf{x}_t\\) with cost-to-go \\(J_t(\\mathbf{x}) = \\mathbf{x}^T P_t \\mathbf{x}\\) where the states are predicted forward in time according to linear dynamics\n\nOne pass forward in time:\nPredict states, compute controls and cost-to-go"
+    "text": "Finite-Horizon LQR: algorithm summary\n\n\n\\(P_0 = Q\\)\n// n is the number of steps left\n\nPotential problem for controls \\(\\mathbf{u}\\) of dimension \\(k\\) &gt;&gt; 100:\nMatrix inversion is expensive: \\(O(k^{2.3})\\) for the best known algorithm and \\(O(k^3)\\) for Gaussian Elimination. \\(\\swarrow\\)\n\n\n\nfor n = 1…N\n      \\(K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A\\)\n      \\(P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)\\)\n\nOne pass backward in time:\nMatrix gains are precomputed based on the dynamics and the instantaneous cost\n\n\n\nOptimal control parameters for time t = N – n are computed backwards in time: \\(\\mathbf{u}_t = K_t \\mathbf{x}_t\\) with cost-to-go \\(J_t(\\mathbf{x}) = \\mathbf{x}^T P_t \\mathbf{x}\\), whereas the states are predicted forward in time according to linear dynamics\n\nOne pass forward in time: predict states, compute controls and cost-to-go"
   },
   {
     "objectID": "lecs/w02/lec02.html#lqr-general-form-of-dynamics-and-cost-functions",
@@ -9865,21 +9865,21 @@
     "href": "lecs/w02/lec02.html#what-happens-in-the-general-nonlinear-case",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "What happens in the general nonlinear case?",
-    "text": "What happens in the general nonlinear case?\n\n\n\\[\nu_0^*, \\ldots, u_{N-1}^* = \\arg\\min_{u_0, \\ldots, u_N} \\sum_{t=0}^{N} c(x_t, u_t)\n\\] \\[\n\\begin{aligned}\n\\mathbf{x}_1 &= f(\\mathbf{x}_0, \\mathbf{u}_0) \\\\\n\\mathbf{x}_2 &= f(\\mathbf{x}_1, \\mathbf{u}_1) \\\\\n&\\vdots \\\\\n\\mathbf{x}_N &= f(\\mathbf{x}_{N-1}, \\mathbf{u}_{N-1})\n\\end{aligned}\n\\]\n\nArbitrary differentiable functions c, f\n\n\nIdea: iteratively approximate solution by solving linearized versions of the problem via LQR"
+    "text": "What happens in the general nonlinear case?\n\n\n\\[\nu_0^*, \\ldots, u_{N-1}^* = \\arg\\min_{u_0, \\ldots, u_N} \\sum_{t=0}^{N} c(x_t, u_t)\n\\] \\[\n\\begin{aligned}\n\\mathbf{x}_1 &= f(\\mathbf{x}_0, \\mathbf{u}_0) \\\\\n\\mathbf{x}_2 &= f(\\mathbf{x}_1, \\mathbf{u}_1) \\\\\n&\\vdots \\\\\n\\mathbf{x}_N &= f(\\mathbf{x}_{N-1}, \\mathbf{u}_{N-1})\n\\end{aligned}\n\\]\n\nArbitrary differentiable functions \\(c()\\), \\(f()\\)\n\n\nIdea: iteratively approximate solution by solving linearized versions of the problem via LQR"
   },
   {
     "objectID": "lecs/w02/lec02.html#iterative-lqr-ilqr",
     "href": "lecs/w02/lec02.html#iterative-lqr-ilqr",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Iterative LQR (iLQR)",
-    "text": "Iterative LQR (iLQR)\nGiven an initial sequence of states \\(\\bar{x}_0, \\ldots, \\bar{x}_N\\) and actions \\(\\bar{u}_0, \\ldots, \\bar{u}_N\\):\nLinearize Dynamics\n\n\\[\nf(x_t, u_t) \\approx \\tilde{f}(\\delta x_t, \\delta u_t) = \\underbrace{f(\\bar{x}_t, \\bar{u}_t)}_{\\mathbf{b}_t} + \\underbrace{\\frac{\\partial f}{\\partial x} (\\bar{x}_t, \\bar{u}_t)}_{A_t}\\underbrace{(x_t - \\bar{x}_t)}_{\\delta x_t} + \\underbrace{\\frac{\\partial f}{\\partial u} (\\bar{x}_t, \\bar{u}_t)}_{B_t}\\underbrace{(u_t - \\bar{u}_t)}_{\\delta \\mathbf{u}_t}\n\\]\n\n\nTaylor Expand Cost\n\n\\[\nc(x_t, u_t) \\approx \\tilde{c}(\\delta x_t, \\delta u_t) = c(\\bar{x}_t, \\bar{u}_t) + \\underbrace{\\nabla_{x,u} c(\\bar{x}_t, \\bar{u}_t)}_{\\mathbf{h}_t}\n\\begin{bmatrix}\nx_t - \\bar{x}_t \\\\\nu_t - \\bar{u}_t\n\\end{bmatrix}\n+ \\frac{1}{2}\n\\begin{bmatrix}\nx_t - \\bar{x}_t \\\\\nu_t - \\bar{u}_t\n\\end{bmatrix}^T\n\\underbrace{\\nabla^2_{x,u} c(\\bar{x}_t, \\bar{u}_t)}_{H_t}\n\\begin{bmatrix}\nx_t - \\bar{x}_t \\\\\nu_t - \\bar{u}_t\n\\end{bmatrix}\n\\]\n\n\n\nUse LQR Backward Pass on the approximate dynamics \\(f(\\delta x_t, \\delta u_t)\\) and cost \\(\\tilde{c}(\\delta x_t, \\delta u_t)\\)\n\n\nDo a forward pass to get \\(\\delta u_t\\) and \\(\\delta x_t\\) and update state and action sequence and \\(\\bar{x}_0, \\ldots, \\bar{x}_N\\) and \\(\\bar{u}_0, \\ldots, \\bar{u}_N\\)"
+    "text": "Iterative LQR (iLQR)\nGiven an initial sequence of states \\(\\bar{x}_0, \\ldots, \\bar{x}_N\\) and actions \\(\\bar{u}_0, \\ldots, \\bar{u}_N\\):\nLinearize dynamics around that initial sequence:\n\n\\[\nf(x_t, u_t) \\approx \\underbrace{f(\\bar{x}_t, \\bar{u}_t)}_{\\mathbf{b}_t} + \\underbrace{\\frac{\\partial f}{\\partial x} (\\bar{x}_t, \\bar{u}_t)}_{A_t}\\underbrace{(x_t - \\bar{x}_t)}_{\\delta \\mathbf{x}_t} + \\underbrace{\\frac{\\partial f}{\\partial u} (\\bar{x}_t, \\bar{u}_t)}_{B_t}\\underbrace{(u_t - \\bar{u}_t)}_{\\delta \\mathbf{u}_t} = \\tilde{f}(\\delta \\mathbf{x}_t, \\delta \\mathbf{u}_t)\n\\]\n\n\nDo a Taylor expansion of the cost:\n\n\\[\nc(x_t, u_t) \\approx c(\\bar{x}_t, \\bar{u}_t) + \\underbrace{\\nabla_{x,u} c(\\bar{x}_t, \\bar{u}_t)}_{\\mathbf{h}_t}\n\\begin{bmatrix}\n\\delta \\mathbf{x}_t \\\\\n\\delta \\mathbf{u}_t\n\\end{bmatrix}\n+ \\frac{1}{2}\n\\begin{bmatrix}\n\\delta \\mathbf{x}_t \\\\\n\\delta \\mathbf{u}_t\n\\end{bmatrix}^T\n\\underbrace{\\nabla^2_{x,u} c(\\bar{x}_t, \\bar{u}_t)}_{H_t}\n\\begin{bmatrix}\n\\delta \\mathbf{x}_t \\\\\n\\delta \\mathbf{u}_t\n\\end{bmatrix} = \\tilde{c}(\\delta \\mathbf{x}_t, \\delta \\mathbf{u}_t)\n\\]\n\n\n\nApply LQR backward pass on the approximate dynamics \\(\\tilde{f}(\\delta \\mathbf{x}_t, \\delta \\mathbf{u}_t)\\) and cost \\(\\tilde{c}(\\delta \\mathbf{x}_t, \\delta \\mathbf{u}_t)\\) to compute controller and cost-to-go parameters.\n\n\nDo an LQR forward pass to get \\(\\delta \\mathbf{u}_t\\) and \\(\\delta \\mathbf{x}_t\\) and update state and action sequence and \\(\\bar{x}_0, \\ldots, \\bar{x}_N\\) and \\(\\bar{u}_0, \\ldots, \\bar{u}_N\\)"
   },
   {
     "objectID": "lecs/w02/lec02.html#iterative-lqr-convergence-tricks",
     "href": "lecs/w02/lec02.html#iterative-lqr-convergence-tricks",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Iterative LQR: convergence & tricks",
-    "text": "Iterative LQR: convergence & tricks\n• New state and action sequence in iLQR is not guaranteed to be close to the linearization point (so linear approximation might be bad)\n• Trick: try to penalize magnitude of \\(\\delta u_t\\) and \\(\\delta x_t\\)\nReplace old LQR linearized cost with \\((1 - \\alpha) \\, \\tilde{c}(\\delta \\mathbf{x}_t, \\delta \\mathbf{u}_t) + \\alpha \\left( \\| \\delta \\mathbf{x}_t \\|^2 + \\| \\delta \\mathbf{u}_t \\|^2 \\right)\\)\n• Problem: Can get stuck in local optima, need to initialize well\n• Problem: Hessian might not be positive definite"
+    "text": "Iterative LQR: convergence & tricks\n\n\nNew state and action sequence in iLQR is not guaranteed to be close to the linearization point (so linear approximation might be bad)\nTrick: try to penalize magnitude of \\(\\delta u_t\\) and \\(\\delta x_t\\)\nReplace old LQR linearized cost with \\((1 - \\alpha) \\, \\tilde{c}(\\delta \\mathbf{x}_t, \\delta \\mathbf{u}_t) + \\alpha \\left( \\| \\delta \\mathbf{x}_t \\|^2 + \\| \\delta \\mathbf{u}_t \\|^2 \\right)\\)\nProblem: Can get stuck in local optima, need to initialize well\nProblem: Hessian might not be positive definite"
   },
   {
     "objectID": "lecs/w02/lec02.html#todays-agenda-3",
@@ -9907,28 +9907,21 @@
     "href": "lecs/w02/lec02.html#online-trajectory-optimization-mpc",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Online trajectory optimization / MPC",
-    "text": "Online trajectory optimization / MPC"
+    "text": "Online trajectory optimization / MPC\n\nhttps://www.youtube.com/watch?v=RHnXD6uO3Mg"
   },
   {
     "objectID": "lecs/w02/lec02.html#online-trajectory-optimization-mpc-1",
     "href": "lecs/w02/lec02.html#online-trajectory-optimization-mpc-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Online trajectory optimization / MPC",
-    "text": "Online trajectory optimization / MPC"
+    "text": "Online trajectory optimization / MPC\n\nhttps://www.youtube.com/watch?v=anIsw2-Lbco"
   },
   {
     "objectID": "lecs/w02/lec02.html#online-trajectory-optimization-mpc-2",
     "href": "lecs/w02/lec02.html#online-trajectory-optimization-mpc-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Online trajectory optimization / MPC",
-    "text": "Online trajectory optimization / MPC\nTest 3: Dynamic Maneuvers"
-  },
-  {
-    "objectID": "lecs/w02/lec02.html#online-trajectory-optimization-mpc-3",
-    "href": "lecs/w02/lec02.html#online-trajectory-optimization-mpc-3",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Online trajectory optimization / MPC",
-    "text": "Online trajectory optimization / MPC"
+    "text": "Online trajectory optimization / MPC\n\nhttps://www.youtube.com/watch?v=bjlT-6KVQ7U"
   },
   {
     "objectID": "lecs/w02/lec02.html#todays-agenda-4",
@@ -9950,6 +9943,62 @@
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Model-based RL",
     "text": "Model-based RL\nCollect initial dataset \\(D = \\{(x_t, u_t, x_{t+1})\\}\\)\n\nFit dynamics model \\(f_{\\theta}(x_t, u_t)\\)\nPlan through \\(f_{\\theta}(x_t, u_t)\\) to get actions\nExecute first action, observe new state \\(x_{t+1}\\)\nAppend \\((x_t, u_t, x_{t+1})\\) to \\(D\\)"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#how-do-we-plan-through-a-learned-model",
+    "href": "lecs/w02/lec02.html#how-do-we-plan-through-a-learned-model",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "How do we plan through a learned model?",
+    "text": "How do we plan through a learned model?\n\n\niLQR needs \\(\\frac{\\partial f}{\\partial x}, \\frac{\\partial f}{\\partial u}\\) and \\(\\nabla^2 c\\): the model and the cost must be smooth, and the Hessian should be positive definite\n\nOften that is not the case:\n\n\\(f_\\theta\\) is a neural network (gradients exist but are noisy, and the linearization can be very poor far from the data)\n\\(f\\) is a black-box simulator with contacts (no gradients at all)\n\\(c\\) is discontinuous, e.g. an indicator for collisions or reaching a goal region\n\n\n\nIdea: don’t differentiate at all. Sample many action sequences, roll them out through the model in parallel, and average the good ones"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#model-predictive-path-integral-control-mppi",
+    "href": "lecs/w02/lec02.html#model-predictive-path-integral-control-mppi",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Model Predictive Path Integral Control (MPPI)",
+    "text": "Model Predictive Path Integral Control (MPPI)\nGiven the current state \\(x_0\\) and a nominal action sequence \\(\\bar{u}_0, \\ldots, \\bar{u}_{N-1}\\) (e.g. last plan, shifted by one step):\n\n\nSample \\(K\\) perturbed sequences: \\(\\epsilon^k_t \\sim \\mathcal{N}(0, \\Sigma)\\), \\(\\quad u^k_t = \\bar{u}_t + \\epsilon^k_t\\)\nRoll out each one through the model: \\(x^k_{t+1} = f(x^k_t, u^k_t)\\), starting from \\(x_0\\)\nCompute the cost of each rollout: \\(S_k = \\sum_{t=0}^{N-1} c(x^k_t, u^k_t) + c_N(x^k_N)\\)\nWeight rollouts with a softmin over costs (temperature \\(\\lambda\\)): \\[\nw_k = \\frac{\\exp\\left(-\\frac{1}{\\lambda}\\left(S_k - \\min_j S_j\\right)\\right)}{\\sum_{j=1}^{K} \\exp\\left(-\\frac{1}{\\lambda}\\left(S_j - \\min_j S_j\\right)\\right)}\n\\]\nUpdate the nominal sequence: \\(\\bar{u}_t \\leftarrow \\bar{u}_t + \\sum_{k=1}^{K} w_k \\, \\epsilon^k_t\\)\nExecute \\(\\bar{u}_0\\), observe the new state, shift the sequence, repeat (MPC)\n\n\n\nSteps 1–3 are \\(K\\) independent rollouts, so they map perfectly onto a GPU: thousands of rollouts at 40+ Hz on a real vehicle"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#mppi-in-action-reaching-a-goal",
+    "href": "lecs/w02/lec02.html#mppi-in-action-reaching-a-goal",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "MPPI in action: reaching a goal",
+    "text": "MPPI in action: reaching a goal\n\n\n\n\n\nPoint mass with friction: \\(m\\ddot{p} = u - \\alpha \\dot{p}\\)\nCost: \\(c(x, u) = \\|p - p_{\\text{goal}}\\|^2_{Q} + \\|\\dot{p}\\|^2 + \\|u\\|^2_R\\)\nAt every step:\n• Blue: the \\(K\\) sampled rollouts, opacity \\(\\propto w_k\\)\n• Red: the new nominal plan \\(\\bar{u} + \\sum_k w_k \\epsilon^k\\)\n• Black: the executed path (only \\(\\bar{u}_0\\) is applied, then replan)\n\n\nNotice how the samples are spread out when far from the goal and collapse around it once we arrive: the weights and the warm start do the work, no gradients needed"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#mppi-properties-tricks",
+    "href": "lecs/w02/lec02.html#mppi-properties-tricks",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "MPPI: properties & tricks",
+    "text": "MPPI: properties & tricks\n\n\n\\(\\lambda \\to 0\\): only keep the best rollout (greedy). \\(\\lambda \\to \\infty\\): plain average of all samples. In between: a smoothed, weighted average of the good samples\nDerivative-free: works with any model you can evaluate, including neural networks and simulators with contact, and with discontinuous costs\nWarm start is essential: reuse last plan shifted by one step. With a good warm start, one MPPI update per control step is often enough\nProblems: \\(K\\) needs to grow with the action dimension and horizon; exploration noise \\(\\Sigma\\) has to be tuned; no local convergence guarantee like iLQR\n\n\n\nSee “Model Predictive Path Integral Control: From Theory to Parallel Computation”\n“Information Theoretic MPC for Model-Based Reinforcement Learning” by Williams, Aldrich, Theodorou et al. (2017),\nwhere MPPI is used to drive the AutoRally car aggressively with a learned neural network dynamics model"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#a-closely-related-idea-the-cross-entropy-method-cem",
+    "href": "lecs/w02/lec02.html#a-closely-related-idea-the-cross-entropy-method-cem",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "A closely related idea: the Cross-Entropy Method (CEM)",
+    "text": "A closely related idea: the Cross-Entropy Method (CEM)\n• MPPI keeps a single nominal sequence \\(\\bar{u}\\) and nudges it with a weighted average of the noise\n\n• CEM instead maintains a distribution over action sequences, \\(q(u_{0:N-1}) = \\mathcal{N}(\\mu, \\Sigma)\\), and iteratively refits it to the best samples\n\n\n• Comes from rare-event simulation (Rubinstein, 1997): to estimate the probability of a rare event, iteratively move the sampling distribution towards the region where the event happens\n\n\nFor optimization the “rare event” is “cost below the current threshold”, and the distribution concentrates on low-cost action sequences"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#cross-entropy-method-cem-for-planning",
+    "href": "lecs/w02/lec02.html#cross-entropy-method-cem-for-planning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Cross-Entropy Method (CEM) for planning",
+    "text": "Cross-Entropy Method (CEM) for planning\nGiven the current state \\(x_0\\) and an initial distribution \\(\\mu_t, \\Sigma_t\\) over actions (e.g. \\(\\mu\\) = last plan shifted by one step, \\(\\Sigma\\) reset to a large value):\n\nRepeat for a few iterations:\n\nSample \\(K\\) action sequences: \\(u^k_{0:N-1} \\sim \\mathcal{N}(\\mu_{0:N-1}, \\Sigma_{0:N-1})\\)\nRoll out each one through the model: \\(x^k_{t+1} = f(x^k_t, u^k_t)\\), starting from \\(x_0\\)\nCompute the cost of each rollout: \\(S_k = \\sum_{t=0}^{N-1} c(x^k_t, u^k_t) + c_N(x^k_N)\\)\nKeep the \\(M \\ll K\\) lowest-cost sequences, the elites \\(\\mathcal{E}\\)\nRefit the distribution to the elites: \\[\n\\mu_t \\leftarrow \\frac{1}{M} \\sum_{k \\in \\mathcal{E}} u^k_t \\qquad \\Sigma_t \\leftarrow \\frac{1}{M} \\sum_{k \\in \\mathcal{E}} (u^k_t - \\mu_t)(u^k_t - \\mu_t)^T\n\\]\n\nExecute \\(\\mu_0\\), observe the new state, shift \\(\\mu\\), repeat (MPC)\n\n\nStep 5 is a maximum-likelihood fit of a Gaussian to the elites, i.e. it minimizes the cross-entropy between the elite distribution and \\(q\\), hence the name"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#cem-in-action-reaching-a-goal",
+    "href": "lecs/w02/lec02.html#cem-in-action-reaching-a-goal",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "CEM in action: reaching a goal",
+    "text": "CEM in action: reaching a goal\n\n\n\n\n\nSame point mass and reaching cost as in the MPPI example\nEach frame is one CEM iteration; 3 iterations per control step\n• Blue: the \\(K\\) samples from \\(\\mathcal{N}(\\mu, \\Sigma)\\)\n• Orange: the \\(M\\) elites\n• Red: the new mean plan \\(\\mu\\), fit to the elites\n• Black: the executed path (only \\(\\mu_0\\) is applied, then replan)\n\n\nWatch the sample cloud shrink within each control step as \\(\\Sigma\\) is refit to the elites, then widen again when \\(\\Sigma\\) is reset for the next step"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#cem-vs.-mppi",
+    "href": "lecs/w02/lec02.html#cem-vs.-mppi",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "CEM vs. MPPI",
+    "text": "CEM vs. MPPI\n\n\n\n\n\n\n\n\n\n\nCEM\nMPPI\n\n\n\n\nWhat is updated\nmean \\(\\mu\\) and covariance \\(\\Sigma\\)\nnominal sequence \\(\\bar{u}\\) only (\\(\\Sigma\\) fixed)\n\n\nHow samples are used\nhard threshold: top \\(M\\) elites, equal weight\nsoft weights \\(w_k \\propto \\exp(-S_k / \\lambda)\\) on all samples\n\n\nIterations per step\nusually several (distribution needs to shrink)\noften one, thanks to warm start\n\n\nHyperparameters\n\\(K\\), \\(M\\), initial \\(\\Sigma\\), # iterations\n\\(K\\), \\(\\lambda\\), \\(\\Sigma\\)\n\n\nBehavior\nmore exploitative, converges quickly, can collapse too early\nsmoother updates, more robust to noisy costs\n\n\n\n\n\n\n\nBoth are derivative-free, embarrassingly parallel, and work with learned models and discontinuous costs\nBoth scale poorly with action dimension and horizon: a Gaussian over \\(N \\cdot \\dim(u)\\) variables gets very wide, very fast\nTricks: keep the top elites across iterations, smooth \\(\\mu\\) over time (colored noise), sample in a low-dimensional space of action splines\n\n\n\nCEM was the planner of choice in many model-based RL papers, e.g. “Deep RL in a Handful of Trials using Probabilistic Dynamics Models” (PETS, Chua et al. 2018) and “Learning Latent Dynamics for Planning from Pixels” (PlaNet, Hafner et al. 2019)"
   },
   {
     "objectID": "lecs/w02/lec02.html#todays-agenda-5",

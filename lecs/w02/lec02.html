@@ -180,9 +180,8 @@ Today’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine 
 <p><span class="math display">\[
 \begin{aligned}
 &amp;\underset{\pi_0, \ldots, \pi_{T-1}}{\text{minimize}} \quad \mathbb{E}_{e_t} \left[ \sum_{t=0}^{T} c(\mathbf{x}_t, \mathbf{u}_t) \right] \\
-&amp;\text{subject to} \quad \mathbf{x}_{t+1} = f_t(\mathbf{x}_t, \mathbf{u}_t, e_t) \quad \color{red}{\text{known dynamics}} \\
-&amp;\qquad \qquad \quad \mathbf{u}_t = \pi_t(\mathbf{x}_{0:t}, \mathbf{u}_{0:t-1}) \\
-&amp;\qquad \qquad \qquad \qquad \qquad \color{red}{\text{control law / policy}}
+&amp;\text{subject to} \quad \mathbf{x}_{t+1} = f_t(\mathbf{x}_t, \mathbf{u}_t, e_t) \quad \color{red}{\text{dynamics}} \\
+&amp;\qquad \qquad \quad \mathbf{u}_t = \pi_t(\mathbf{x}_{0:t}, \mathbf{u}_{0:t-1}) \quad \color{red}{\text{control law / policy}}
 \end{aligned}
 \]</span></p>
 </div>
@@ -193,11 +192,10 @@ Today’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine 
 <div class="small-math fragment">
 <p><span class="math display">\[
 \begin{aligned}
-&amp;\underset{\theta}{\text{maximize}} \quad \mathbb{E}_{\tau \sim p_\theta(\tau)} \left[ \sum_{t=0}^{T} r(\mathbf{x}_t, \mathbf{a}_t) \right] \\
+&amp;\underset{\theta}{\text{maximize}} \quad \mathbb{E}_{\tau \sim p_\theta(\tau)} \left[ \sum_{t=0}^{T} \gamma^t r(\mathbf{x}_t, \mathbf{a}_t) \right] \\
 \\
 &amp;p_\theta(\tau) = p_\theta(\mathbf{x}_{0:T}, \mathbf{a}_{0:T-1}) \\
-&amp;\quad = p(\mathbf{x}_0) \prod_{t=1}^{T} \pi_\theta(\mathbf{a}_t | \mathbf{x}_t) p(\mathbf{x}_{t+1} | \mathbf{x}_t, \mathbf{u}_t) \\
-&amp;\qquad \qquad \qquad \color{red}{\text{policy}} \quad \color{red}{\text{dynamics}}
+&amp;\quad = p(\mathbf{x}_0) \prod_{t=1}^{T} \underbrace{\pi_\theta(\mathbf{a}_t | \mathbf{x}_t)}_{\color{red}{\text{policy}}} \underbrace{p(\mathbf{x}_{t+1} | \mathbf{x}_t, \mathbf{u}_t)}_{\color{red}{\text{dynamics}}}
 \end{aligned}
 \]</span></p>
 <p><span style="color:red;">cost = -reward</span></p>
@@ -211,7 +209,7 @@ Today’s slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine 
 <div class="column" style="width:50%;">
 <p><img data-src="images/optcontrol2.png"></p>
 <p><span class="math display">\[
-J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+J^{*}(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J^{*}(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
 \]</span></p>
 <p><span class="math inline">\(\color{red}\uparrow\)</span></p>
 <div class="red-annotation">
@@ -231,15 +229,17 @@ J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \ma
 </div><div class="column" style="width:50%;">
 <p><img data-src="images/reinforcement-learning.png"></p>
 </div></div>
-<div class="small-math">
-<p><span class="math display">\[
+<!--
+::: small-math
+$$
 \textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
-\]</span></p>
-</div>
+$$
+:::
+-->
 <div class="columns">
 <div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+J^{*}(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J^{*}(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\qquad \uparrow\)</span><br>
@@ -247,13 +247,13 @@ Optimal cost-to-go</p>
 </div>
 </div><div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\uparrow\)</span><br>
 </p>
 <p>Optimal value function:</p>
-<p>“if you land at state x and you follow the optimal policy</p>
+<p>“if you land at state x and you follow the optimal actions/policy</p>
 <p>what is the expected reward you will accumulate?”</p>
 </div>
 </div></div>
@@ -267,15 +267,10 @@ V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \
 </div><div class="column" style="width:50%;">
 <p><img data-src="images/reinforcement-learning.png"></p>
 </div></div>
-<div class="small-math">
-<p><span class="math display">\[
-\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
-\]</span></p>
-</div>
 <div class="columns">
 <div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+J^{*}(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J^{*}(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\qquad \uparrow\)</span><br>
@@ -283,7 +278,7 @@ Optimal cost-to-go</p>
 </div>
 </div><div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \underbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]}_{Q^*(x_t, a_t)}
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \underbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]}_{Q^*(\mathbf{x}_t, \mathbf{a}_t)}
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\uparrow\)</span><br>
@@ -293,9 +288,9 @@ Optimal value function</p>
 <div class="red-annotation" style="position: absolute; bottom: 45px; right: 10px;">
 <p><span class="math inline">\(\qquad \qquad \qquad \uparrow\)</span><br>
 Optimal state-action value function:<br>
-“if you land at state x, and you commit<br>
-to first execute action a, and then<br>
-follow the optimal policy how much<br>
+“if you land at state <span class="math inline">\(\mathbf{x}_t\)</span>, and you commit<br>
+to first execute action <span class="math inline">\(\mathbf{a}_t\)</span>, and then<br>
+follow the optimal actions/policy, how much<br>
 reward will you accumulate?”</p>
 </div>
 <!-- Slide -->
@@ -308,15 +303,10 @@ reward will you accumulate?”</p>
 </div><div class="column" style="width:50%;">
 <p><img data-src="images/reinforcement-learning.png"></p>
 </div></div>
-<div class="small-math">
-<p><span class="math display">\[
-\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
-\]</span></p>
-</div>
 <div class="columns">
 <div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+J^{*}(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J^{*}(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\qquad \uparrow\)</span><br>
@@ -324,16 +314,16 @@ Optimal cost-to-go</p>
 </div>
 </div><div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\uparrow\)</span><br>
 Optimal value function</p>
-<p>Value function of policy pi: “if you land at state x and you follow policy pi what is the expected reward you will accumulate?”<br>
+<p>Value function of policy <span class="math inline">\(\pi\)</span>: “if you land at state <span class="math inline">\(x_t\)</span> and you follow policy <span class="math inline">\(\pi\)</span> what is the expected reward you will accumulate?”<br>
 <span class="math inline">\(\downarrow\)</span></p>
 </div>
 <p><span class="math display">\[
-V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]
+V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]
 \]</span></p>
 </div></div>
 <!-- Slide -->
@@ -346,15 +336,10 @@ V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)
 </div><div class="column" style="width:50%;">
 <p><img data-src="images/reinforcement-learning.png"></p>
 </div></div>
-<div class="small-math">
-<p><span class="math display">\[
-\textcolor{red}{\swarrow \text{For finite time horizon} \searrow}
-\]</span></p>
-</div>
 <div class="columns">
 <div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+J^{*}(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J^{*}(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\qquad \uparrow\)</span><br>
@@ -362,26 +347,26 @@ Optimal cost-to-go</p>
 </div>
 </div><div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\uparrow\)</span><br>
 Optimal value<br>
 function</p>
 <p>Value function<br>
-of policy pi<br>
+of policy <span class="math inline">\(\pi\)</span><br>
 <span class="math inline">\(\downarrow\)</span></p>
 </div>
 <p><span class="math display">\[
-V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \overbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]}^{Q^{\pi} (x_t, a_t)}
+V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \overbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]}^{Q^{\pi} (\textbf{x}_t, \textbf{a}_t)}
 \]</span></p>
 </div></div>
-<div class="red-annotation" style="position: absolute; bottom: 80px; right: 0;">
-<p>State-action value function of policy pi:<br>
-“if you land at state x, and you commit<br>
-to first execute action a, and then follow<br>
-policy pi how much reward will you<br>
-accumulate?”</p>
+<div class="red-annotation" style="position: absolute; bottom: 180px; right: 0;">
+<p>State-action value function of policy <span class="math inline">\(\pi\)</span>:<br>
+“if you land at state <span class="math inline">\(\textbf{x}_t\)</span>, and you commit<br>
+to first execute action <span class="math inline">\(\textbf{a}_t\)</span>, and then follow<br>
+policy <span class="math inline">\(\pi\)</span> how much reward will you<br>
+accumulate in expectation?” <span class="math inline">\(\downarrow\)</span></p>
 </div>
 <!-- Slide -->
 </section>
@@ -401,7 +386,7 @@ accumulate?”</p>
 <div class="columns">
 <div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-J(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
+J^*(\mathbf{x}_t) = \min_{\mathbf{u}_t} \left[ c(\mathbf{x}_t, \mathbf{u}_t) + \mathbb{E}_{e_t} \left[ J^*(f_t(\mathbf{x}_t, \mathbf{u}_t, e_t)) \right] \right]
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\qquad \uparrow\)</span><br>
@@ -409,27 +394,29 @@ Optimal cost-to-go</p>
 </div>
 </div><div class="column small-math" style="width:50%;">
 <p><span class="math display">\[
-V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \underbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]}_{Q^*(x_t, a_t)}
+V^*(\mathbf{x}_t) = \max_{\mathbf{a}_t} \underbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^*(\mathbf{x}_{t+1}) \right] \right]}_{Q^*(x_t, a_t)}
 \]</span></p>
 <div style="color:red;">
 <p><span class="math inline">\(\uparrow\)</span><br>
 Optimal value<br>
 function</p>
 <div style="position: absolute; bottom: 160px; right: 20px;">
-<p>Optimal state-action<br>
+<p><span class="math inline">\(\uparrow\)</span><br>
+Optimal state-action<br>
 value function</p>
 </div>
 <p>Value function<br>
-of policy pi<br>
+of policy <span class="math inline">\(\pi\)</span><br>
 <span class="math inline">\(\downarrow\)</span></p>
 </div>
 <p><span class="math display">\[
-V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \overbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]}^{Q^{\pi} (x_t, a_t)}
+V^\pi(\mathbf{x}_t) = \mathbb{E}_{\mathbf{a}_t \sim \pi(\mathbf{a}|\mathbf{x}_t)} \overbrace{\left[ r(\mathbf{x}_t, \mathbf{a}_t) + \gamma\mathbb{E}_{\mathbf{x}_{t+1} \sim p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{a}_t)} \left[ V^\pi(\mathbf{x}_{t+1}) \right] \right]}^{Q^{\pi} (\textbf{x}_t, \textbf{a}_t)}
 \]</span></p>
 </div></div>
 <div class="red-annotation" style="position: absolute; bottom: 80px; right: 20px;">
 <p>State-action value<br>
-function of policy pi</p>
+function of policy<br>
+<span class="math inline">\(\pi\)</span> <span class="math inline">\(\downarrow\)</span></p>
 </div>
 </section>
 <section id="todays-agenda-1" class="slide level2">
@@ -611,7 +598,7 @@ B &amp;= B(x_t) \\
 <div class="column" style="width:60%;">
 <p><span class="math display">\[
 \begin{align}
-u_0^*, \ldots, u_{N-1}^* &amp;= argmin_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(\mathbf{x}_t, \mathbf{u}_t) \\
+u_0^*, \ldots, u_{N-1}^* &amp;= \text{argmin}_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(\mathbf{x}_t, \mathbf{u}_t) \\
 &amp;\text{s.t.} \\
 \mathbf{x}_1 &amp;= A\mathbf{x}_0 + B\mathbf{u}_0 \\
 \mathbf{x}_2 &amp;= A\mathbf{x}_1 + B\mathbf{u}_1 \\
@@ -623,16 +610,16 @@ u_0^*, \ldots, u_{N-1}^* &amp;= argmin_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(\math
 <p>We could solve this as a constrained nonlinear optimization problem. But, there is a better way: we can find a closed-form solution.</p>
 </div></div>
 <div class="red-annotation fragment">
-<p>Open-loop plan!<br>
-Given first state compute action sequence</p>
+<p>Open-loop plan:<br>
+Given first state, compute action sequence</p>
 </div>
 <!-- Slide 23 -->
 </section>
 <section id="finding-the-lqr-controller-in-closed-form-by-recursion" class="slide level2 smaller">
 <h2>Finding the LQR controller in closed-form by recursion</h2>
-<p>• Let <span class="math inline">\(J_n(x)\)</span> denote the cumulative cost-to-go starting from state x and moving for n time steps.</p>
-<p>• I.e. cumulative future cost from now till n more steps</p>
-<p>• <span class="math inline">\(J_0(x) = x^TQx\)</span> is the terminal cost of ending up at state x, with no actions left to perform. Recall that <span class="math inline">\(c(x, u) = x^TQx + \cancel{\mathbf{u}^T R \mathbf{u}}\)</span></p>
+<p>• Let <span class="math inline">\(J_n(x)\)</span> denote the cumulative cost-to-go starting from state <span class="math inline">\(x\)</span> and moving for <span class="math inline">\(n\)</span> time steps.</p>
+<p>• I.e. cumulative future cost from now till <span class="math inline">\(n\)</span> more steps</p>
+<p>• <span class="math inline">\(J_0(x) = x^TQx\)</span> is the terminal cost of ending up at state <span class="math inline">\(x\)</span>, with no actions left to perform. Recall that <span class="math inline">\(c(x, u) = x^TQx + \cancel{u^T R u}\)</span></p>
 <div class="fragment">
 <p><span class="red-annotation">Q: What is the optimal cumulative cost-to-go function with 1 time step left?</span></p>
 <!-- Slide 24 -->
@@ -643,13 +630,13 @@ Given first state compute action sequence</p>
 <div class="vertical-align">
 <p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
 <div class="fragment fade-in-then-out red-annotation">
-<p>For notational convenience later on</p>
+<p>For notational convenience later on, let’s define <span class="math inline">\(P_0 = Q\)</span></p>
 </div>
 </div>
 <div class="fragment">
 <div class="vertical-align">
 <p><span class="math display">\[\begin{align}
-J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} \underbrace{[\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})]}_{\color{red}\textbf{In RL this would be the state-action value function}} \\
+J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} \underbrace{[\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})]}_{\color{red}\text{In RL this would be the state-action value function}} \\
 \end{align}\]</span></p>
 <p><span class="red-annotation">Bellman Update<br>
 Dynamic Programming Value Iteration</span></p>
@@ -659,8 +646,8 @@ Dynamic Programming Value Iteration</span></p>
 </section>
 <section id="finding-the-lqr-controller-in-closed-form-by-recursion-2" class="slide level2 smaller">
 <h2>Finding the LQR controller in closed-form by recursion</h2>
-<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
 <p><span class="math display">\[\begin{align}
+J_0(\mathbf{x}) &amp;= \mathbf{x}^TP_0\mathbf{x} \\
 J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})] \\
 &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})]
 \end{align}\]</span></p>
@@ -671,8 +658,8 @@ J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}
 </section>
 <section id="finding-the-lqr-controller-in-closed-form-by-recursion-3" class="slide level2 smaller">
 <h2>Finding the LQR controller in closed-form by recursion</h2>
-<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
 <p><span class="math display">\[\begin{align}
+J_0(\mathbf{x}) &amp;= \mathbf{x}^TP_0\mathbf{x} \\
 J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})] \\
 &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})] \\
 &amp;= \mathbf{x}^T Q \mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})]
@@ -681,8 +668,8 @@ J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}
 </section>
 <section id="finding-the-lqr-controller-in-closed-form-by-recursion-4" class="slide level2 smaller">
 <h2>Finding the LQR controller in closed-form by recursion</h2>
-<p><span class="math inline">\(J_0(x) = x^TQx\)</span></p>
 <p><span class="math display">\[\begin{align}
+J_0(\mathbf{x}) &amp;= \mathbf{x}^TP_0\mathbf{x} \\
 J_1(\mathbf{x}) &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + J_0(A\mathbf{x} + B\mathbf{u})] \\
 &amp;= \min_{\mathbf{u}} [\mathbf{x}^T Q \mathbf{x} + \mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})] \\
 &amp;= \mathbf{x}^T Q \mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + (A\mathbf{x} + B\mathbf{u})^T P_0 (A\mathbf{x} + B\mathbf{u})] \\
@@ -712,18 +699,18 @@ J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf
 <div class="columns">
 <div class="column fragment" style="width:60%;">
 <p>The minimum is attained at:<br>
-<span class="math inline">\(2Ru + 2B^T P_0 Ax + 2B^T P_0 Bu = \mathbf{0}\)</span> <span class="math inline">\((R + B^T P_0 B)\mathbf{u} = -B^T P_0 Ax\)</span></p>
+<span class="math inline">\(2R\mathbf{u} + 2B^T P_0 A\mathbf{x} + 2B^T P_0 B\mathbf{u} = \mathbf{0}\)</span>&nbsp; <span class="math inline">\((R + B^T P_0 B)\mathbf{u} = -B^T P_0 A\mathbf{x}\)</span></p>
 <p><span class="math inline">\(\color{red}\uparrow\)</span><br>
-<span class="red-annotation">Q: Is this matrix invertible? Recall R, Po are positive definite matrices.</span></p>
+<span class="red-annotation">Q: Is this matrix invertible? Recall that <span class="math inline">\(R\)</span>, <span class="math inline">\(P_0\)</span> are positive definite matrices.</span></p>
 <div class="fragment">
 <p><span class="math inline">\(R + B^T P_0 B\)</span> <span class="red-annotation">is positive definite, so it is invertible</span></p>
 </div>
 </div><div class="column fragment fade-out" style="width:40%;">
 <p>From calculus/algebra:<br>
-<span class="math inline">\(\frac{\partial}{\partial u}(u^T M u) = (M + M^T)u\)</span><br>
-<span class="math inline">\(\frac{\partial}{\partial u}(u^T M b) = M^T b\)</span></p>
+<span class="math inline">\(\frac{\partial}{\partial \mathbf{u}}(\mathbf{u}^T M \mathbf{u}) = (M + M^T)\mathbf{u}\)</span><br>
+<span class="math inline">\(\frac{\partial}{\partial \mathbf{u}}(\mathbf{u}^T M \mathbf{b}) = M^T \mathbf{b}\)</span></p>
 <p>If M is symmetric:<br>
-<span class="math inline">\(\frac{\partial}{\partial u}(u^T M u) = 2Mu\)</span></p>
+<span class="math inline">\(\frac{\partial}{\partial \mathbf{u}}(\mathbf{u}^T M \mathbf{u}) = 2M\mathbf{u}\)</span></p>
 </div></div>
 <!-- Slide -->
 </section>
@@ -735,9 +722,10 @@ J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf
 <div class="columns">
 <div class="column" style="width:60%;">
 <p>The minimum is attained at:<br>
-<span class="math inline">\(2Ru + 2B^T P_0 Ax + 2B^T P_0 Bu = \mathbf{0}\)</span> <span class="math inline">\((R + B^T P_0 B)\mathbf{u} = -B^T P_0 Ax\)</span></p>
+<span class="math inline">\(2R\mathbf{u} + 2B^T P_0 A\mathbf{x} + 2B^T P_0 B\mathbf{u} = \mathbf{0}\)</span><br>
+<span class="math inline">\((R + B^T P_0 B)\mathbf{u} = -B^T P_0 A\mathbf{x}\)</span></p>
 <p>So, the optimal control for the last time step is:<br>
-<span class="math inline">\(\mathbf{u} = -(R + B^T P_0 B)^{-1} B^T P_0 Ax\)</span><br>
+<span class="math inline">\(\mathbf{u} = -(R + B^T P_0 B)^{-1} B^T P_0 A \mathbf{x}\)</span><br>
 <span class="math inline">\(\mathbf{u} = K_1 \mathbf{x}\)</span><br>
 </p>
 <p><span class="red-annotation">Linear controller in terms of the state</span></p>
@@ -748,9 +736,10 @@ J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf
 </section>
 <section id="finding-the-lqr-controller-in-closed-form-by-recursion-7" class="slide level2 smaller">
 <h2>Finding the LQR controller in closed-form by recursion</h2>
-<p><span class="math inline">\(J_0(x) = x^TQx\)</span> <span class="math display">\[\begin{align}
+<p><span class="math display">\[\begin{align}
+J_0(\mathbf{x}) &amp;= \mathbf{x}^TP_0\mathbf{x}\\
 J_1(\mathbf{x}) &amp;= \mathbf{x}^T Q \mathbf{x} + \mathbf{x}^T A^T P_0 A\mathbf{x} + \min_{\mathbf{u}} [\mathbf{u}^T R \mathbf{u} + 2\mathbf{u}^T B^T P_0 A\mathbf{x} + \mathbf{u}^T B^T P_0 B\mathbf{u}] \\
-&amp;= \mathbf{x}^T \underbrace{Q + K_1^T R K_1 + (A + B K_1)^T P_0 (A + B K_1)}_{P_1} \mathbf{x}
+&amp;= \mathbf{x}^T (\underbrace{Q + K_1^T R K_1 + (A + B K_1)^T P_0 (A + B K_1)}_{P_1}) \mathbf{x}
 \end{align}\]</span></p>
 <div class="red-annotation">
 <p>Q: Why is this a big deal?<br>
@@ -768,27 +757,25 @@ A: The cost-to-go function remains quadratic after the first recursive step.</p>
 <div class="columns">
 <div class="column" style="width:40%;">
 <p><span class="math inline">\(P_0 = Q\)</span><br>
-// n is the # of steps left</p>
+// n is the number of steps left</p>
 </div><div class="column red-annotation fragment" data-fragment-index="3" style="width:60%;">
-<p>Potential problem for states of dimension &gt;&gt; 100:<br>
-Matrix inversion is expensive: O(k^2.3) for the best known algorithm and O(k^3) for Gaussian Elimination.<br>
-<span class="math inline">\(\swarrow\)</span></p>
+<p>Potential problem for controls <span class="math inline">\(\mathbf{u}\)</span> of dimension <span class="math inline">\(k\)</span> &gt;&gt; 100:<br>
+Matrix inversion is expensive: <span class="math inline">\(O(k^{2.3})\)</span> for the best known algorithm and <span class="math inline">\(O(k^3)\)</span> for Gaussian Elimination. <span class="math inline">\(\swarrow\)</span></p>
 </div></div>
 <div class="columns">
-<div class="column" style="width:60%;">
-<p>for n = 1…N<br>
-<span class="math inline">\(K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A\)</span><br>
-<span class="math inline">\(P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)\)</span></p>
-</div><div class="column red-annotation fragment" data-fragment-index="1" style="width:40%;">
+<div class="column" style="width:80%;">
+<p>for n = 1…N</p>
+<div class="line-block">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="math inline">\(K_n = -(R + B^T P_{n-1} B)^{-1} B^T P_{n-1} A\)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="math inline">\(P_n = Q + K_n^T R K_n + (A + B K_n)^T P_{n-1} (A + B K_n)\)</span></div>
+</div><div class="column red-annotation fragment" data-fragment-index="1" style="width:70%;">
 <p>One pass <strong>backward</strong> in time:<br>
 Matrix gains are precomputed based on the dynamics and the instantaneous cost</p>
 </div></div>
 <div class="columns">
-<div class="column" style="width:70%;">
-<p>Optimal control for time t = N – n is <span class="math inline">\(\mathbf{u}_t = K_t \mathbf{x}_t\)</span> with cost-to-go <span class="math inline">\(J_t(\mathbf{x}) = \mathbf{x}^T P_t \mathbf{x}\)</span> where the states are predicted forward in time according to linear dynamics</p>
-</div><div class="column red-annotation fragment" data-fragment-index="2" style="width:30%;">
-<p>One pass <strong>forward</strong> in time:<br>
-Predict states, compute controls and cost-to-go</p>
+<div class="column" style="width:80%;">
+<p>Optimal control parameters for time t = N – n are computed backwards in time: <span class="math inline">\(\mathbf{u}_t = K_t \mathbf{x}_t\)</span> with cost-to-go <span class="math inline">\(J_t(\mathbf{x}) = \mathbf{x}^T P_t \mathbf{x}\)</span>, whereas the states are predicted forward in time according to linear dynamics</p>
+</div><div class="column red-annotation fragment" data-fragment-index="2" style="width:70%;">
+<p>One pass <strong>forward</strong> in time: predict states, compute controls and cost-to-go</p>
 </div></div>
 <!-- Slide -->
 </section>
@@ -892,7 +879,7 @@ u_0^*, \ldots, u_{N-1}^* = \arg\min_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(x_t, u_t
 \end{aligned}
 \]</span></p>
 </div><div class="column red-annotation" style="width:30%;">
-<p>Arbitrary differentiable functions c, f</p>
+<p>Arbitrary differentiable functions <span class="math inline">\(c()\)</span>, <span class="math inline">\(f()\)</span></p>
 </div></div>
 <div class="fragment">
 <p><span style="color:red;">Idea: iteratively approximate solution by solving linearized versions of the problem via LQR</span></p>
@@ -902,48 +889,52 @@ u_0^*, \ldots, u_{N-1}^* = \arg\min_{u_0, \ldots, u_N} \sum_{t=0}^{N} c(x_t, u_t
 <section id="iterative-lqr-ilqr" class="slide level2">
 <h2>Iterative LQR (iLQR)</h2>
 <p>Given an initial sequence of states <span class="math inline">\(\bar{x}_0, \ldots, \bar{x}_N\)</span> and actions <span class="math inline">\(\bar{u}_0, \ldots, \bar{u}_N\)</span>:</p>
-<p>Linearize Dynamics</p>
+<p>Linearize dynamics around that initial sequence:</p>
 <div class="small-math">
 <p><span class="math display">\[
-f(x_t, u_t) \approx \tilde{f}(\delta x_t, \delta u_t) = \underbrace{f(\bar{x}_t, \bar{u}_t)}_{\mathbf{b}_t} + \underbrace{\frac{\partial f}{\partial x} (\bar{x}_t, \bar{u}_t)}_{A_t}\underbrace{(x_t - \bar{x}_t)}_{\delta x_t} + \underbrace{\frac{\partial f}{\partial u} (\bar{x}_t, \bar{u}_t)}_{B_t}\underbrace{(u_t - \bar{u}_t)}_{\delta \mathbf{u}_t}
+f(x_t, u_t) \approx \underbrace{f(\bar{x}_t, \bar{u}_t)}_{\mathbf{b}_t} + \underbrace{\frac{\partial f}{\partial x} (\bar{x}_t, \bar{u}_t)}_{A_t}\underbrace{(x_t - \bar{x}_t)}_{\delta \mathbf{x}_t} + \underbrace{\frac{\partial f}{\partial u} (\bar{x}_t, \bar{u}_t)}_{B_t}\underbrace{(u_t - \bar{u}_t)}_{\delta \mathbf{u}_t} = \tilde{f}(\delta \mathbf{x}_t, \delta \mathbf{u}_t)
 \]</span></p>
 </div>
 <div class="fragment">
-<p>Taylor Expand Cost</p>
+<p>Do a Taylor expansion of the cost:</p>
 <div class="small-math">
 <p><span class="math display">\[
-c(x_t, u_t) \approx \tilde{c}(\delta x_t, \delta u_t) = c(\bar{x}_t, \bar{u}_t) + \underbrace{\nabla_{x,u} c(\bar{x}_t, \bar{u}_t)}_{\mathbf{h}_t}
+c(x_t, u_t) \approx c(\bar{x}_t, \bar{u}_t) + \underbrace{\nabla_{x,u} c(\bar{x}_t, \bar{u}_t)}_{\mathbf{h}_t}
 \begin{bmatrix}
-x_t - \bar{x}_t \\
-u_t - \bar{u}_t
+\delta \mathbf{x}_t \\
+\delta \mathbf{u}_t
 \end{bmatrix}
 + \frac{1}{2}
 \begin{bmatrix}
-x_t - \bar{x}_t \\
-u_t - \bar{u}_t
+\delta \mathbf{x}_t \\
+\delta \mathbf{u}_t
 \end{bmatrix}^T
 \underbrace{\nabla^2_{x,u} c(\bar{x}_t, \bar{u}_t)}_{H_t}
 \begin{bmatrix}
-x_t - \bar{x}_t \\
-u_t - \bar{u}_t
-\end{bmatrix}
+\delta \mathbf{x}_t \\
+\delta \mathbf{u}_t
+\end{bmatrix} = \tilde{c}(\delta \mathbf{x}_t, \delta \mathbf{u}_t)
 \]</span></p>
 </div>
 </div>
 <div class="fragment">
-<p>Use LQR Backward Pass on the approximate dynamics <span class="math inline">\(f(\delta x_t, \delta u_t)\)</span> and cost <span class="math inline">\(\tilde{c}(\delta x_t, \delta u_t)\)</span></p>
+<p>Apply LQR backward pass on the approximate dynamics <span class="math inline">\(\tilde{f}(\delta \mathbf{x}_t, \delta \mathbf{u}_t)\)</span> and cost <span class="math inline">\(\tilde{c}(\delta \mathbf{x}_t, \delta \mathbf{u}_t)\)</span> to compute controller and cost-to-go parameters.</p>
 </div>
 <div class="fragment">
-<p>Do a forward pass to get <span class="math inline">\(\delta u_t\)</span> and <span class="math inline">\(\delta x_t\)</span> and update state and action sequence and <span class="math inline">\(\bar{x}_0, \ldots, \bar{x}_N\)</span> and <span class="math inline">\(\bar{u}_0, \ldots, \bar{u}_N\)</span></p>
+<p>Do an LQR forward pass to get <span class="math inline">\(\delta \mathbf{u}_t\)</span> and <span class="math inline">\(\delta \mathbf{x}_t\)</span> and update state and action sequence and <span class="math inline">\(\bar{x}_0, \ldots, \bar{x}_N\)</span> and <span class="math inline">\(\bar{u}_0, \ldots, \bar{u}_N\)</span></p>
 </div>
 </section>
 <section id="iterative-lqr-convergence-tricks" class="slide level2">
 <h2>Iterative LQR: convergence &amp; tricks</h2>
-<p>• New state and action sequence in iLQR is not guaranteed to be close to the linearization point (so linear approximation might be bad)</p>
-<p>• Trick: try to penalize magnitude of <span class="math inline">\(\delta u_t\)</span> and <span class="math inline">\(\delta x_t\)</span><br>
-Replace old LQR linearized cost with <span class="math inline">\((1 - \alpha) \, \tilde{c}(\delta \mathbf{x}_t, \delta \mathbf{u}_t) + \alpha \left( \| \delta \mathbf{x}_t \|^2 + \| \delta \mathbf{u}_t \|^2 \right)\)</span></p>
-<p>• Problem: Can get stuck in local optima, need to initialize well</p>
-<p>• Problem: Hessian might not be positive definite</p>
+<div class="hanging-bullets">
+<ul>
+<li><p>New state and action sequence in iLQR is not guaranteed to be close to the linearization point (so linear approximation might be bad)</p></li>
+<li><p>Trick: try to penalize magnitude of <span class="math inline">\(\delta u_t\)</span> and <span class="math inline">\(\delta x_t\)</span><br>
+Replace old LQR linearized cost with <span class="math inline">\((1 - \alpha) \, \tilde{c}(\delta \mathbf{x}_t, \delta \mathbf{u}_t) + \alpha \left( \| \delta \mathbf{x}_t \|^2 + \| \delta \mathbf{u}_t \|^2 \right)\)</span></p></li>
+<li><p>Problem: Can get stuck in local optima, need to initialize well</p></li>
+<li><p>Problem: Hessian might not be positive definite</p></li>
+</ul>
+</div>
 </section>
 <section id="todays-agenda-3" class="slide level2">
 <h2>Today’s agenda</h2>
@@ -991,21 +982,19 @@ Replace old LQR linearized cost with <span class="math inline">\((1 - \alpha) \,
 </section>
 <section id="online-trajectory-optimization-mpc" class="slide level2">
 <h2>Online trajectory optimization / MPC</h2>
-
-<img data-src="images/MPC.png" class="r-stretch"></section>
+<iframe data-external="1" src="https://www.youtube.com/embed/RHnXD6uO3Mg" width="70%" height="50%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="small-math"><a href="https://www.youtube.com/watch?v=RHnXD6uO3Mg" class="uri">https://www.youtube.com/watch?v=RHnXD6uO3Mg</a></span></p>
+</section>
 <section id="online-trajectory-optimization-mpc-1" class="slide level2">
 <h2>Online trajectory optimization / MPC</h2>
-
-<img data-src="images/mpc-1.png" class="r-stretch"></section>
+<iframe data-external="1" src="https://www.youtube.com/embed/anIsw2-Lbco" width="70%" height="50%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="small-math"><a href="https://www.youtube.com/watch?v=anIsw2-Lbco" class="uri">https://www.youtube.com/watch?v=anIsw2-Lbco</a></span></p>
+</section>
 <section id="online-trajectory-optimization-mpc-2" class="slide level2">
 <h2>Online trajectory optimization / MPC</h2>
-<p>Test 3: Dynamic Maneuvers</p>
-
-<img data-src="images/mpc-2.png" class="r-stretch"></section>
-<section id="online-trajectory-optimization-mpc-3" class="slide level2">
-<h2>Online trajectory optimization / MPC</h2>
-
-<img data-src="images/mpc-3.png" class="r-stretch"></section>
+<iframe data-external="1" src="https://www.youtube.com/embed/bjlT-6KVQ7U" width="70%" height="50%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="small-math"><a href="https://www.youtube.com/watch?v=bjlT-6KVQ7U" class="uri">https://www.youtube.com/watch?v=bjlT-6KVQ7U</a></span></p>
+</section>
 <section id="todays-agenda-4" class="slide level2">
 <h2>Today’s agenda</h2>
 <div class="columns">
@@ -1047,6 +1036,187 @@ Replace old LQR linearized cost with <span class="math inline">\((1 - \alpha) \,
 <li><p>Execute first action, observe new state <span class="math inline">\(x_{t+1}\)</span></p></li>
 <li><p>Append <span class="math inline">\((x_t, u_t, x_{t+1})\)</span> to <span class="math inline">\(D\)</span></p></li>
 </ul>
+</section>
+<section id="how-do-we-plan-through-a-learned-model" class="slide level2">
+<h2>How do we plan through a learned model?</h2>
+<div class="hanging-bullets">
+<ul>
+<li>iLQR needs <span class="math inline">\(\frac{\partial f}{\partial x}, \frac{\partial f}{\partial u}\)</span> and <span class="math inline">\(\nabla^2 c\)</span>: the model and the cost must be smooth, and the Hessian should be positive definite</li>
+</ul>
+<p>Often that is not the case:</p>
+<ul>
+<li><p><span class="math inline">\(f_\theta\)</span> is a neural network (gradients exist but are noisy, and the linearization can be very poor far from the data)</p></li>
+<li><p><span class="math inline">\(f\)</span> is a black-box simulator with contacts (no gradients at all)</p></li>
+<li><p><span class="math inline">\(c\)</span> is discontinuous, e.g.&nbsp;an indicator for collisions or reaching a goal region</p></li>
+</ul>
+</div>
+<div class="fragment">
+<p><span style="color:red;">Idea: don’t differentiate at all. Sample many action sequences, roll them out through the model in parallel, and average the good ones</span></p>
+</div>
+</section>
+<section id="model-predictive-path-integral-control-mppi" class="slide level2">
+<h2>Model Predictive Path Integral Control (MPPI)</h2>
+<p>Given the current state <span class="math inline">\(x_0\)</span> and a nominal action sequence <span class="math inline">\(\bar{u}_0, \ldots, \bar{u}_{N-1}\)</span> (e.g.&nbsp;last plan, shifted by one step):</p>
+<div class="small-math">
+<ol type="1">
+<li><p>Sample <span class="math inline">\(K\)</span> perturbed sequences: <span class="math inline">\(\epsilon^k_t \sim \mathcal{N}(0, \Sigma)\)</span>, <span class="math inline">\(\quad u^k_t = \bar{u}_t + \epsilon^k_t\)</span></p></li>
+<li><p>Roll out each one through the model: <span class="math inline">\(x^k_{t+1} = f(x^k_t, u^k_t)\)</span>, starting from <span class="math inline">\(x_0\)</span></p></li>
+<li><p>Compute the cost of each rollout: <span class="math inline">\(S_k = \sum_{t=0}^{N-1} c(x^k_t, u^k_t) + c_N(x^k_N)\)</span></p></li>
+<li><p>Weight rollouts with a softmin over costs (temperature <span class="math inline">\(\lambda\)</span>): <span class="math display">\[
+w_k = \frac{\exp\left(-\frac{1}{\lambda}\left(S_k - \min_j S_j\right)\right)}{\sum_{j=1}^{K} \exp\left(-\frac{1}{\lambda}\left(S_j - \min_j S_j\right)\right)}
+\]</span></p></li>
+<li><p>Update the nominal sequence: <span class="math inline">\(\bar{u}_t \leftarrow \bar{u}_t + \sum_{k=1}^{K} w_k \, \epsilon^k_t\)</span></p></li>
+<li><p>Execute <span class="math inline">\(\bar{u}_0\)</span>, observe the new state, shift the sequence, repeat (MPC)</p></li>
+</ol>
+</div>
+<div class="fragment">
+<p><span class="red-annotation">Steps 1–3 are <span class="math inline">\(K\)</span> independent rollouts, so they map perfectly onto a GPU: thousands of rollouts at 40+ Hz on a real vehicle</span></p>
+</div>
+</section>
+<section id="mppi-in-action-reaching-a-goal" class="slide level2">
+<h2>MPPI in action: reaching a goal</h2>
+<div class="columns">
+<div class="column" style="width:65%;">
+<p><img data-src="images/mppi-reaching.gif" style="width:100.0%"></p>
+</div><div class="column" style="width:35%;">
+<div class="small-math">
+<p>Point mass with friction: <span class="math inline">\(m\ddot{p} = u - \alpha \dot{p}\)</span></p>
+<p>Cost: <span class="math inline">\(c(x, u) = \|p - p_{\text{goal}}\|^2_{Q} + \|\dot{p}\|^2 + \|u\|^2_R\)</span></p>
+<p>At every step:</p>
+<p>• Blue: the <span class="math inline">\(K\)</span> sampled rollouts, opacity <span class="math inline">\(\propto w_k\)</span></p>
+<p>• Red: the new nominal plan <span class="math inline">\(\bar{u} + \sum_k w_k \epsilon^k\)</span></p>
+<p>• Black: the executed path (only <span class="math inline">\(\bar{u}_0\)</span> is applied, then replan)</p>
+</div>
+<div class="red-annotation">
+<p>Notice how the samples are spread out when far from the goal and collapse around it once we arrive: the weights and the warm start do the work, no gradients needed</p>
+</div>
+</div></div>
+</section>
+<section id="mppi-properties-tricks" class="slide level2">
+<h2>MPPI: properties &amp; tricks</h2>
+<div class="hanging-bullets">
+<ul>
+<li><p><span class="math inline">\(\lambda \to 0\)</span>: only keep the best rollout (greedy). <span class="math inline">\(\lambda \to \infty\)</span>: plain average of all samples. In between: a smoothed, weighted average of the good samples</p></li>
+<li><p>Derivative-free: works with any model you can evaluate, including neural networks and simulators with contact, and with discontinuous costs</p></li>
+<li><p>Warm start is essential: reuse last plan shifted by one step. With a good warm start, one MPPI update per control step is often enough</p></li>
+<li><p>Problems: <span class="math inline">\(K\)</span> needs to grow with the action dimension and horizon; exploration noise <span class="math inline">\(\Sigma\)</span> has to be tuned; no local convergence guarantee like iLQR</p></li>
+</ul>
+</div>
+<div class="red-annotation">
+<p>See “Model Predictive Path Integral Control: From Theory to Parallel Computation”</p>
+<p>“Information Theoretic MPC for Model-Based Reinforcement Learning” by Williams, Aldrich, Theodorou et al.&nbsp;(2017),</p>
+<p>where MPPI is used to drive the AutoRally car aggressively with a learned neural network dynamics model</p>
+</div>
+</section>
+<section id="a-closely-related-idea-the-cross-entropy-method-cem" class="slide level2">
+<h2>A closely related idea: the Cross-Entropy Method (CEM)</h2>
+<p>• MPPI keeps a single nominal sequence <span class="math inline">\(\bar{u}\)</span> and nudges it with a weighted average of the noise</p>
+<div class="fragment">
+<p>• CEM instead maintains a <em>distribution</em> over action sequences, <span class="math inline">\(q(u_{0:N-1}) = \mathcal{N}(\mu, \Sigma)\)</span>, and iteratively refits it to the best samples</p>
+</div>
+<div class="fragment">
+<p>• Comes from rare-event simulation (Rubinstein, 1997): to estimate the probability of a rare event, iteratively move the sampling distribution towards the region where the event happens</p>
+</div>
+<div class="fragment">
+<p><span style="color:red;">For optimization the “rare event” is “cost below the current threshold”, and the distribution concentrates on low-cost action sequences</span></p>
+</div>
+</section>
+<section id="cross-entropy-method-cem-for-planning" class="slide level2">
+<h2>Cross-Entropy Method (CEM) for planning</h2>
+<p>Given the current state <span class="math inline">\(x_0\)</span> and an initial distribution <span class="math inline">\(\mu_t, \Sigma_t\)</span> over actions (e.g.&nbsp;<span class="math inline">\(\mu\)</span> = last plan shifted by one step, <span class="math inline">\(\Sigma\)</span> reset to a large value):</p>
+<div class="small-math">
+<p>Repeat for a few iterations:</p>
+<ol type="1">
+<li><p>Sample <span class="math inline">\(K\)</span> action sequences: <span class="math inline">\(u^k_{0:N-1} \sim \mathcal{N}(\mu_{0:N-1}, \Sigma_{0:N-1})\)</span></p></li>
+<li><p>Roll out each one through the model: <span class="math inline">\(x^k_{t+1} = f(x^k_t, u^k_t)\)</span>, starting from <span class="math inline">\(x_0\)</span></p></li>
+<li><p>Compute the cost of each rollout: <span class="math inline">\(S_k = \sum_{t=0}^{N-1} c(x^k_t, u^k_t) + c_N(x^k_N)\)</span></p></li>
+<li><p>Keep the <span class="math inline">\(M \ll K\)</span> lowest-cost sequences, the <em>elites</em> <span class="math inline">\(\mathcal{E}\)</span></p></li>
+<li><p>Refit the distribution to the elites: <span class="math display">\[
+\mu_t \leftarrow \frac{1}{M} \sum_{k \in \mathcal{E}} u^k_t \qquad \Sigma_t \leftarrow \frac{1}{M} \sum_{k \in \mathcal{E}} (u^k_t - \mu_t)(u^k_t - \mu_t)^T
+\]</span></p></li>
+</ol>
+<p>Execute <span class="math inline">\(\mu_0\)</span>, observe the new state, shift <span class="math inline">\(\mu\)</span>, repeat (MPC)</p>
+</div>
+<div class="fragment">
+<p><span class="red-annotation">Step 5 is a maximum-likelihood fit of a Gaussian to the elites, i.e.&nbsp;it minimizes the cross-entropy between the elite distribution and <span class="math inline">\(q\)</span>, hence the name</span></p>
+</div>
+</section>
+<section id="cem-in-action-reaching-a-goal" class="slide level2">
+<h2>CEM in action: reaching a goal</h2>
+<div class="columns">
+<div class="column" style="width:65%;">
+<p><img data-src="images/cem-reaching.gif" style="width:100.0%"></p>
+</div><div class="column" style="width:35%;">
+<div class="small-math">
+<p>Same point mass and reaching cost as in the MPPI example</p>
+<p>Each frame is one CEM iteration; 3 iterations per control step</p>
+<p>• Blue: the <span class="math inline">\(K\)</span> samples from <span class="math inline">\(\mathcal{N}(\mu, \Sigma)\)</span></p>
+<p>• Orange: the <span class="math inline">\(M\)</span> elites</p>
+<p>• Red: the new mean plan <span class="math inline">\(\mu\)</span>, fit to the elites</p>
+<p>• Black: the executed path (only <span class="math inline">\(\mu_0\)</span> is applied, then replan)</p>
+</div>
+<div class="red-annotation">
+<p>Watch the sample cloud shrink within each control step as <span class="math inline">\(\Sigma\)</span> is refit to the elites, then widen again when <span class="math inline">\(\Sigma\)</span> is reset for the next step</p>
+</div>
+</div></div>
+</section>
+<section id="cem-vs.-mppi" class="slide level2">
+<h2>CEM vs.&nbsp;MPPI</h2>
+<div class="small-math">
+<table class="caption-top">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 43%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>CEM</th>
+<th>MPPI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What is updated</td>
+<td>mean <span class="math inline">\(\mu\)</span> <strong>and</strong> covariance <span class="math inline">\(\Sigma\)</span></td>
+<td>nominal sequence <span class="math inline">\(\bar{u}\)</span> only (<span class="math inline">\(\Sigma\)</span> fixed)</td>
+</tr>
+<tr class="even">
+<td>How samples are used</td>
+<td>hard threshold: top <span class="math inline">\(M\)</span> elites, equal weight</td>
+<td>soft weights <span class="math inline">\(w_k \propto \exp(-S_k / \lambda)\)</span> on all samples</td>
+</tr>
+<tr class="odd">
+<td>Iterations per step</td>
+<td>usually several (distribution needs to shrink)</td>
+<td>often one, thanks to warm start</td>
+</tr>
+<tr class="even">
+<td>Hyperparameters</td>
+<td><span class="math inline">\(K\)</span>, <span class="math inline">\(M\)</span>, initial <span class="math inline">\(\Sigma\)</span>, # iterations</td>
+<td><span class="math inline">\(K\)</span>, <span class="math inline">\(\lambda\)</span>, <span class="math inline">\(\Sigma\)</span></td>
+</tr>
+<tr class="odd">
+<td>Behavior</td>
+<td>more exploitative, converges quickly, can collapse too early</td>
+<td>smoother updates, more robust to noisy costs</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<div class="hanging-bullets">
+<ul>
+<li><p>Both are derivative-free, embarrassingly parallel, and work with learned models and discontinuous costs</p></li>
+<li><p>Both scale poorly with action dimension and horizon: a Gaussian over <span class="math inline">\(N \cdot \dim(u)\)</span> variables gets very wide, very fast</p></li>
+<li><p>Tricks: keep the top elites across iterations, smooth <span class="math inline">\(\mu\)</span> over time (colored noise), sample in a low-dimensional space of action splines</p></li>
+</ul>
+</div>
+<div class="red-annotation">
+<p>CEM was the planner of choice in many model-based RL papers, e.g.&nbsp;“Deep RL in a Handful of Trials using Probabilistic Dynamics Models” (PETS, Chua et al.&nbsp;2018) and “Learning Latent Dynamics for Planning from Pixels” (PlaNet, Hafner et al.&nbsp;2019)</p>
+</div>
+</div>
 </section>
 <section id="todays-agenda-5" class="slide level2">
 <h2>Today’s agenda</h2>
@@ -1393,7 +1563,7 @@ i.e.&nbsp;upper or lower bounds. We only penalize large norm for controls.</p>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p><a href="https://csc2626.github.io/website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩︎ Back to Course Website</a></p>
+<p><a href="https://csc2626.github.io/2026F_website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩︎ Back to Course Website</a></p>
 </div>
 </div></div>
 
@@ -1581,7 +1751,7 @@ i.e.&nbsp;upper or lower bounds. We only penalize large norm for controls.</p>
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -1792,6 +1962,7 @@ i.e.&nbsp;upper or lower bounds. We only penalize large norm for controls.</p>
       }
     });
     </script>
+    <script type="text/javascript" src="../mathjax-layout-fix.js"></script>
     
 
 </body></html>
