@@ -1065,21 +1065,23 @@ Possible speedups:
 
 ## Online trajectory optimization / MPC
 
-![](images/MPC.png)
+{{< video https://www.youtube.com/watch?v=RHnXD6uO3Mg width="70%" height="50%" >}}
+
+[<https://www.youtube.com/watch?v=RHnXD6uO3Mg>]{.small-math}
 
 ## Online trajectory optimization / MPC
 
-![](images/mpc-1.png)
+
+{{< video https://www.youtube.com/watch?v=anIsw2-Lbco width="70%" height="50%" >}}
+
+[<https://www.youtube.com/watch?v=anIsw2-Lbco>]{.small-math}
+
 
 ## Online trajectory optimization / MPC
 
-Test 3: Dynamic Maneuvers
+{{< video https://www.youtube.com/watch?v=bjlT-6KVQ7U width="70%" height="50%" >}}
 
-![](images/mpc-2.png)
-
-## Online trajectory optimization / MPC
-
-![](images/mpc-3.png)
+[<https://www.youtube.com/watch?v=bjlT-6KVQ7U>]{.small-math}
 
 ## Today’s agenda
 
@@ -1136,6 +1138,195 @@ Collect initial dataset $D = \{(x_t, u_t, x_{t+1})\}$
 -   Execute first action, observe new state $x_{t+1}$
 
 -   Append $(x_t, u_t, x_{t+1})$ to $D$
+
+## How do we plan through a learned model?
+
+::: hanging-bullets
+- iLQR needs $\frac{\partial f}{\partial x}, \frac{\partial f}{\partial u}$ and $\nabla^2 c$: the model and the cost must be smooth, and the Hessian should be positive definite
+
+
+Often that is not the case:
+
+- $f_\theta$ is a neural network (gradients exist but are noisy, and the linearization can be very poor far from the data)
+
+- $f$ is a black-box simulator with contacts (no gradients at all)
+
+- $c$ is discontinuous, e.g. an indicator for collisions or reaching a goal region
+:::
+
+. . .
+
+[Idea: don’t differentiate at all. Sample many action sequences, roll them out through the model in parallel, and average the good ones]{style="color:red;"}
+
+## Model Predictive Path Integral Control (MPPI)
+
+Given the current state $x_0$ and a nominal action sequence $\bar{u}_0, \ldots, \bar{u}_{N-1}$ (e.g. last plan, shifted by one step):
+
+::: small-math
+1.  Sample $K$ perturbed sequences: $\epsilon^k_t \sim \mathcal{N}(0, \Sigma)$, $\quad u^k_t = \bar{u}_t + \epsilon^k_t$
+
+2.  Roll out each one through the model: $x^k_{t+1} = f(x^k_t, u^k_t)$, starting from $x_0$
+
+3.  Compute the cost of each rollout: $S_k = \sum_{t=0}^{N-1} c(x^k_t, u^k_t) + c_N(x^k_N)$
+
+4.  Weight rollouts with a softmin over costs (temperature $\lambda$):
+    $$
+    w_k = \frac{\exp\left(-\frac{1}{\lambda}\left(S_k - \min_j S_j\right)\right)}{\sum_{j=1}^{K} \exp\left(-\frac{1}{\lambda}\left(S_j - \min_j S_j\right)\right)}
+    $$
+
+5.  Update the nominal sequence: $\bar{u}_t \leftarrow \bar{u}_t + \sum_{k=1}^{K} w_k \, \epsilon^k_t$
+
+6.  Execute $\bar{u}_0$, observe the new state, shift the sequence, repeat (MPC)
+:::
+
+. . .
+
+[Steps 1–3 are $K$ independent rollouts, so they map perfectly onto a GPU: thousands of rollouts at 40+ Hz on a real vehicle]{.red-annotation}
+
+## MPPI in action: reaching a goal
+
+::::: columns
+::: {.column width="65%"}
+![](images/mppi-reaching.gif){width="100%"}
+:::
+
+::: {.column width="35%"}
+::: small-math
+Point mass with friction: $m\ddot{p} = u - \alpha \dot{p}$
+
+Cost: $c(x, u) = \|p - p_{\text{goal}}\|^2_{Q} + \|\dot{p}\|^2 + \|u\|^2_R$
+
+At every step:
+
+• Blue: the $K$ sampled rollouts, opacity $\propto w_k$
+
+• Red: the new nominal plan $\bar{u} + \sum_k w_k \epsilon^k$
+
+• Black: the executed path (only $\bar{u}_0$ is applied, then replan)
+:::
+
+::: red-annotation
+Notice how the samples are spread out when far from the goal and collapse around it once we arrive: the weights and the warm start do the work, no gradients needed
+:::
+:::
+:::::
+
+## MPPI: properties & tricks
+
+::: hanging-bullets
+- $\lambda \to 0$: only keep the best rollout (greedy). $\lambda \to \infty$: plain average of all samples. In between: a smoothed, weighted average of the good samples
+
+- Derivative-free: works with any model you can evaluate, including neural networks and simulators with contact, and with discontinuous costs
+
+- Warm start is essential: reuse last plan shifted by one step. With a good warm start, one MPPI update per control step is often enough
+
+- Problems: $K$ needs to grow with the action dimension and horizon; exploration noise $\Sigma$ has to be tuned; no local convergence guarantee like iLQR
+:::
+
+::: red-annotation
+See “Model Predictive Path Integral Control: From Theory to Parallel Computation” 
+
+“Information Theoretic MPC for Model-Based Reinforcement Learning” by Williams, Aldrich, Theodorou et al. (2017),
+
+where MPPI is used to drive the AutoRally car aggressively with a learned neural network dynamics model
+:::
+
+## A closely related idea: the Cross-Entropy Method (CEM)
+
+• MPPI keeps a single nominal sequence $\bar{u}$ and nudges it with a weighted average of the noise
+
+. . .
+
+• CEM instead maintains a *distribution* over action sequences, $q(u_{0:N-1}) = \mathcal{N}(\mu, \Sigma)$, and iteratively refits it to the best samples
+
+. . .
+
+• Comes from rare-event simulation (Rubinstein, 1997): to estimate the probability of a rare event, iteratively move the sampling distribution towards the region where the event happens
+
+. . .
+
+[For optimization the “rare event” is “cost below the current threshold”, and the distribution concentrates on low-cost action sequences]{style="color:red;"}
+
+## Cross-Entropy Method (CEM) for planning
+
+Given the current state $x_0$ and an initial distribution $\mu_t, \Sigma_t$ over actions (e.g. $\mu$ = last plan shifted by one step, $\Sigma$ reset to a large value):
+
+::: small-math
+Repeat for a few iterations:
+
+1.  Sample $K$ action sequences: $u^k_{0:N-1} \sim \mathcal{N}(\mu_{0:N-1}, \Sigma_{0:N-1})$
+
+2.  Roll out each one through the model: $x^k_{t+1} = f(x^k_t, u^k_t)$, starting from $x_0$
+
+3.  Compute the cost of each rollout: $S_k = \sum_{t=0}^{N-1} c(x^k_t, u^k_t) + c_N(x^k_N)$
+
+4.  Keep the $M \ll K$ lowest-cost sequences, the *elites* $\mathcal{E}$
+
+5.  Refit the distribution to the elites:
+    $$
+    \mu_t \leftarrow \frac{1}{M} \sum_{k \in \mathcal{E}} u^k_t \qquad \Sigma_t \leftarrow \frac{1}{M} \sum_{k \in \mathcal{E}} (u^k_t - \mu_t)(u^k_t - \mu_t)^T
+    $$
+
+Execute $\mu_0$, observe the new state, shift $\mu$, repeat (MPC)
+:::
+
+. . .
+
+[Step 5 is a maximum-likelihood fit of a Gaussian to the elites, i.e. it minimizes the cross-entropy between the elite distribution and $q$, hence the name]{.red-annotation}
+
+## CEM in action: reaching a goal
+
+::::: columns
+::: {.column width="65%"}
+![](images/cem-reaching.gif){width="100%"}
+:::
+
+::: {.column width="35%"}
+::: small-math
+Same point mass and reaching cost as in the MPPI example
+
+Each frame is one CEM iteration; 3 iterations per control step
+
+• Blue: the $K$ samples from $\mathcal{N}(\mu, \Sigma)$
+
+• Orange: the $M$ elites
+
+• Red: the new mean plan $\mu$, fit to the elites
+
+• Black: the executed path (only $\mu_0$ is applied, then replan)
+:::
+
+::: red-annotation
+Watch the sample cloud shrink within each control step as $\Sigma$ is refit to the elites, then widen again when $\Sigma$ is reset for the next step
+:::
+:::
+:::::
+
+## CEM vs. MPPI
+
+::: small-math
+|                    | CEM                                                          | MPPI                                                         |
+|--------------------|--------------------------------------------------------------|--------------------------------------------------------------|
+| What is updated    | mean $\mu$ **and** covariance $\Sigma$                       | nominal sequence $\bar{u}$ only ($\Sigma$ fixed)             |
+| How samples are used | hard threshold: top $M$ elites, equal weight              | soft weights $w_k \propto \exp(-S_k / \lambda)$ on all samples |
+| Iterations per step | usually several (distribution needs to shrink)              | often one, thanks to warm start                              |
+| Hyperparameters    | $K$, $M$, initial $\Sigma$, # iterations                     | $K$, $\lambda$, $\Sigma$                                     |
+| Behavior           | more exploitative, converges quickly, can collapse too early | smoother updates, more robust to noisy costs                 |
+:::
+
+. . .
+
+::: hanging-bullets
+- Both are derivative-free, embarrassingly parallel, and work with learned models and discontinuous costs
+
+- Both scale poorly with action dimension and horizon: a Gaussian over $N \cdot \dim(u)$ variables gets very wide, very fast
+
+- Tricks: keep the top elites across iterations, smooth $\mu$ over time (colored noise), sample in a low-dimensional space of action splines
+:::
+
+::: red-annotation
+CEM was the planner of choice in many model-based RL papers, e.g. “Deep RL in a Handful of Trials using Probabilistic Dynamics Models” (PETS, Chua et al. 2018) and “Learning Latent Dynamics for Planning from Pixels” (PlaNet, Hafner et al. 2019)
+:::
 
 ## Today’s agenda
 
