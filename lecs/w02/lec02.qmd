@@ -32,7 +32,9 @@ html-math-method:
 • Linear Quadratic Regulator (LQR)\
 • Iterative LQR\
 • Model Predictive Control\
-• Learning dynamics and model-based RL
+• Learning dynamics and model-based RL\
+• Model Predictive Path Integral Control (MPPI)\
+• Cross-Entropy Method (CEM)
 :::
 
 ::: {.column width="40%"}
@@ -385,7 +387,9 @@ $\pi$ $\downarrow$
 • Linear Quadratic Regulator (LQR)\
 • Iterative LQR\
 • Model Predictive Control\
-• Learning dynamics and model-based RL
+• Learning dynamics and model-based RL\
+• Model Predictive Path Integral Control (MPPI)\
+• Cross-Entropy Method (CEM)
 :::
 
 ::: {.column width="30%"}
@@ -922,7 +926,9 @@ No need to change the algorithm, as long as you observe the state at each step (
 [• Linear Quadratic Regulator (LQR)]{style="color:grey;"}\
 • Iterative LQR\
 • Model Predictive Control\
-• Learning dynamics and model-based RL
+• Learning dynamics and model-based RL\
+• Model Predictive Path Integral Control (MPPI)\
+• Cross-Entropy Method (CEM)
 :::
 
 ::: {.column width="30%"}
@@ -1022,7 +1028,9 @@ Replace old LQR linearized cost with $(1 - \alpha) \, \tilde{c}(\delta \mathbf{x
 [• Linear Quadratic Regulator (LQR)]{style="color:grey;"}\
 [• Iterative LQR]{style="color:grey;"}\
 • Model Predictive Control\
-• Learning dynamics and model-based RL
+• Learning dynamics and model-based RL\
+• Model Predictive Path Integral Control (MPPI)\
+• Cross-Entropy Method (CEM)
 :::
 
 ::: {.column width="30%"}
@@ -1091,7 +1099,9 @@ Possible speedups:
 [• Linear Quadratic Regulator (LQR)]{style="color:grey;"}\
 [• Iterative LQR]{style="color:grey;"}\
 [• Model Predictive Control]{style="color:grey;"}\
-• Learning dynamics and model-based RL
+• Learning dynamics and model-based RL\
+• Model Predictive Path Integral Control (MPPI)\
+• Cross-Entropy Method (CEM)
 :::
 
 ::: {.column width="30%"}
@@ -1337,6 +1347,8 @@ CEM was the planner of choice in many model-based RL papers, e.g. “Deep RL in 
 [• Iterative LQR]{style="color:grey;"}\
 [• Model Predictive Control]{style="color:grey;"}\
 [• Learning dynamics and model-based RL]{style="color:grey;"}\
+[• Model Predictive Path Integral Control (MPPI)]{style="color:grey;"}\
+[• Cross-Entropy Method (CEM)]{style="color:grey;"}\
 • Appendix
 :::
 
