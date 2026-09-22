@@ -1446,7 +1446,7 @@
     "href": "lecs/w03/lec03.html#todays-agenda",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Reinforcement Learning Terminology\n• Distribution Shift in Offline RL\n• Offline RL with Policy Constraints\n• Offline RL with Conservative Q-Estimates\n\n\n\n\n\nAcknowledgments\nToday’s slides borrow very heavily from: Sergey Levine & Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)"
+    "text": "Today’s agenda\n\n\n• Reinforcement Learning Terminology\n• Distribution Shift in Offline RL\n• Offline RL with Policy Constraints\n• Offline RL with Conservative Q-Estimates\n\n\n\n\n\nAcknowledgments\nToday’s slides borrow very heavily from: Sergey Levine & Aviral Kumar (CSC285 and NeurIPS 2020 Offline RL tutorial), Joelle Pineau (DLSS’16)"
   },
   {
     "objectID": "lecs/w03/lec03.html#rl-terminology",
@@ -1460,7 +1460,7 @@
     "href": "lecs/w03/lec03.html#episodic-vs-non-episodic-rl-methods",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Episodic vs Non-episodic RL methods",
-    "text": "Episodic vs Non-episodic RL methods\nEpisodic: optimize expected reward-to-go for finite time horizon\n\\[\nV_T^{\\pi}(s_0) = \\mathbb{E}_{a_t \\sim \\pi_t(a|s_t), s_{t+1} \\sim p(s_{t+1}|s_t, a_t)} \\left[ \\sum_{t=0}^{T} r(s_t, a_t) \\right]\n\\]\nOften need to have a reset mechanism to bring back the system to state \\(s_0\\)\n\n\nNon-episodic: optimize expected discounted reward-to-go for infinite time horizon, i.e. a task may go on forever, no resets\n\\[\nV^{\\pi}(s_0) = \\mathbb{E}_{a_t \\sim \\pi(a|s_t), s_{t+1} \\sim p(s_{t+1}|s_t, a_t)} \\left[ \\sum_{t=0}^{\\infty} \\gamma^t r(s_t, a_t) \\right] \\qquad \\gamma \\in (0, 1)\n\\]"
+    "text": "Episodic vs Non-episodic RL methods\nEpisodic: optimize expected reward-to-go for finite time horizon\n\\[\nV_T^{\\pi}(s_0) = \\mathbb{E}_{a_t \\sim \\pi_t(a|s_t), s_{t+1} \\sim p(s_{t+1}|s_t, a_t)} \\left[ \\sum_{t=0}^{T} \\gamma^t r(s_t, a_t) \\right]\n\\]\nOften need to have a reset mechanism to bring back the system to state \\(s_0\\)\n\n\nNon-episodic: optimize expected discounted reward-to-go for infinite time horizon, i.e. a task may go on forever, no resets\n\\[\nV^{\\pi}(s_0) = \\mathbb{E}_{a_t \\sim \\pi(a|s_t), s_{t+1} \\sim p(s_{t+1}|s_t, a_t)} \\left[ \\sum_{t=0}^{\\infty} \\gamma^t r(s_t, a_t) \\right] \\qquad \\gamma \\in (0, 1)\n\\]"
   },
   {
     "objectID": "lecs/w03/lec03.html#tabular-vs-function-approximation-methods",
@@ -1516,7 +1516,14 @@
     "href": "lecs/w03/lec03.html#section-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
-    "text": "\\(\\mathbf{s} \\in \\mathcal{S}\\) – discrete or continuous state\n\\(\\mathbf{a} \\in \\mathcal{A}\\) – discrete or continuous action\n\\(\\tau = \\{s_0, a_0, s_1, a_1, \\ldots, s_T, a_T\\}\\) - trajectory\n\\(\\underbrace{\\pi(s_0, a_0, \\ldots, s_T, a_T)}_{\\pi(\\tau)} = p(s_1) \\prod_{t=0}^{T} \\pi(a_t | s_t) p(s_{t+1} | s_t, a_t)\\)\n\\(d_t^{\\pi}(s_t)\\) – state marginal of \\(\\pi(\\tau)\\) at \\(t\\)\n\\(d^{\\pi}(s) = \\frac{1}{1-\\gamma} \\sum_{t=0}^{T} \\gamma^t d_t^{\\pi}(s_t) \\quad \\text{– \"visitation frequency\"}\\)\n\n\\(Q^{\\pi}(s_t, a_t) = r(s_t, a_t) + \\gamma \\mathbb{E}_{s_{t+1} \\sim p(s_{t+1} | s_t, a_t), a_{t+1} \\sim \\pi(a_{t+1} | s_{t+1})} \\left[Q^{\\pi}(s_{t+1}, a_{t+1})\\right]\\)\n\\(V^{\\pi}(s_t) = \\mathbb{E}_{a_t \\sim \\pi(a_t | s_t)} \\left[Q^{\\pi}(s_t, a_t)\\right]\\)"
+    "text": "\\(\\mathbf{s} \\in \\mathcal{S}\\) – discrete or continuous state\n\\(\\mathbf{a} \\in \\mathcal{A}\\) – discrete or continuous action\n\\(\\tau = \\{s_0, a_0, s_1, a_1, \\ldots, s_T, a_T\\}\\) - trajectory\n\\(\\underbrace{\\pi(s_0, a_0, \\ldots, s_T, a_T)}_{\\pi(\\tau)} = p(s_0) \\prod_{t=0}^{T} \\pi(a_t | s_t) p(s_{t+1} | s_t, a_t)\\)\n\\(d_t^{\\pi}(s_t)\\) – state marginal of \\(\\pi(\\tau)\\) at \\(t\\)\n\\(d^{\\pi}(s) = \\frac{1}{1-\\gamma} \\sum_{t=0}^{T} \\gamma^t d_t^{\\pi}(s_t) \\quad \\text{visitation frequency}\\)\n\n\n\\(Q^{\\pi}(s_t, a_t) = r(s_t, a_t) + \\gamma \\mathbb{E}_{s_{t+1} \\sim p(s_{t+1} | s_t, a_t), a_{t+1} \\sim \\pi(a_{t+1} | s_{t+1})} \\left[Q^{\\pi}(s_{t+1}, a_{t+1})\\right]\\)\n\n\n\\(V^{\\pi}(s_t) = \\mathbb{E}_{a_t \\sim \\pi(a_t | s_t)} \\left[Q^{\\pi}(s_t, a_t)\\right]\\)\n\n\n\\(A^{\\pi}(s_t, a_t) = Q^{\\pi}(s_t, a_t) - V^{\\pi}(s_t) \\quad \\text{(advantage function)}\\)"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#the-performance-difference-lemma",
+    "href": "lecs/w03/lec03.html#the-performance-difference-lemma",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "The Performance Difference Lemma",
+    "text": "The Performance Difference Lemma\nFor any two policies \\(\\pi\\) and \\(\\pi'\\):\n\\[J(\\pi') - J(\\pi) = \\mathbb{E}_{\\tau \\sim \\pi'} \\left[ \\sum_{t=0}^{\\infty} \\gamma^t A^{\\pi}(s_t, a_t) \\right] = \\frac{1}{1-\\gamma} \\mathbb{E}_{s \\sim d^{\\pi'}(s),\\, a \\sim \\pi'(a|s)} \\left[ A^{\\pi}(s, a) \\right]\\]\n\nProof sketch (click to expand):\n\n\\(r(s_t, a_t) + \\gamma V^{\\pi}(s_{t+1}) - V^{\\pi}(s_t)\\) is, in expectation over \\(s_{t+1}\\), exactly \\(A^{\\pi}(s_t, a_t)\\). Telescoping \\(V^{\\pi}\\) along a trajectory sampled from \\(\\pi'\\): \\[J(\\pi') - V^{\\pi}(s_0) = \\mathbb{E}_{\\tau \\sim \\pi'} \\left[ \\sum_{t=0}^{\\infty} \\gamma^t \\Big(r(s_t, a_t) + \\gamma V^{\\pi}(s_{t+1}) - V^{\\pi}(s_t)\\Big) \\right] = \\mathbb{E}_{\\tau \\sim \\pi'} \\left[ \\sum_{t=0}^{\\infty} \\gamma^t A^{\\pi}(s_t, a_t) \\right]\\]\n\n\n\n\n• Any policy \\(\\pi'\\) with non-negative expected advantage under \\(\\pi\\) is guaranteed to be at least as good as \\(\\pi\\)\n• Problem: the expectation is over states/actions visited by \\(\\pi'\\), from which we don’t have samples yet. TRPO/PPO approximate this by reusing \\(d^{\\pi}\\) instead of \\(d^{\\pi'}\\), which is accurate when \\(\\pi'\\) stays close to \\(\\pi\\)"
   },
   {
     "objectID": "lecs/w03/lec03.html#on-policy-actor-critic-with-function-approximation",
@@ -1537,28 +1544,7 @@
     "href": "lecs/w03/lec03.html#q-learningfitted-q-iteration-with-function-approximation-off-policy",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Q-Learning/Fitted Q-Iteration with function approximation (off-policy)",
-    "text": "Q-Learning/Fitted Q-Iteration with function approximation (off-policy)\n\n\n\n\n\n\n\n\n\n\nupdate \\(Q_\\phi\\) to decrease \\(E_{s \\sim d^{\\pi_\\beta}(s), a \\sim \\pi_\\beta(a|s)} \\left[\\left(Q_\\phi(s,a) - (r(s,a) + \\gamma E_{\\pi_\\theta}[Q_\\phi(s',a')])\\right)^2\\right]\\)\n\n\n\nupdate \\(\\pi_\\theta\\) to increase \\(E_{s \\sim d^{\\pi_\\beta}(s), a \\sim \\pi_\\theta(a|s)} [Q_\\phi(s,a)]\\)\n\nchoose \\(\\pi\\) according to: \\(\\pi(a_t | s_t) = \\begin{cases} 1 & \\text{if } a_t = \\arg\\max_{a_t} Q_\\phi(s_t, a_t) \\\\ 0 & \\text{otherwise} \\end{cases}\\)"
-  },
-  {
-    "objectID": "lecs/w03/lec03.html#policy-gradients-on-policy",
-    "href": "lecs/w03/lec03.html#policy-gradients-on-policy",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Policy gradients (on-policy)",
-    "text": "Policy gradients (on-policy)\nRL objective: \\(\\max_{\\pi} \\sum_{t=0}^{T} E_{s_t \\sim d^{\\pi}(s), a_t \\sim \\pi(a|s)} [\\gamma^t r(s_t, \\mathbf{a}_t)]\\)\n\\(\\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\uparrow\\) exactly the same thing!\n\\[J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\sum_{t=0}^{T} \\gamma^t r(s_t, a_t)\\right] \\approx \\frac{1}{N} \\sum_{i=1}^{N} \\sum_{t=0}^{T} \\gamma^t r(s_{t,i}, a_{t,i})\\]\n\\[\\nabla_\\theta J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\nabla_\\theta \\log \\pi_\\theta(\\tau) \\sum_{t=0}^{T} \\gamma^t r(s_t, \\mathbf{a}_t)\\right] \\text{ simple algebraic derivation}\\]\n\\[= E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\left(\\sum_{t=0}^{T} \\nabla_\\theta \\log \\pi_\\theta(a_t | s_t)\\right) \\left(\\sum_{t=0}^{T} \\gamma^t r(s_t, \\mathbf{a}_t)\\right)\\right] \\text{ from definition of } \\tau\\]"
-  },
-  {
-    "objectID": "lecs/w03/lec03.html#policy-gradients-on-policy-1",
-    "href": "lecs/w03/lec03.html#policy-gradients-on-policy-1",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Policy gradients (on-policy)",
-    "text": "Policy gradients (on-policy)\n\n\n\nRL objective: \\(\\max_{\\pi} \\sum_{t=0}^{T} E_{s_t \\sim d^{\\pi}(s), a_t \\sim \\pi(a|s)} [\\gamma^t r(s_t, \\mathbf{a}_t)]\\)\n\\(\\qquad \\qquad \\qquad \\qquad \\qquad \\nearrow\\) exactly the same thing!\n\\(J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\sum_{t=0}^{T} \\gamma^t r(s_t, a_t)\\right] \\approx \\frac{1}{N} \\sum_{i=1}^{N} \\sum_{t=0}^{T} \\gamma^t r(s_{t,i}, a_{t,i})\\)\n\\(\\nabla_\\theta J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\nabla_\\theta \\log \\pi_\\theta(\\tau) \\sum_{t=0}^{T} \\gamma^t r(s_t, \\mathbf{a}_t)\\right] \\text{ simple algebraic derivation}\\)\n(REINFORCE gradient estimator)"
-  },
-  {
-    "objectID": "lecs/w03/lec03.html#todays-agenda-1",
-    "href": "lecs/w03/lec03.html#todays-agenda-1",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n\n• Reinforcement Learning Terminology\n• Distribution Shift in Offline RL\n• Offline RL with Policy Constraints\n• Offline RL with Conservative Q-Estimates\n\n\n\n\n\nAcknowledgments\nToday’s slides borrow very heavily from: Sergey Levine & Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)"
+    "text": "Q-Learning/Fitted Q-Iteration with function approximation (off-policy)\n\n\n\n\n\n\n\n\n\n\nupdate \\(Q_\\phi\\) to decrease \\(E_{s \\sim d^{\\pi_\\beta}(s), a \\sim \\pi_\\beta(a|s)} \\left[\\left(Q_\\phi(s,a) - (r(s,a) + \\gamma E_{\\pi_\\theta}[Q_\\phi(s',a')])\\right)^2\\right]\\)\n\n\n\nchoose \\(\\pi\\) according to: \\(\\pi(a_t | s_t) = \\begin{cases} 1 & \\text{if } a_t = \\arg\\max_{a_t} Q_\\phi(s_t, a_t) \\\\ 0 & \\text{otherwise} \\end{cases}\\)"
   },
   {
     "objectID": "lecs/w03/lec03.html#qt-opt-roughly-continuous-action-q-learning",
@@ -1573,6 +1559,48 @@
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "QT-Opt (roughly: continuous-action Q-Learning)",
     "text": "QT-Opt (roughly: continuous-action Q-Learning)"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#section-3",
+    "href": "lecs/w03/lec03.html#section-3",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "",
+    "text": "https://arxiv.org/abs/2201.12417\n\nPolicy evaluation: you want a value function close to the true one, but we use the Bellman equation as a consistency check / error.\nThis paper shows that low Bellman error can be a poor indicator of how accurate the value function actually is.\n\nError cancellation: the same value function appears on both sides of the Bellman equation, so errors can cancel between them\nWith a finite dataset, infinitely many suboptimal value functions satisfy it exactly, so zero Bellman error is compatible with arbitrarily large value error"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#section-4",
+    "href": "lecs/w03/lec03.html#section-4",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "",
+    "text": "https://arxiv.org/abs/2010.11151\n\nLogistic Q-Learning\n\nThe usual squared Bellman error used for policy evaluation lacks strong theoretical justification\nProposes a convex loss function for policy evaluation, derived from regularized linear programming, as a theoretically principled alternative\nYields QREPS: an algorithm combining ideas from Relative Entropy Policy Search with a Q-function, enabling an efficient, exact model-free implementation\nProvides an error-propagation analysis connecting the quality of each update to final policy performance"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#section-5",
+    "href": "lecs/w03/lec03.html#section-5",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "",
+    "text": "https://arxiv.org/abs/2204.05618\n\nWhen should we prefer offline RL over behavioral cloning (BC)?\n\nGiven the same expert demonstrations, is BC always the right choice?\nClaim: policies trained on sufficiently noisy/suboptimal data can outperform BC trained on expert data, especially on long-horizon tasks\nOffline RL has the biggest edge when rewards are sparse and the data is noisy/suboptimal\nOn critical/bottleneck states, there’s no clear winner\nTakeaway: the best algorithm depends on the structure of the problem and data, not just on data quality"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#policy-gradients-on-policy",
+    "href": "lecs/w03/lec03.html#policy-gradients-on-policy",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Policy gradients (on-policy)",
+    "text": "Policy gradients (on-policy)\nRL objective: \\(\\max_{\\pi} \\sum_{t=0}^{T} E_{s_t \\sim d^{\\pi}(s), a_t \\sim \\pi(a|s_t)} [\\gamma^t r(s_t, a_t)]\\)\n\\(\\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\uparrow\\) exactly the same thing!\n\\[J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\sum_{t=0}^{T} \\gamma^t r(s_t, a_t)\\right] \\approx \\frac{1}{N} \\sum_{i=1}^{N} \\sum_{t=0}^{T} \\gamma^t r(s_{t,i}, a_{t,i})\\]\n\n\\[\\nabla_\\theta J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\nabla_\\theta \\log \\pi_\\theta(\\tau) \\sum_{t=0}^{T} \\gamma^t r(s_t, a_t)\\right] \\text{ simple algebraic derivation}\\]\n\n\n\\[= E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\left(\\sum_{t=0}^{T} \\nabla_\\theta \\log \\pi_\\theta(a_t | s_t)\\right) \\left(\\sum_{t=0}^{T} \\gamma^t r(s_t, a_t)\\right)\\right] \\text{ from definition of } \\tau\\]"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#policy-gradients-on-policy-1",
+    "href": "lecs/w03/lec03.html#policy-gradients-on-policy-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Policy gradients (on-policy)",
+    "text": "Policy gradients (on-policy)\n\\[\\nabla_\\theta J(\\theta) = E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[\\left(\\sum_{t=0}^{T} \\nabla_\\theta \\log \\pi_\\theta(a_t | s_t)\\right) \\left(\\sum_{t=0}^{T} \\gamma^t r(s_t, a_t)\\right)\\right]\\]\n\n\n\\[= E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[ \\sum_{t=0}^{T} \\gamma^t \\nabla_\\theta \\log \\pi_\\theta(a_t | s_t) \\sum_{t'=t}^{T} \\gamma^{t'-t} r(s_{t'}, a_{t'}) \\right] \\text{rewards before } t \\text{ don't depend on } a_t\\]\n\\(\\underbrace{\\sum_{t'=t}^{T} \\gamma^{t'-t} r(s_{t'}, a_{t'})}_{\\hat{Q}_t}\\) is the reward-to-go: a Monte Carlo estimate of \\(Q^{\\pi_\\theta}(s_t, a_t)\\) from a single sampled trajectory\n\n\n\n\\[\\nabla_\\theta J(\\theta) \\approx E_{\\tau \\sim \\pi_\\theta(\\tau)} \\left[ \\sum_{t=0}^{T} \\gamma^t \\nabla_\\theta \\log \\pi_\\theta(a_t | s_t) \\, Q_\\phi(s_t, a_t) \\right]\\]\nThis is the REINFORCE estimator with Q-value estimates: replace the high-variance reward-to-go with a learned/critic estimate \\(Q_\\phi(s_t, a_t)\\) (the starting point for actor-critic methods)"
+  },
+  {
+    "objectID": "lecs/w03/lec03.html#todays-agenda-1",
+    "href": "lecs/w03/lec03.html#todays-agenda-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Today’s agenda",
+    "text": "Today’s agenda\n\n\n• Reinforcement Learning Terminology\n• Distribution Shift in Offline RL\n• Offline RL with Policy Constraints\n• Offline RL with Conservative Q-Estimates\n\n\n\n\n\nAcknowledgments\nToday’s slides borrow very heavily from: Sergey Levine & Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)"
   },
   {
     "objectID": "lecs/w03/lec03.html#todays-agenda-2",
@@ -1610,18 +1638,18 @@
     "text": "How should we evaluate offline RL methods"
   },
   {
-    "objectID": "lecs/w03/lec03.html#evaluating-offline-rl-d4rl",
-    "href": "lecs/w03/lec03.html#evaluating-offline-rl-d4rl",
+    "objectID": "lecs/w03/lec03.html#evaluating-offline-rl",
+    "href": "lecs/w03/lec03.html#evaluating-offline-rl",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Evaluating Offline RL – D4RL",
-    "text": "Evaluating Offline RL – D4RL"
+    "section": "Evaluating Offline RL",
+    "text": "Evaluating Offline RL"
   },
   {
-    "objectID": "lecs/w03/lec03.html#evaluating-offline-rl-d4rl-1",
-    "href": "lecs/w03/lec03.html#evaluating-offline-rl-d4rl-1",
+    "objectID": "lecs/w03/lec03.html#evaluating-offline-rl-1",
+    "href": "lecs/w03/lec03.html#evaluating-offline-rl-1",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Evaluating Offline RL – D4RL",
-    "text": "Evaluating Offline RL – D4RL"
+    "section": "Evaluating Offline RL",
+    "text": "Evaluating Offline RL"
   },
   {
     "objectID": "lecs/w03/lec03.html#standardized-benchmark-for-offline-rl",
@@ -1659,25 +1687,32 @@
     "text": "Practical CQL Algorithm"
   },
   {
+    "objectID": "lecs/w03/lec03.html#todays-agenda-3",
+    "href": "lecs/w03/lec03.html#todays-agenda-3",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Today’s agenda",
+    "text": "Today’s agenda\n\n\n• Reinforcement Learning Terminology\n• Distribution Shift in Offline RL\n• Offline RL with Policy Constraints\n• Offline RL with Conservative Q-Estimates\n\n\n\n\n\nAcknowledgments\nToday’s slides borrow very heavily from: Sergey Levine & Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)"
+  },
+  {
     "objectID": "lecs/w03/lec03.html#the-need-for-safe-exploration-in-rl-for-robotics",
     "href": "lecs/w03/lec03.html#the-need-for-safe-exploration-in-rl-for-robotics",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "The need for safe exploration in RL for robotics",
-    "text": "The need for safe exploration in RL for robotics\n\n\n\n\n\n\n\n\n\n\n\nWhen applying RL to robotics we need to guarantee that the algorithm will not visit unsafe states very often during learning."
+    "text": "The need for safe exploration in RL for robotics\n\n\n\n\n\n\n\n\n\nWhen applying RL to robotics we need to guarantee that the algorithm will not visit unsafe states very often during learning."
   },
   {
     "objectID": "lecs/w03/lec03.html#the-need-for-safe-exploration-in-rl-for-robotics-1",
     "href": "lecs/w03/lec03.html#the-need-for-safe-exploration-in-rl-for-robotics-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "The need for safe exploration in RL for robotics",
-    "text": "The need for safe exploration in RL for robotics\n\n\n\n\n\n\n\n\n\n\nWhen applying RL to robotics we need to guarantee that the algorithm will not visit unsafe states very often during learning."
+    "text": "The need for safe exploration in RL for robotics\n\n\n\n\n\n\n\n\nWhen applying RL to robotics we need to guarantee that the algorithm will not visit unsafe states very often during learning."
   },
   {
     "objectID": "lecs/w03/lec03.html#the-need-for-safe-exploration-in-rl-for-robotics-2",
     "href": "lecs/w03/lec03.html#the-need-for-safe-exploration-in-rl-for-robotics-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "The need for safe exploration in RL for robotics",
-    "text": "The need for safe exploration in RL for robotics\n\n\n\n\n\n\n\n\n\n\nWhen applying RL to robotics we need to guarantee that the algorithm will not visit unsafe states very often during learning.\n\nOur proposed method:\nThe learned policy should be safe at each iteration, not just when optimization has converged"
+    "text": "The need for safe exploration in RL for robotics\n\n\n\n\n\n\n\n\nWhen applying RL to robotics we need to guarantee that the algorithm will not visit unsafe states very often during learning.\n\nOur proposed method:\nThe learned policy should be safe at each iteration, not just when optimization has converged"
   },
   {
     "objectID": "lecs/w03/lec03.html#our-solution-constrained-safety-critics-csc",
@@ -3068,7 +3103,14 @@
     "href": "lecs/w02/lec02.html#what-you-can-do-with-variants-of-lqr-control-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "What you can do with (variants of) LQR control",
-    "text": "What you can do with (variants of) LQR control\n\nPieter Abbeel, Helicopter Aerobatics"
+    "text": "What you can do with (variants of) LQR control\n\nhttps://www.youtube.com/watch?v=DhpYfjwm0Zs\nPieter Abbeel, Helicopter Aerobatics"
+  },
+  {
+    "objectID": "lecs/w02/lec02.html#what-you-can-do-with-variants-of-lqr-control-2",
+    "href": "lecs/w02/lec02.html#what-you-can-do-with-variants-of-lqr-control-2",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "What you can do with (variants of) LQR control",
+    "text": "What you can do with (variants of) LQR control\n\nhttps://www.youtube.com/watch?v=VCdxqn0fcnE"
   },
   {
     "objectID": "lecs/w02/lec02.html#lqr-assumptions",

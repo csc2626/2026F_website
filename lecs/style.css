@@ -74,3 +74,17 @@ font-size: 0.5em;
     padding-left: 1.2em;
     text-indent: -1.2em;
 }
+
+.proof-toggle {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.proof-content {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.proof-content.revealed {
+    opacity: 1;
+}

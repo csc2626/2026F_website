@@ -164,7 +164,7 @@ Florian Shkurti
 
 <aside><div>
 <p>Acknowledgments<br>
-Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)</p>
+Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC285 and <a href="https://sites.google.com/view/offlinerltutorial-neurips2020/">NeurIPS 2020 Offline RL tutorial</a>), Joelle Pineau (DLSS’16)</p>
 </div></aside></section>
 <section id="rl-terminology" class="slide level2">
 <h2>RL Terminology</h2>
@@ -180,7 +180,7 @@ Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC
 <h2>Episodic vs Non-episodic RL methods</h2>
 <p><u>Episodic</u>: optimize expected reward-to-go for finite time horizon</p>
 <p><span class="math display">\[
-V_T^{\pi}(s_0) = \mathbb{E}_{a_t \sim \pi_t(a|s_t), s_{t+1} \sim p(s_{t+1}|s_t, a_t)} \left[ \sum_{t=0}^{T} r(s_t, a_t) \right]
+V_T^{\pi}(s_0) = \mathbb{E}_{a_t \sim \pi_t(a|s_t), s_{t+1} \sim p(s_{t+1}|s_t, a_t)} \left[ \sum_{t=0}^{T} \gamma^t r(s_t, a_t) \right]
 \]</span></p>
 <p>Often need to have a reset mechanism to bring back the system to state <span class="math inline">\(s_0\)</span></p>
 <p><br></p>
@@ -290,12 +290,39 @@ V^{\pi}(s_0) = \mathbb{E}_{a_t \sim \pi(a|s_t), s_{t+1} \sim p(s_{t+1}|s_t, a_t)
 <p><span class="math inline">\(\mathbf{s} \in \mathcal{S}\)</span> – discrete or continuous state</p>
 <p><span class="math inline">\(\mathbf{a} \in \mathcal{A}\)</span> – discrete or continuous action</p>
 <p><span class="math inline">\(\tau = \{s_0, a_0, s_1, a_1, \ldots, s_T, a_T\}\)</span> - <em>trajectory</em></p>
-<p><span class="math inline">\(\underbrace{\pi(s_0, a_0, \ldots, s_T, a_T)}_{\pi(\tau)} = p(s_1) \prod_{t=0}^{T} \pi(a_t | s_t) p(s_{t+1} | s_t, a_t)\)</span></p>
+<p><span class="math inline">\(\underbrace{\pi(s_0, a_0, \ldots, s_T, a_T)}_{\pi(\tau)} = p(s_0) \prod_{t=0}^{T} \pi(a_t | s_t) p(s_{t+1} | s_t, a_t)\)</span></p>
 <p><span class="math inline">\(d_t^{\pi}(s_t)\)</span> – state marginal of <span class="math inline">\(\pi(\tau)\)</span> at <span class="math inline">\(t\)</span></p>
-<p><span class="math inline">\(d^{\pi}(s) = \frac{1}{1-\gamma} \sum_{t=0}^{T} \gamma^t d_t^{\pi}(s_t) \quad \text{– "visitation frequency"}\)</span></p>
+<p><span class="math inline">\(d^{\pi}(s) = \frac{1}{1-\gamma} \sum_{t=0}^{T} \gamma^t d_t^{\pi}(s_t) \quad \text{visitation frequency}\)</span></p>
 </div></div>
+<div class="fragment">
 <p><span class="math inline">\(Q^{\pi}(s_t, a_t) = r(s_t, a_t) + \gamma \mathbb{E}_{s_{t+1} \sim p(s_{t+1} | s_t, a_t), a_{t+1} \sim \pi(a_{t+1} | s_{t+1})} \left[Q^{\pi}(s_{t+1}, a_{t+1})\right]\)</span></p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(V^{\pi}(s_t) = \mathbb{E}_{a_t \sim \pi(a_t | s_t)} \left[Q^{\pi}(s_t, a_t)\right]\)</span></p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(A^{\pi}(s_t, a_t) = Q^{\pi}(s_t, a_t) - V^{\pi}(s_t) \quad \text{(advantage function)}\)</span></p>
+</div>
+</section>
+<section id="the-performance-difference-lemma" class="slide level2">
+<h2>The Performance Difference Lemma</h2>
+<p>For any two policies <span class="math inline">\(\pi\)</span> and <span class="math inline">\(\pi'\)</span>:</p>
+<p><span class="math display">\[J(\pi') - J(\pi) = \mathbb{E}_{\tau \sim \pi'} \left[ \sum_{t=0}^{\infty} \gamma^t A^{\pi}(s_t, a_t) \right] = \frac{1}{1-\gamma} \mathbb{E}_{s \sim d^{\pi'}(s),\, a \sim \pi'(a|s)} \left[ A^{\pi}(s, a) \right]\]</span></p>
+<div class="fragment">
+<p><span id="pdl-proof-toggle" class="proof-toggle">Proof sketch</span> (click to expand):</p>
+<div id="pdl-proof-content" class="proof-content small-math">
+<p><span class="math inline">\(r(s_t, a_t) + \gamma V^{\pi}(s_{t+1}) - V^{\pi}(s_t)\)</span> is, in expectation over <span class="math inline">\(s_{t+1}\)</span>, exactly <span class="math inline">\(A^{\pi}(s_t, a_t)\)</span>. Telescoping <span class="math inline">\(V^{\pi}\)</span> along a trajectory sampled from <span class="math inline">\(\pi'\)</span>: <span class="math display">\[J(\pi') - V^{\pi}(s_0) = \mathbb{E}_{\tau \sim \pi'} \left[ \sum_{t=0}^{\infty} \gamma^t \Big(r(s_t, a_t) + \gamma V^{\pi}(s_{t+1}) - V^{\pi}(s_t)\Big) \right] = \mathbb{E}_{\tau \sim \pi'} \left[ \sum_{t=0}^{\infty} \gamma^t A^{\pi}(s_t, a_t) \right]\]</span></p>
+</div>
+<script>
+document.getElementById('pdl-proof-toggle').addEventListener('click', function () {
+  document.getElementById('pdl-proof-content').classList.toggle('revealed');
+});
+</script>
+</div>
+<div class="fragment">
+<p>• Any policy <span class="math inline">\(\pi'\)</span> with non-negative expected advantage under <span class="math inline">\(\pi\)</span> is guaranteed to be at least as good as <span class="math inline">\(\pi\)</span></p>
+<p>• Problem: the expectation is over states/actions visited by <span class="math inline">\(\pi'\)</span>, from which we don’t have samples yet. TRPO/PPO approximate this by reusing <span class="math inline">\(d^{\pi}\)</span> instead of <span class="math inline">\(d^{\pi'}\)</span>, which is accurate when <span class="math inline">\(\pi'\)</span> stays close to <span class="math inline">\(\pi\)</span></p>
+</div>
 </section>
 <section id="on-policy-actor-critic-with-function-approximation" class="slide level2">
 <h2>On-policy actor-critic with function approximation</h2>
@@ -347,50 +374,99 @@ V^{\pi}(s_0) = \mathbb{E}_{a_t \sim \pi(a|s_t), s_{t+1} \sim p(s_{t+1}|s_t, a_t)
 </ol>
 <p><br></p>
 <ol start="2" type="1">
-<li><del>update</del> <span class="math inline">\(\pi_\theta\)</span> to increase <span class="math inline">\(E_{s \sim d^{\pi_\beta}(s), a \sim \pi_\theta(a|s)} [Q_\phi(s,a)]\)</span></li>
+<li>choose <span class="math inline">\(\pi\)</span> according to: <span class="math inline">\(\pi(a_t | s_t) = \begin{cases} 1 &amp; \text{if } a_t = \arg\max_{a_t} Q_\phi(s_t, a_t) \\ 0 &amp; \text{otherwise} \end{cases}\)</span></li>
 </ol>
-<p>choose <span class="math inline">\(\pi\)</span> according to: <span class="math inline">\(\pi(a_t | s_t) = \begin{cases} 1 &amp; \text{if } a_t = \arg\max_{a_t} Q_\phi(s_t, a_t) \\ 0 &amp; \text{otherwise} \end{cases}\)</span></p>
 </div></div>
 </section>
+<section id="qt-opt-roughly-continuous-action-q-learning" class="slide level2">
+<h2>QT-Opt (roughly: continuous-action Q-Learning)</h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/W4joe3zzglU?rel=0" width="700" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<!-- <iframe data-external="1" src="https://www.youtube.com/embed/W4joe3zzglU?rel=0&amp;enablejsapi=1" width="700" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe> -->
+</section>
+<section id="qt-opt-roughly-continuous-action-q-learning-1" class="slide level2">
+<h2>QT-Opt (roughly: continuous-action Q-Learning)</h2>
+
+<img data-src="images/qt-opt.png" class="r-stretch"></section>
 <section id="section-2" class="slide level2">
 <h2></h2>
 
-<img data-src="images/bellman.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<img data-src="images/does-it-work.png" class="r-stretch"></section>
 <section id="section-3" class="slide level2">
 <h2></h2>
-
-<img data-src="images/conf-paper.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<div class="columns">
+<div class="column" style="width:38%;">
+<p><img data-src="images/bellman.png" class="quarto-figure quarto-figure-center"> <a href="https://arxiv.org/abs/2201.12417">https://arxiv.org/abs/2201.12417</a></p>
+</div><div class="column" style="width:62%;">
+<p>Policy evaluation: you want a value function close to the true one, but we use the Bellman equation as a consistency check / error.</p>
+<p><strong>This paper shows that low Bellman error can be a poor indicator of how accurate the value function actually is</strong>.</p>
+<ul>
+<li>Error cancellation: the same value function appears on both sides of the Bellman equation, so errors can cancel between them</li>
+<li>With a finite dataset, infinitely many suboptimal value functions satisfy it exactly, so zero Bellman error is compatible with arbitrarily large value error</li>
+</ul>
+</div></div>
+</section>
 <section id="section-4" class="slide level2">
 <h2></h2>
-
-<img data-src="images/logistic-learning.png" class="quarto-figure quarto-figure-center r-stretch"></section>
+<div class="columns">
+<div class="column" style="width:38%;">
+<p><img data-src="images/logistic-learning.png" class="quarto-figure quarto-figure-center"> <a href="https://arxiv.org/abs/2010.11151">https://arxiv.org/abs/2010.11151</a></p>
+</div><div class="column" style="width:62%;">
+<p><strong>Logistic Q-Learning</strong></p>
+<ul>
+<li><p>The usual squared Bellman error used for policy evaluation lacks strong theoretical justification</p></li>
+<li><p>Proposes a convex loss function for policy evaluation, derived from regularized linear programming, as a theoretically principled alternative</p></li>
+<li><p>Yields QREPS: an algorithm combining ideas from Relative Entropy Policy Search with a Q-function, enabling an efficient, exact model-free implementation</p></li>
+<li><p>Provides an error-propagation analysis connecting the quality of each update to final policy performance</p></li>
+</ul>
+</div></div>
+</section>
+<section id="section-5" class="slide level2">
+<h2></h2>
+<div class="columns">
+<div class="column" style="width:38%;">
+<p><img data-src="images/conf-paper.png" class="quarto-figure quarto-figure-center"> <a href="https://arxiv.org/abs/2204.05618">https://arxiv.org/abs/2204.05618</a></p>
+</div><div class="column" style="width:62%;">
+<p><strong>When should we prefer offline RL over behavioral cloning (BC)?</strong></p>
+<ul>
+<li><p>Given the <em>same</em> expert demonstrations, is BC always the right choice?</p></li>
+<li><p>Claim: policies trained on sufficiently noisy/suboptimal data can outperform BC trained on expert data, especially on long-horizon tasks</p></li>
+<li><p>Offline RL has the biggest edge when rewards are sparse and the data is noisy/suboptimal</p></li>
+<li><p>On critical/bottleneck states, there’s no clear winner</p></li>
+<li><p>Takeaway: the best algorithm depends on the structure of the problem and data, not just on data quality</p></li>
+</ul>
+</div></div>
+</section>
 <section id="policy-gradients-on-policy" class="slide level2">
 <h2>Policy gradients (on-policy)</h2>
-<p>RL objective: <span class="math inline">\(\max_{\pi} \sum_{t=0}^{T} E_{s_t \sim d^{\pi}(s), a_t \sim \pi(a|s)} [\gamma^t r(s_t, \mathbf{a}_t)]\)</span></p>
+<p>RL objective: <span class="math inline">\(\max_{\pi} \sum_{t=0}^{T} E_{s_t \sim d^{\pi}(s), a_t \sim \pi(a|s_t)} [\gamma^t r(s_t, a_t)]\)</span></p>
 <p><span class="math inline">\(\qquad \qquad \qquad \qquad \qquad \qquad \qquad \uparrow\)</span> <span class="small-math">exactly the same thing!</span></p>
 <p><span class="math display">\[J(\theta) = E_{\tau \sim \pi_\theta(\tau)} \left[\sum_{t=0}^{T} \gamma^t r(s_t, a_t)\right] \approx \frac{1}{N} \sum_{i=1}^{N} \sum_{t=0}^{T} \gamma^t r(s_{t,i}, a_{t,i})\]</span></p>
-<p><span class="math display">\[\nabla_\theta J(\theta) = E_{\tau \sim \pi_\theta(\tau)} \left[\nabla_\theta \log \pi_\theta(\tau) \sum_{t=0}^{T} \gamma^t r(s_t, \mathbf{a}_t)\right] \text{ simple algebraic derivation}\]</span></p>
-<p><span class="math display">\[= E_{\tau \sim \pi_\theta(\tau)} \left[\left(\sum_{t=0}^{T} \nabla_\theta \log \pi_\theta(a_t | s_t)\right) \left(\sum_{t=0}^{T} \gamma^t r(s_t, \mathbf{a}_t)\right)\right] \text{ from definition of } \tau\]</span></p>
+<div class="fragment">
+<p><span class="math display">\[\nabla_\theta J(\theta) = E_{\tau \sim \pi_\theta(\tau)} \left[\nabla_\theta \log \pi_\theta(\tau) \sum_{t=0}^{T} \gamma^t r(s_t, a_t)\right] \text{ simple algebraic derivation}\]</span></p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[= E_{\tau \sim \pi_\theta(\tau)} \left[\left(\sum_{t=0}^{T} \nabla_\theta \log \pi_\theta(a_t | s_t)\right) \left(\sum_{t=0}^{T} \gamma^t r(s_t, a_t)\right)\right] \text{ from definition of } \tau\]</span></p>
+</div>
 </section>
 <section id="policy-gradients-on-policy-1" class="slide level2">
 <h2>Policy gradients (on-policy)</h2>
-<div class="columns">
-<div class="column small-math" style="width:70%;">
-<p><br></p>
-<p>RL objective: <span class="math inline">\(\max_{\pi} \sum_{t=0}^{T} E_{s_t \sim d^{\pi}(s), a_t \sim \pi(a|s)} [\gamma^t r(s_t, \mathbf{a}_t)]\)</span></p>
-<p><span class="math inline">\(\qquad \qquad \qquad \qquad \qquad \nearrow\)</span> <span class="small-math">exactly the same thing!</span></p>
-<p><span class="math inline">\(J(\theta) = E_{\tau \sim \pi_\theta(\tau)} \left[\sum_{t=0}^{T} \gamma^t r(s_t, a_t)\right] \approx \frac{1}{N} \sum_{i=1}^{N} \sum_{t=0}^{T} \gamma^t r(s_{t,i}, a_{t,i})\)</span></p>
-<p><span class="math inline">\(\nabla_\theta J(\theta) = E_{\tau \sim \pi_\theta(\tau)} \left[\nabla_\theta \log \pi_\theta(\tau) \sum_{t=0}^{T} \gamma^t r(s_t, \mathbf{a}_t)\right] \text{ simple algebraic derivation}\)</span></p>
-<p>(REINFORCE gradient estimator)</p>
-</div><div class="column" style="width:30%;">
-<p><img data-src="images/policy-gradients.png"></p>
-</div></div>
+<p><span class="math display">\[\nabla_\theta J(\theta) = E_{\tau \sim \pi_\theta(\tau)} \left[\left(\sum_{t=0}^{T} \nabla_\theta \log \pi_\theta(a_t | s_t)\right) \left(\sum_{t=0}^{T} \gamma^t r(s_t, a_t)\right)\right]\]</span></p>
+<div class="fragment">
+<div class="small-math">
+<p><span class="math display">\[= E_{\tau \sim \pi_\theta(\tau)} \left[ \sum_{t=0}^{T} \gamma^t \nabla_\theta \log \pi_\theta(a_t | s_t) \sum_{t'=t}^{T} \gamma^{t'-t} r(s_{t'}, a_{t'}) \right] \text{rewards before } t \text{ don't depend on } a_t\]</span></p>
+<p><span class="math inline">\(\underbrace{\sum_{t'=t}^{T} \gamma^{t'-t} r(s_{t'}, a_{t'})}_{\hat{Q}_t}\)</span> is the <em>reward-to-go</em>: a Monte Carlo estimate of <span class="math inline">\(Q^{\pi_\theta}(s_t, a_t)\)</span> from a single sampled trajectory</p>
+</div>
+</div>
+<div class="fragment">
+<p><span class="math display">\[\nabla_\theta J(\theta) \approx E_{\tau \sim \pi_\theta(\tau)} \left[ \sum_{t=0}^{T} \gamma^t \nabla_\theta \log \pi_\theta(a_t | s_t) \, Q_\phi(s_t, a_t) \right]\]</span></p>
+<p><span class="small-math">This is the <strong>REINFORCE estimator with Q-value estimates</strong>: replace the high-variance reward-to-go with a learned/critic estimate <span class="math inline">\(Q_\phi(s_t, a_t)\)</span> (the starting point for actor-critic methods)</span></p>
+</div>
 </section>
 <section id="todays-agenda-1" class="slide level2">
 <h2>Today’s agenda</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
-<p>• Reinforcement Learning Terminology</p>
+<p><span style="color:grey;">• Reinforcement Learning Terminology</span></p>
 <p>• Distribution Shift in Offline RL</p>
 <p>• Offline RL with Policy Constraints</p>
 <p>• Offline RL with Conservative Q-Estimates</p>
@@ -402,19 +478,6 @@ V^{\pi}(s_0) = \mathbb{E}_{a_t \sim \pi(a|s_t), s_{t+1} \sim p(s_{t+1}|s_t, a_t)
 <p>Acknowledgments<br>
 Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)</p>
 </div></aside></section>
-<section id="qt-opt-roughly-continuous-action-q-learning" class="slide level2">
-<h2>QT-Opt (roughly: continuous-action Q-Learning)</h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/W4joe3zzglU?rel=0" width="700" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<!-- <iframe data-external="1" src="https://www.youtube.com/embed/W4joe3zzglU?rel=0&amp;enablejsapi=1" width="700" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe> -->
-</section>
-<section id="qt-opt-roughly-continuous-action-q-learning-1" class="slide level2">
-<h2>QT-Opt (roughly: continuous-action Q-Learning)</h2>
-
-<img data-src="images/qt-opt.png" class="r-stretch"></section>
-<section id="section-5" class="slide level2">
-<h2></h2>
-
-<img data-src="images/does-it-work.png" class="r-stretch"></section>
 <section id="section-6" class="slide level2">
 <h2></h2>
 
@@ -447,8 +510,8 @@ Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC
 <h2>Today’s agenda</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
-<p>• Reinforcement Learning Terminology</p>
-<p>• Distribution Shift in Offline RL</p>
+<p><span style="color:grey;">• Reinforcement Learning Terminology</span></p>
+<p><span style="color:grey;">• Distribution Shift in Offline RL</span></p>
 <p>• Offline RL with Policy Constraints</p>
 <p>• Offline RL with Conservative Q-Estimates</p>
 </div><div class="column" style="width:40%;">
@@ -479,14 +542,32 @@ Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC
 <h2>How should we evaluate offline RL methods</h2>
 
 <img data-src="images/offline-rl-methods.png" class="r-stretch"></section>
-<section id="evaluating-offline-rl-d4rl" class="slide level2">
-<h2>Evaluating Offline RL – D4RL</h2>
-
-<img data-src="images/d4rl.png" class="r-stretch"></section>
-<section id="evaluating-offline-rl-d4rl-1" class="slide level2">
-<h2>Evaluating Offline RL – D4RL</h2>
-
-<img data-src="images/d4rl-pics.png" class="r-stretch"></section>
+<section id="evaluating-offline-rl" class="slide level2">
+<h2>Evaluating Offline RL</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/d4rl.png"></p>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="https://arxiv.org/abs/2410.20092"><img data-src="images/ogbench.png" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</div></div>
+</section>
+<section id="evaluating-offline-rl-1" class="slide level2">
+<h2>Evaluating Offline RL</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/d4rl-pics.png"></p>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><a href="https://arxiv.org/abs/2410.20092"><img data-src="images/ogbench.png" class="quarto-figure quarto-figure-center"></a></p>
+</figure>
+</div>
+</div></div>
+</section>
 <section id="standardized-benchmark-for-offline-rl" class="slide level2">
 <h2>Standardized Benchmark for Offline RL</h2>
 
@@ -515,17 +596,31 @@ Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC
 <h2></h2>
 
 <img data-src="images/cql-empirically.png" class="r-stretch"></section>
+<section id="todays-agenda-3" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><span style="color:grey;">• Reinforcement Learning Terminology</span></p>
+<p><span style="color:grey;">• Distribution Shift in Offline RL</span></p>
+<p><span style="color:grey;">• Offline RL with Policy Constraints</span></p>
+<p>• Offline RL with Conservative Q-Estimates</p>
+</div><div class="column" style="width:40%;">
+<p><img data-src="images/robot.png" style="width:80.0%"></p>
+</div></div>
+
+<aside><div>
+<p>Acknowledgments<br>
+Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC285 and NeurIPS Offline RL workshop), Joelle Pineau (DLSS’16)</p>
+</div></aside></section>
 <section id="the-need-for-safe-exploration-in-rl-for-robotics" class="slide level2">
 <h2><span class="medium">The need for safe exploration in RL for robotics</span></h2>
 <div class="columns">
 <div class="column" style="width:25%;">
-<p><img data-src="images/robot1.png" style="width:100.0%"></p>
-</div><div class="column" style="width:25%;">
 <p><img data-src="images/robot2.png" style="width:100.0%"></p>
 </div><div class="column" style="width:25%;">
 <iframe data-external="1" src="https://www.youtube.com/embed/eRwTbRtnT1I?rel=0" width="300" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 </div><div class="column" style="width:25%;">
-<iframe data-external="1" src="https://www.youtube.com/embed/VfDYUeyzHqc?rel=0" width="200" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe data-external="1" src="https://www.youtube.com/embed/VfDYUeyzHqc?rel=0" width="300" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 </div></div>
 <div class="fragment">
 <p>When applying RL to robotics we need to guarantee that the algorithm will not visit <strong>unsafe states</strong> very often during learning.</p>
@@ -538,13 +633,11 @@ Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC
 <h2><span class="medium">The need for safe exploration in RL for robotics</span></h2>
 <div class="columns">
 <div class="column" style="width:25%;">
-<p><img data-src="images/robot1.png" style="width:100.0%"></p>
-</div><div class="column" style="width:25%;">
 <p><img data-src="images/robot2.png" style="width:100.0%"></p>
-</div><div class="column" style="width:25%;">
+</div><div class="column" style="width:35%;">
 <iframe data-external="1" src="https://www.youtube.com/embed/eRwTbRtnT1I?rel=0" width="300" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-</div><div class="column" style="width:25%;">
-<iframe data-external="1" src="https://www.youtube.com/embed/VfDYUeyzHqc?rel=0" width="200" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</div><div class="column" style="width:35%;">
+<iframe data-external="1" src="https://www.youtube.com/embed/VfDYUeyzHqc?rel=0" width="300" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 </div></div>
 <p>When applying RL to robotics we need to guarantee that the algorithm will not visit <strong>unsafe states</strong> very often during learning.</p>
 <p><img data-src="images/2theories-method.png"></p>
@@ -553,13 +646,11 @@ Today’s slides borrow very heavily from: Sergey Levine &amp; Aviral Kumar (CSC
 <h2><span class="medium">The need for safe exploration in RL for robotics</span></h2>
 <div class="columns">
 <div class="column" style="width:25%;">
-<p><img data-src="images/robot1.png" style="width:100.0%"></p>
-</div><div class="column" style="width:25%;">
 <p><img data-src="images/robot2.png" style="width:100.0%"></p>
-</div><div class="column" style="width:25%;">
+</div><div class="column" style="width:35%;">
 <iframe data-external="1" src="https://www.youtube.com/embed/eRwTbRtnT1I?rel=0" width="300" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-</div><div class="column" style="width:25%;">
-<iframe data-external="1" src="https://www.youtube.com/embed/VfDYUeyzHqc?rel=0" width="200" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</div><div class="column" style="width:35%;">
+<iframe data-external="1" src="https://www.youtube.com/embed/VfDYUeyzHqc?rel=0" width="300" height="200" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 </div></div>
 <p>When applying RL to robotics we need to guarantee that the algorithm will not visit <strong>unsafe states</strong> very often during learning.</p>
 <div style="color:red;">
