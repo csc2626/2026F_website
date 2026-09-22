@@ -408,9 +408,17 @@ Today's slides have been influenced by: Pieter Abbeel (ECE287), Sergey Levine (D
 
 ## What you can do with (variants of) LQR control
 
-<!-- need to embed video -->
+{{< video https://www.youtube.com/watch?v=DhpYfjwm0Zs width="70%" height="50%" >}}
+
+[<https://www.youtube.com/watch?v=DhpYfjwm0Zs>]{.small-math}
 
 Pieter Abbeel, Helicopter Aerobatics
+
+## What you can do with (variants of) LQR control
+
+{{< video https://www.youtube.com/watch?v=VCdxqn0fcnE width="70%" height="50%" >}}
+
+[<https://www.youtube.com/watch?v=VCdxqn0fcnE>]{.small-math}
 
 ## LQR: assumptions
 
