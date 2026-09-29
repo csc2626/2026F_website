@@ -155,10 +155,11 @@ Florian Shkurti
 <section id="todays-agenda" class="slide level2">
 <h2>Today’s agenda</h2>
 <p>• Guided policy search (GPS)</p>
-<p>• Policy learning from adaptive MPC with privileged information (PLATO)</p>
+<p>• Expert iteration &amp; learning to search</p>
+<p>• Blending MPC and value function approximation (MPQ(<span class="math inline">\(\lambda\)</span>))</p>
+<p>• Imitating motion capture with RL (DeepMimic)</p>
 <p>• Combining behavioral cloning and RL</p>
 <p>• Dynamic movement primitives (DMPs)</p>
-<p>• Expert iteration &amp; learning to search</p>
 
 <aside><div>
 <p>Acknowledgments<br>
@@ -171,6 +172,11 @@ Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Ji
 <img data-src="images/overview-1.png" class="r-stretch"></section>
 <section id="section-1" class="slide level2">
 <h2></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/Q4bMcUk6pcw?rel=0" width="800" height="500" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=Q4bMcUk6pcw&amp;t=40s&amp;ab_channel=RAIL" class="uri">https://www.youtube.com/watch?v=Q4bMcUk6pcw&amp;t=40s&amp;ab_channel=RAIL</a></span></p>
+</section>
+<section id="section-2" class="slide level2">
+<h2></h2>
 <div class="columns">
 <div class="column" style="width:70%;">
 <p><img data-src="images/overview-2.png"></p>
@@ -182,7 +188,7 @@ A_t &amp;= \frac{df}{dx_t} \quad B_t = \frac{df}{du_t}
 \end{aligned}}\)</span></p>
 </div></div>
 </section>
-<section id="section-2" class="slide level2">
+<section id="section-3" class="slide level2">
 <h2></h2>
 <div class="columns">
 <div class="column" style="width:60%;">
@@ -208,8 +214,8 @@ A_t &amp;= \frac{df}{dx_t} \quad B_t = \frac{df}{du_t}
 </div>
 <p><span class="math display">\[
 \begin{align}
-\min_{\mathbf{u}_1, \ldots, \mathbf{u}_T, \mathbf{x}_1, \ldots, \mathbf{x}_T, \theta} \sum_{t=1}^{T} c(\mathbf{x}_t, \mathbf{u}_t) \text{s.t.} \mathbb{x}_t = f(x_{t-1}, u_{t-1}) \\
-\text{s.t.} \mathbf{u}_t = \pi_\theta (x_t)
+\min_{\mathbf{u}_1, \ldots, \mathbf{u}_T, \mathbf{x}_1, \ldots, \mathbf{x}_T, \theta} \sum_{t=1}^{T} c(\mathbf{x}_t, \mathbf{u}_t) \text{s.t.} \mathbf{x}_t = f(\mathbf{x}_{t-1}, \mathbf{u}_{t-1}) \\
+\text{s.t.} \mathbf{u}_t = \pi_\theta (\mathbf{x}_t)
 \end{align}
 \]</span></p>
 <div style="color:red;">
@@ -259,8 +265,24 @@ different policy.</p>
 <p><span class="math display">\[\mathcal{L}_{\text{traj}}(p(\tau), \eta) = E_p[l(\tau)] + \eta[D_{\text{KL}}(p(\tau)||\hat{p}(\tau)) - \epsilon]\]</span></p>
 <p>▶ Assuming <span class="math inline">\(p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t) = \hat{p}(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t) = \mathcal{N}(f_{\mathbf{x}t}\mathbf{x}_t + f_{\mathbf{u}t}\mathbf{u}_t, \mathbf{F}_t)\)</span></p>
 <p><span class="math display">\[
-\mathcal{L}_{\text{traj}}(p(\tau), \eta) = \left[\sum_t E_{p(\mathbf{x}_t, \mathbf{u}_t)}[l(\mathbf{x}_t, \mathbf{u}_t) - \eta \log p(\mathbf{u}_t|\mathbf{x}_t)]\right] - \eta H(p(\tau)) - \eta \epsilon
+\mathcal{L}_{\text{traj}}(p(\tau), \eta) = \left[\sum_t E_{p(\mathbf{x}_t, \mathbf{u}_t)}[l(\mathbf{x}_t, \mathbf{u}_t) - \eta \log \hat{p}(\mathbf{u}_t|\mathbf{x}_t)]\right] - \eta H(p(\tau)) - \eta \epsilon
 \]</span></p>
+<p><span id="gps-lagrangian-toggle" class="proof-toggle">Derivation</span> (click to show / hide)</p>
+<div id="gps-lagrangian-derivation" class="derivation-content medium">
+<p><span class="math display">\[
+\begin{aligned}
+D_{\text{KL}}(p(\tau)\,\|\,\hat{p}(\tau)) &amp;= E_p[\log p(\tau)] - E_p[\log \hat{p}(\tau)] = -H(p(\tau)) - E_p[\log \hat{p}(\tau)] \\
+\log \hat{p}(\tau) &amp;= \log p(\mathbf{x}_1) + \textstyle\sum_t \log \hat{p}(\mathbf{u}_t|\mathbf{x}_t) + \sum_t \log p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t) &amp;&amp; \text{same dynamics as } p \\
+E_{p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t)}[\log p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t)] &amp;= -\tfrac{1}{2}\log\left|2\pi e\, \mathbf{F}_t\right| &amp;&amp; \text{constant w.r.t. } p
+\end{aligned}
+\]</span></p>
+<p>Plug these into the Lagrangian, use <span class="math inline">\(l(\tau) = \sum_t l(\mathbf{x}_t, \mathbf{u}_t)\)</span> so that each expectation only needs the marginal <span class="math inline">\(p(\mathbf{x}_t, \mathbf{u}_t)\)</span>, and drop the initial-state and dynamics terms, which do not depend on <span class="math inline">\(p\)</span>. The linear-Gaussian assumption with a fixed <span class="math inline">\(\mathbf{F}_t\)</span> is what makes the dynamics term constant: with general dynamics its entropy would depend on <span class="math inline">\((\mathbf{x}_t, \mathbf{u}_t)\)</span>, i.e.&nbsp;on which states <span class="math inline">\(p\)</span> visits.</p>
+</div>
+<script>
+document.getElementById('gps-lagrangian-toggle').addEventListener('click', function () {
+  document.getElementById('gps-lagrangian-derivation').classList.toggle('revealed');
+});
+</script>
 <div class="fragment">
 <p>▶ Augmented cost function</p>
 <p><span class="math display">\[\tilde{l}(\mathbf{x}_t, \mathbf{u}_t) = \frac{1}{\eta}l(\mathbf{x}_t, \mathbf{u}_t) - \log \hat{p}(\mathbf{u}_t|\mathbf{x}_t)\]</span></p>
@@ -352,149 +374,440 @@ different policy.</p>
 \]</span></p>
 </div></div>
 </section>
-<section id="section-3" class="slide level2">
-<h2></h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/Q4bMcUk6pcw?rel=0" width="800" height="500" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=Q4bMcUk6pcw&amp;t=40s&amp;ab_channel=RAIL" class="uri">https://www.youtube.com/watch?v=Q4bMcUk6pcw&amp;t=40s&amp;ab_channel=RAIL</a></span></p>
-</section>
 <section id="todays-agenda-1" class="slide level2">
 <h2>Today’s agenda</h2>
-<p><span class="grey-text">• Guided policy search (GPS)</span></p>
-<p>• Policy learning from adaptive MPC with privileged information (PLATO)</p>
+<div class="grey-text">
+<p>• Guided policy search (GPS)</p>
+</div>
+<p>• Expert iteration &amp; learning to search</p>
+<p>• Blending MPC and value function approximation (MPQ(<span class="math inline">\(\lambda\)</span>))</p>
+<p>• Imitating motion capture with RL (DeepMimic)</p>
 <p>• Combining behavioral cloning and RL</p>
 <p>• Dynamic movement primitives (DMPs)</p>
-<p>• Expert iteration &amp; learning to search</p>
 
 <aside><div>
 <p>Acknowledgments<br>
 Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:<br>
 <a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory</a></p>
 </div></aside></section>
+<section id="from-search-to-learning-and-back" class="slide level2">
+<h2>From Search to Learning and Back</h2>
+
+<img data-src="images/search-learning-back.png" class="r-stretch"><div class="columns" style="font-size:0.6em;">
+<div class="column" style="width:30%;">
+<p>Logic Geometric Programming<br>
+Marc Toussaint et al.&nbsp;IJCAI’15, RSS’17</p>
+<p>PDDLStream Planners<br>
+Caelan Garret et al.&nbsp;ICAPS’20</p>
+<p>TAMP = SMT + Motion Planning<br>
+Neil Dantam et al.&nbsp;IJRR’18</p>
+<p>. . .</p>
+<div class="red">
+<p><span class="math inline">\(-\)</span> Need to specify symbols / logic</p>
+<p><span class="math inline">\(-\)</span> Slow to plan, not very reactive</p>
+</div>
+<div class="green">
+<p><span class="math inline">\(+\)</span> Generalize</p>
+<p><span class="math inline">\(+\)</span> No training data</p>
+</div>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column fragment" data-fragment-index="2" style="width:30%;">
+<p>Learning to Guide TAMP<br>
+Beomjoom Kim et al., AAAI’18</p>
+<p>PLOI<br>
+Tom Silver, Rohan Chitnis et al.&nbsp;AAAI’21</p>
+<p>Deep Visual Heuristics<br>
+Danny Driess et al.&nbsp;ICRA’20</p>
+<p>Learning to Search for TAMP<br>
+Mohamed Khodeir et al.&nbsp;RAL’22, ICRA’23</p>
+<p>Text2Motion<br>
+Chris Agia et al.&nbsp;ICRA’23</p>
+<p><span class="red"><span class="math inline">\(-\)</span> Need to specify symbols / logic</span></p>
+<p><span class="light-orange"><span class="math inline">\(+\)</span> Can be made fast, reactive</span></p>
+<div class="green">
+<p><span class="math inline">\(+\)</span> Generalize</p>
+<p><span class="math inline">\(+\)</span> Few training data needed</p>
+</div>
+</div><div class="column" style="width:4%;">
+
+</div><div class="column right-align fragment" data-fragment-index="1" style="width:30%;">
+<p>PaLM-E<br>
+Danny Driess et al.&nbsp;’23</p>
+<p>SayCan<br>
+Michael Ahn et al.&nbsp;CoRL‘23</p>
+<p>RT-1<br>
+Anthony Brohan et al.&nbsp;’22</p>
+<p>Deep Affordance Foresight<br>
+Danfei Xu et al.&nbsp;ICRA’21</p>
+<p>PlaNet, Dreamer, Hierarchical RL<br>
+Danijar Hafner et al.</p>
+<div class="green">
+<p><span class="math inline">\(+\)</span> Symbols not needed</p>
+<p><span class="math inline">\(+\)</span> Fast, reactive</p>
+</div>
+<div class="red">
+<p><span class="math inline">\(-\)</span> Do not generalize</p>
+<p><span class="math inline">\(-\)</span> Large data regime</p>
+</div>
+</div></div>
+</section>
+<section id="learning-to-plan-via-expert-iteration" class="slide level2">
+<h2>Learning to Plan via Expert Iteration</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/expert-iteration.png"></p>
+</div><div class="column" style="width:50%;">
+<p>If we do multiple rounds of heuristic learning and tree search, we could potentially get:</p>
+<p>• monotonic improvement guarantees for the policy / planning heuristic</p>
+<p>• convergence to a point where tree search and the policy are equally good</p>
+</div></div>
+<div class="tiny-font">
+<p>Dual Policy Iteration. Sun, Gordon, Boots, Bagnell. NeurIPS’18.<br>
+Thinking Fast and Slow with Deep Learning and Tree Search. Anthony, Tian, Barber. NeurIPS’17.<br>
+AlphaGo Zero: Mastering the Game of Go Without Human Knowledge. Silver, Schrittwieser, Simonyan, Antonoglou. Nature’17.</p>
+</div>
+</section>
+<section id="alphago-zero" class="slide level2">
+<h2>AlphaGo Zero</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/alphago-zero.png"></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/alphagozero-descrip.png"></p>
+</div></div>
+<p><span class="tiny-font">AlphaGo Zero: Mastering the Game of Go Without Human Knowledge. Silver, Schrittwieser, Simonyan, Antonoglou. Nature’17.</span></p>
+</section>
+<section id="mcts-in-alphago-zero" class="slide level2">
+<h2>MCTS in AlphaGo Zero</h2>
+
+<img data-src="images/mcts-alphago.png" class="r-stretch"><p><span class="tiny-font">AlphaGo Zero: Mastering the Game of Go Without Human Knowledge. Silver, Schrittwieser, Simonyan, Antonoglou. Nature’17.</span></p>
+</section>
 <section id="section-4" class="slide level2">
 <h2></h2>
-<p><iframe data-external="1" src="https://www.youtube.com/embed/clHp6QgVyAU?rel=0" width="800" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe><br>
-<span class="tiny-font"><a href="https://www.youtube.com/watch?v=clHp6QgVyAU" class="uri">https://www.youtube.com/watch?v=clHp6QgVyAU</a></span></p>
-</section>
-<section id="problem-set-up" class="slide level2">
-<h2>Problem Set-up</h2>
-<div class="small-math">
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/dual-policy.png"></p>
+</div><div class="column red small-math" style="width:50%;">
+<p><br><br></p>
+<p>A policy optimization framework that includes</p>
 <ul>
-<li>States <span class="math inline">\(x\)</span>, actions <span class="math inline">\(u\)</span>.<br>
-</li>
-<li>The policy could only control the system from observations <span class="math inline">\(o\)</span>.<br>
-</li>
-<li>The policy <span class="math inline">\(\pi_\theta(u \mid o_t)\)</span>, parametrized by <span class="math inline">\(\theta\)</span>.<br>
-</li>
-<li>At test time, the agent chooses actions according to <span class="math inline">\(\pi_\theta(u \mid o_t)\)</span> at each time step <span class="math inline">\(t\)</span>, and experiences a loss <span class="math inline">\(c(x_t \mid o_t) \in [0, 1]\)</span>.<br>
-</li>
-<li>The next state is distributed by dynamics <span class="math inline">\(p(x_{t+1} \mid x_t, u_t)\)</span>.</li>
+<li>Guided Policy Search</li>
+<li>Expert Iteration</li>
+<li>AlphaGo Zero</li>
+<li>“Thinking fast and slow”</li>
+<li>AggreVaTeD (a varianbt of DAgger)</li>
 </ul>
-<p>The objective is to learn policy <span class="math inline">\(\pi_\theta(u \mid o_t)\)</span> such that</p>
-<p><span class="math display">\[
-\arg\min_\pi J(\pi) = \mathbb{E}_\pi \left[ \sum_{t=1}^{T} c(x_t, u_t) \right].
-\]</span></p>
-<p>At the same time, let’s define expected cost from state <span class="math inline">\(x_t\)</span> at time <span class="math inline">\(t\)</span> as</p>
-<p><span class="math display">\[
-J(\pi \mid x_t) = \mathbb{E}_\pi \left[ \sum_{t=1}^{T} c(x_t, u_t) \mid x_t \right].
-\]</span></p>
-</div>
-</section>
-<section id="adaptive-mpc-teacher" class="slide level2">
-<h2>Adaptive MPC Teacher</h2>
-<p>One naive way is to train the policy with supervised learning from data generated from an MPC teacher. However, because the state distribution for the teacher and learner are different, the learned policy might fail.<br>
-In order to overcome this challenge, an adaptive MPC teacher is used which generates actions from a controller obtained by:</p>
-<p><span class="math display">\[
-\pi^t_\lambda(u \mid x_t, \theta) \leftarrow \arg\min_\pi J_t(\pi \mid x_t) + \lambda D_{KL}(\pi(u \mid x_t) \,\|\, \pi_\theta(u \mid o_t)) \qquad \tag{1}
-\]</span></p>
-<p>where <span class="math inline">\(\lambda\)</span> determines the relative importance of matching the learner policy versus optimizing the expected return. Note that the particular MPC algorithm is based on iLQG.</p>
-</section>
-<section id="algorithm" class="slide level2">
-<h2>Algorithm</h2>
-<p><strong>Algorithm 1: PLATO algorithm</strong></p>
-<p>Initialize data <span class="math inline">\(D \leftarrow \emptyset\)</span><br>
-<strong>for</strong> <span class="math inline">\(i = 1\)</span> to <span class="math inline">\(N\)</span> <strong>do</strong><br>
- <strong>for</strong> <span class="math inline">\(t = 1\)</span> to <span class="math inline">\(T\)</span> <strong>do</strong><br>
-  <span class="math inline">\(\pi_\lambda^{t}(u_t \mid x_t, \theta) \leftarrow \arg\min_{\pi} J_t(\pi \mid x_t) + \lambda D_{KL}(\pi(u \mid x_t) \,\|\, \pi_{\theta}(u \mid o_t))\)</span><br>
-  Sample <span class="math inline">\(u_t \sim \pi_\lambda^{t}(u \mid x_t, \theta)\)</span><br>
-  <span class="math inline">\(\pi^{*}(u_t \mid x_t) \leftarrow \arg\min_{\pi} J(\pi)\)</span><br>
-  Sample <span class="math inline">\(u_t^{*} \sim \pi^{*}(u \mid x_t)\)</span><br>
-  Append <span class="math inline">\((o_t, u_t^{*})\)</span> to dataset <span class="math inline">\(D\)</span><br>
-  State evolves <span class="math inline">\(x_{t+1} \sim p(x_{t+1} \mid x_t, u_t)\)</span><br>
- <strong>end for</strong><br>
-Train <span class="math inline">\(\pi_\theta\)</span> on <span class="math inline">\(D\)</span><br>
-<strong>end for</strong></p>
-</section>
-<section id="training-the-learners-policy" class="slide level2">
-<h2>Training the learner’s policy</h2>
-<p>During the supervised learning phase, we minimize the KL-divergence between the learner policy <span class="math inline">\(\pi_\theta\)</span> and precomputed near-optimal policies <span class="math inline">\(\pi^*\)</span>, which is estimated by iLQG:</p>
-<p><span class="math display">\[
-\theta \leftarrow \arg\min_\theta \sum_{(x_t, o_t) \in D} D_{KL}(\pi_\theta(u \mid o_t) \,\|\, \pi^*(u \mid x_t)).
-\]</span></p>
-<p>Since both <span class="math inline">\(\pi_\theta\)</span> and <span class="math inline">\(\pi^*\)</span> are conditionally Gaussian, the KL divergence can be expressed in closed form if we ignore the terms not involving the learner policy means <span class="math inline">\(\mu_\theta(o_t)\)</span>:</p>
-<p><span class="math display">\[
-\min_\theta \sum_{(x_t, o_t) \in D} \left\| \mu^*(x_t) - \mu_\theta(o_t) \right\|^2_{\Sigma_{\pi^*}^{-1/2}}.
-\]</span></p>
-<p>In this paper, <span class="math inline">\(\mu_\theta\)</span> is represented by a NN, and solved by SGD.</p>
-</section>
-<section id="theoretical-analysis" class="slide level2">
-<h2>Theoretical Analysis</h2>
-<p>Let <span class="math inline">\(Q_t(x, \pi, \tilde{\pi})\)</span> denote the cost of executing <span class="math inline">\(\pi\)</span> for one time step starting from an initial state, and then executing <span class="math inline">\(\tilde{\pi}\)</span> for the remaining <span class="math inline">\(t - 1\)</span> time steps. We assume the cost-to-go difference between the learned policy and the optimal policy is bounded: <span class="math inline">\(Q_t(x, \pi, \pi^*) - Q_t(x, \pi^*, \pi^*) \leq \delta\)</span></p>
-<div class="callout callout-none no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<p><strong>Theorem</strong></p>
-<p>Let the cost-to-go <span class="math inline">\(Q_t(x,\pi,\pi^*) - Q_t(x,\pi^*,\pi^*) \leq \delta\)</span> for all <span class="math inline">\(t \in \{1,\ldots,T\}\)</span>.<br>
-Then for PLATO, <span class="math inline">\(J(\pi_\theta) \leq J(\pi^*) + \delta \sqrt{\epsilon_\theta *} \cdot O(T) + O(1)\)</span></p>
-</div>
-</div>
-</div>
-<p>Therefore, the policy learned by PLATO converges to a policy with bounded cost.</p>
+<p>as special cases and provides conditions under which we expect monotonic improvement of the fast, reactive policy.</p>
+</div></div>
 </section>
 <section id="section-5" class="slide level2">
 <h2></h2>
-
-<img data-src="images/canvon.png" class="r-stretch"></section>
-<section id="comparison-to-dagger" class="slide level2">
-<h2>Comparison to DAgger</h2>
-<p>PLATO could be viewed as a generalization of DAgger, which samples from mixture policy</p>
+<p><img data-src="images/dual-policy-iteration.png" height="300"></p>
+<p><img data-src="images/dual-policy-steps.png"></p>
+</section>
+<section id="section-6" class="slide level2">
+<h2></h2>
+<p><img data-src="images/dual-policy-iteration.png" height="300"></p>
+<div class="small-math">
 <p><span class="math display">\[
-\pi_{\text{mix},i} = \beta_i \pi^* + (1 - \beta_i) \pi_{\theta_i}
+\begin{array}{ll}
+\text{1.} &amp; \text{Fit MLE } \hat{P} \text{ on states and actions from } d_{\pi_n} \pi_n \text{ (Eq. 2).} \\
+\text{2.} &amp; \eta_n \leftarrow \text{MBOC}(\hat{P}), \text{ subject to trust region } \mathbb{E}_{s \sim d_{\pi_n}} D_{TV}(\pi, \pi_n) \leq \alpha \text{ (Eq. 4)} \\
+\text{3.} &amp; \boxed{\text{Update to } \pi_{n+1} \text{ by imitating } \eta_n, \text{ subject to trust region } \mathbb{E}_{s \sim d_{\pi_{\eta}}} D_{TV}(\pi, \pi_n) \leq \beta \text{ (Eq. 5)}}
+\end{array}
 \]</span></p>
-<p><strong>Differences with the DAgger:</strong></p>
-<ol type="1">
-<li>The training data is labeled with actions from <span class="math inline">\(\pi^*\)</span>.<br>
-</li>
-<li>PLATO uses adaptive MPC policy to select actions at each time step, rather than the mixture policy <span class="math inline">\(\pi_{\text{mix},i}\)</span> used.</li>
-</ol>
+</div>
+<div class="center-align">
+<p><span class="red-annotation">Main difference with respect to Guided Policy Search</span></p>
+</div>
+<div class="tiny-font">
+<p>GPS, including the mirror descent version, phrases the update procedure of the reactive policy as<br>
+a <em>behavior cloning procedure</em>, i.e., given an expert policy <span class="math inline">\(\eta\)</span>, we perform <span class="math inline">\(\min_{\pi} D_{KL}(d_{\mu \mu} \,\|\, d_{\pi \pi})^3\)</span><br>
+Note that our approach to updating <span class="math inline">\(\pi\)</span> is fundamentally on-policy, i.e., we generate samples from <span class="math inline">\(\pi\)</span>.</p>
+</div>
 </section>
 <section id="todays-agenda-2" class="slide level2">
 <h2>Today’s agenda</h2>
 <div class="grey-text">
 <p>• Guided policy search (GPS)</p>
-<p>• Policy learning from adaptive MPC with privileged information (PLATO)</p>
+<p>• Expert iteration &amp; learning to search</p>
 </div>
+<p>• Blending MPC and value function approximation (MPQ(<span class="math inline">\(\lambda\)</span>))</p>
+<p>• Imitating motion capture with RL (DeepMimic)</p>
 <p>• Combining behavioral cloning and RL</p>
 <p>• Dynamic movement primitives (DMPs)</p>
-<p>• Expert iteration &amp; learning to search</p>
 
 <aside><div>
 <p>Acknowledgments<br>
 Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:<br>
 <a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory</a></p>
 </div></aside></section>
-<section id="section-6" class="slide level2">
+<section id="blending-mpc-value-function-approximation" class="slide level2">
+<h2>Blending MPC &amp; Value Function Approximation</h2>
+<div class="small-math arrow-bullets">
+<p><strong>Motivation:</strong> MPC is practical, but real-time budgets force <em>simple, approximate</em> models. Model bias compounds over the horizon and caps performance. Model-free RL has no model bias, but needs too much data.</p>
+<div class="fragment">
+<p>▶ Prior work (e.g.&nbsp;AlphaGo, POLO, MPQ) learns a <strong>terminal</strong> value function to extend the effective horizon of MPC.</p>
+<p>▶ But the learned value is only invoked at step <span class="math inline">\(H\)</span> and model error still accumulates <em>inside</em> the horizon.</p>
+</div>
+<div class="fragment">
+<div style="color:red;">
+<p>Question: can learning both extend the horizon of MPC <strong>and</strong> correct for model bias?</p>
+</div>
+</div>
+</div>
+
+<aside><div>
+<p>Bhardwaj, Choudhury, Boots. <em>Blending MPC &amp; Value Function Approximation for Efficient Reinforcement Learning.</em> ICLR 2021.<br>
+<span class="tiny-font"><a href="https://arxiv.org/abs/2012.05909" class="uri">https://arxiv.org/abs/2012.05909</a></span></p>
+</div></aside></section>
+<section id="mpc-as-a-series-of-local-q-function-approximations" class="slide level2">
+<h2>MPC as a series of local Q-function approximations</h2>
+<div class="small-math arrow-bullets">
+<p>▶ MPC solves a <strong>surrogate MDP</strong> <span class="math inline">\(\hat{M} = (S, A, \hat{c}, \hat{P}, \gamma, \hat{\mu}, H)\)</span> online, with approximate cost <span class="math inline">\(\hat{c}\)</span>, approximate dynamics <span class="math inline">\(\hat{P}\)</span>, finite horizon <span class="math inline">\(H\)</span>, terminal value <span class="math inline">\(\hat{Q}\)</span>, and start-state distribution <span class="math inline">\(\hat{\mu}\)</span>:</p>
+<p><span class="math display">\[
+Q^{\pi_{\phi}}_H(s,a) = \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\sum_{i=0}^{H-1} \gamma^i \hat{c}(s_i, a_i) + \gamma^H \underbrace{\hat{Q}(s_H, a_H)}_{\text{terminal state-action value}} \;\Big|\; s_0 = s,\, a_0 = a\right] \tag{1}
+\]</span></p>
+<p>▶ At the current state <span class="math inline">\(s_t\)</span>, MPC optimizes action distribution:</p>
+<p><span class="math display">\[
+\arg\min_{\phi} \; \mathbb{E}_{a_t \sim \pi_{\phi}(a|s_t)}\left[ Q^{\pi_{\phi}}_H(s_t, a_t) \right]
+\]</span></p>
+<div class="fragment">
+<p>▶ Equivalently, via a telescoping sum, we can define <span class="math inline">\(A(s_i,a_i) = \hat{c}(s_i,a_i) + \gamma \hat{Q}(s_{i+1},a_{i+1}) - \hat{Q}(s_i,a_i)\)</span> and<br>
+formulate (1) in terms of the 1-step disadvantage w.r.t. <span class="math inline">\(\hat{Q}\)</span>:</p>
+<p><span class="math display">\[
+\mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\hat{Q}(s_0,a_0) + \sum_{i=0}^{H-1} \gamma^i A(s_i,a_i) \;\Big|\; s_0 = s\right]
+\]</span></p>
+<p><span class="red">This form is exactly equivalent to (1), so it does <strong>not</strong> yet fix model bias, but it is the form we will modify.</span></p>
+</div>
+</div>
+</section>
+<section id="error-as-a-function-of-h" class="slide level2">
+<h2>Error as a function of H</h2>
+<div class="small-math arrow-bullets">
+<ol type="1">
+<li><strong>Model bias</strong> compounds along predicted trajectories → worse as <span class="math inline">\(H \to \infty\)</span>.</li>
+<li><strong>Terminal value error</strong> propagates back to <span class="math inline">\(s_0\)</span>, but is discounted → better as <span class="math inline">\(H \to \infty\)</span>.</li>
+<li><strong>Myopic behavior</strong>: small <span class="math inline">\(H\)</span> with an inaccurate <span class="math inline">\(\hat{Q}\)</span> makes the controller greedy.</li>
+</ol>
+<div class="fragment">
+<p><strong>Theorem 3.1.</strong> If <span class="math inline">\(\hat{M}\)</span> is an <span class="math inline">\(\alpha\)</span>-approximation of <span class="math inline">\(M\)</span> (<span class="math inline">\(\lVert \hat{P} - P \rVert_1 \leq \alpha\)</span>, <span class="math inline">\(\lvert \hat{c} - c \rvert \leq \alpha\)</span>) and <span class="math inline">\(\lVert \hat{Q} - Q^{\pi^*}_M \rVert_\infty \leq \epsilon\)</span>, then the <span class="math inline">\(H\)</span>-step greedy policy satisfies</p>
+<p><span class="math display">\[
+\left\lVert V^{\pi^*}_M - V^{\hat{\pi}}_M \right\rVert_\infty \leq 2\left(\frac{\gamma(1-\gamma^{H-1})}{(1-\gamma^H)(1-\gamma)}\alpha H \frac{c_{\max}-c_{\min}}{2} + \frac{\gamma^H \alpha H}{1-\gamma^H}\frac{V_{\max}-V_{\min}}{2} + \frac{\alpha}{1-\gamma} + \frac{\gamma^H \epsilon}{1-\gamma^H}\right)
+\]</span></p>
+</div>
+<div class="fragment">
+<p>▶ <span class="red">Model error grows with <span class="math inline">\(H\)</span>; value error shrinks with <span class="math inline">\(H\)</span>.</span></p>
+</div>
+</div>
+</section>
+<section id="key-idea-blending-with-lambda" class="slide level2">
+<h2>Key idea: blending with <span class="math inline">\(\lambda\)</span></h2>
+<div class="small-math arrow-bullets">
+<p>▶ Naive blend (value function as a residual on the MPC output) is <em>ad hoc</em>, it uses <span class="math inline">\(\hat{Q}\)</span> only at the ends:</p>
+<p><span class="math display">\[
+\underbrace{(1-\lambda)\hat{Q}(s,a)}_{\text{model-free}} + \underbrace{\lambda Q^{\phi}_H(s,a)}_{\text{model-based}}
+\]</span></p>
+<div class="fragment">
+<p>▶ Instead, define a <strong>recursive</strong> blend that invokes <span class="math inline">\(\hat{Q}\)</span> at <em>every</em> step of the horizon:</p>
+<p><span class="math display">\[
+\underbrace{Q^{\lambda}(s_i,a_i)}_{\text{current blended estimate}} = \underbrace{(1-\lambda)\hat{Q}(s_i,a_i)}_{\text{model-free}} + \lambda\big(\underbrace{\hat{c}(s_i,a_i)}_{\text{model-based}} + \gamma \underbrace{Q^{\lambda}(s_{i+1},a_{i+1})}_{\text{future blended estimate}}\big), \qquad Q^{\lambda}(s_H,a_H) = \hat{Q}(s_H,a_H)
+\]</span></p>
+</div>
+<div class="fragment">
+<p>▶ Unrolling gives an <strong>exponentially weighted average over all horizon estimates</strong> <span class="math inline">\(Q^{\phi}_i\)</span>:</p>
+<p><span class="math display">\[
+Q^{\lambda}_H(s,a) = (1-\lambda)\sum_{i=0}^{H-1}\lambda^i Q^{\phi}_i(s,a) + \lambda^H Q^{\phi}_H(s,a)
+\qquad
+\boxed{\lambda = 0 \Rightarrow \hat{Q}, \quad \lambda = 1 \Rightarrow \text{plain MPC}}
+\]</span></p>
+</div>
+<div class="fragment">
+<p>▶ Running <span class="math inline">\(H\)</span> copies of MPC would be far too expensive, but the same telescoping trick makes it <strong>free</strong>: every horizon estimate <span class="math inline">\(Q^{\phi}_i\)</span> is a <em>prefix</em> of the one <span class="math inline">\(H\)</span>-step rollout MPC already simulates, so all we do is discount each per-step term by an extra <span class="math inline">\(\lambda^i\)</span>.</p>
+<p><span class="math display">\[
+Q^{\lambda}_H(s,a) = \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\hat{Q}(s_0,a_0) + \lambda\sum_{i=0}^{H-1}(\gamma\lambda)^i A(s_i,a_i)\right] \tag{2}
+\]</span></p>
+<p><span class="red">Same form as TD(<span class="math inline">\(\lambda\)</span>), but here <span class="math inline">\(\lambda\)</span> trades off <strong>model bias vs.&nbsp;value-function bias</strong>, not bias vs.&nbsp;variance.</span></p>
+</div>
+</div>
+</section>
+<section id="deriving-the-telescoped-form-of-eqn-2" class="slide level2">
+<h2>Deriving the telescoped form of Eqn (2)</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Write <span class="math inline">\(\hat{Q}_i \equiv \hat{Q}(s_i,a_i)\)</span>, <span class="math inline">\(\hat{c}_i \equiv \hat{c}(s_i,a_i)\)</span>, <span class="math inline">\(Q^{\lambda}_i \equiv Q^{\lambda}(s_i,a_i)\)</span>, and track the gap <span class="math inline">\(\Delta_i \equiv Q^{\lambda}_i - \hat{Q}_i\)</span> between the blend and the value function. The recursion ends at <span class="math inline">\(Q^{\lambda}_H = \hat{Q}_H\)</span>, so <span class="math inline">\(\Delta_H = 0\)</span>.</p>
+<p>▶ Subtract <span class="math inline">\(\hat{Q}_i\)</span> from both sides of the recursion, then add and subtract <span class="math inline">\(\gamma\hat{Q}_{i+1}\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\Delta_i &amp;= (1-\lambda)\hat{Q}_i + \lambda\big(\hat{c}_i + \gamma Q^{\lambda}_{i+1}\big) - \hat{Q}_i = \lambda\big(\hat{c}_i + \gamma Q^{\lambda}_{i+1} - \hat{Q}_i\big) \\
+&amp;= \lambda\underbrace{\big(\hat{c}_i + \gamma\hat{Q}_{i+1} - \hat{Q}_i\big)}_{A(s_i,a_i)} + \gamma\lambda\underbrace{\big(Q^{\lambda}_{i+1} - \hat{Q}_{i+1}\big)}_{\Delta_{i+1}}
+\end{aligned}
+\]</span></p>
+<div class="fragment">
+<p>▶ So <span class="math inline">\(\Delta_i = \lambda A(s_i,a_i) + (\gamma\lambda)\,\Delta_{i+1}\)</span> is a one-step recursion with <span class="math inline">\(\Delta_H = 0\)</span>. Unrolling it from <span class="math inline">\(i=0\)</span>:</p>
+<p><span class="math display">\[
+Q^{\lambda}_H(s,a) = \hat{Q}(s_0,a_0) + \Delta_0 = \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\hat{Q}(s_0,a_0) + \lambda\sum_{i=0}^{H-1}(\gamma\lambda)^i A(s_i,a_i)\right]
+\]</span></p>
+</div>
+<div class="fragment">
+<p>▶ Check the endpoints: <span class="math inline">\(\lambda = 0\)</span> leaves <span class="math inline">\(\hat{Q}(s_0,a_0)\)</span>, and <span class="math inline">\(\lambda = 1\)</span> telescopes back to <span class="math inline">\(\sum_i \gamma^i \hat{c}_i + \gamma^H \hat{Q}_H = Q^{\pi_{\phi}}_H\)</span>.</p>
+<p>▶ Every <span class="math inline">\(A(s_i,a_i)\)</span> is read off the <strong>same</strong> rollout, so the blend costs one <span class="math inline">\(H\)</span>-step rollout, not <span class="math inline">\(H\)</span> of them.</p>
+<p><span class="red">Eq. (8) in the paper drops the leading <span class="math inline">\(\lambda\)</span>. That version is TD(<span class="math inline">\(\lambda\)</span>)’s weighting, <span class="math inline">\((1-\lambda)\lambda^{i-1}\)</span> starting at the <strong>1-step</strong> estimate, so at <span class="math inline">\(\lambda = 0\)</span> it collapses to <span class="math inline">\(\hat{c}_0 + \gamma\hat{Q}_1\)</span> rather than to <span class="math inline">\(\hat{Q}\)</span></span></p>
+</div>
+</div>
+</section>
+<section id="the-mpqlambda-algorithm" class="slide level2">
+<h2>The MPQ(<span class="math inline">\(\lambda\)</span>) algorithm</h2>
+<p><img data-src="images/mpq-algorithm.png" height="400"></p>
+<div class="small-math arrow-bullets">
+<p>▶ MPC (here MPPI) optimizes the <em>blended</em> estimate for action selection <strong>and</strong> for generating Q-targets.</p>
+<p>▶ <span class="math inline">\(\lambda\)</span> is <strong>decayed</strong> over training: trust the model early, trust <span class="math inline">\(\hat{Q}_\theta\)</span> as it becomes accurate.</p>
+</div>
+</section>
+<section id="results" class="slide level2">
+<h2>Results</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/mpq-fixed-lambda.png" height="330"></p>
+<p><span class="tiny-font">CartPoleSwingup, mass bias <span class="math inline">\(b=-0.5\)</span>, <span class="math inline">\(H=64\)</span></span></p>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/mpq-inhand-success.png" height="330"></p>
+<p><span class="tiny-font">24-DOF hand, biased mass/inertia/friction</span></p>
+</div></div>
+<div class="small-math arrow-bullets">
+<p>▶ A wide range of <span class="math inline">\(\lambda\)</span> beats MPPI with the biased model, and even MPPI with the <strong>true</strong> dynamics. <span class="math inline">\(\lambda \approx 1\)</span> (pure MPC) and <span class="math inline">\(\lambda &lt; 0.6\)</span> both degrade.</p>
+<p>▶ Far more sample-efficient than model-free RL. PPO does not improve at all on in-hand manipulation over 150k steps.</p>
+<p>▶ Robust to horizon, particle count, and large model bias, but if the model is <em>extremely</em> uninformative, leaning on MPC hurts.</p>
+</div>
+</section>
+<section id="todays-agenda-3" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="grey-text">
+<p>• Guided policy search (GPS)</p>
+<p>• Expert iteration &amp; learning to search</p>
+<p>• Blending MPC and value function approximation (MPQ(<span class="math inline">\(\lambda\)</span>))</p>
+</div>
+<p>• Imitating motion capture with RL (DeepMimic)</p>
+<p>• Combining behavioral cloning and RL</p>
+<p>• Dynamic movement primitives (DMPs)</p>
+
+<aside><div>
+<p>Acknowledgments<br>
+Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:<br>
+<a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory</a></p>
+</div></aside></section>
+<section id="section-7" class="slide level2">
 <h2></h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/vppFvq2quQ0?rel=0" width="800" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=vppFvq2quQ0" class="uri">https://www.youtube.com/watch?v=vppFvq2quQ0</a></span></p>
 </section>
+<section id="problem-setup" class="slide level2">
+<h2>Problem setup</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>State</strong> <span class="math inline">\(s_t\)</span>: link positions, orientations (quaternions), and linear/angular velocities, all expressed in a character-local frame, plus a <strong>phase variable</strong> <span class="math inline">\(\phi \in [0,1]\)</span> marking where in the clip we are (<span class="math inline">\(\phi = 0\)</span> start, <span class="math inline">\(\phi = 1\)</span> end).</p>
+<p>▶ The phase is what makes the problem Markov: without it the target pose depends on time, and the same character pose would demand different actions at different points in the clip.</p>
+<p>▶ <strong>Action</strong> <span class="math inline">\(a_t\)</span>: target joint angles for PD controllers, not torques. The policy is queried at 30 Hz; the PD controllers run at simulation rate and act as a low-level stabilizer, which speeds up learning considerably.</p>
+<p>▶ <strong>Goal</strong> <span class="math inline">\(g\)</span>: task-specific and optional (desired heading, target to strike), so the policy is <span class="math inline">\(\pi_\theta(a \mid s, g)\)</span> with value function <span class="math inline">\(V_\psi(s,g)\)</span>.</p>
+<p>▶ Trained with <strong>PPO</strong>; both networks are two fully-connected layers with ReLU. Terrain-aware variants prepend a small conv net over a heightmap.</p>
+</div>
+</section>
+<section id="the-reward-imitation-task" class="slide level2">
+<h2>The reward: imitation + task</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Total reward mixes tracking the clip with doing the job:</p>
+<p><span class="math display">\[
+r_t = w^I r^I_t + w^G r^G_t, \qquad w^I = 0.7,\ w^G = 0.3
+\]</span></p>
+<p>▶ The imitation term is a weighted sum of four <strong>bounded</strong> similarity measures, each an exponential of a squared error (so it saturates rather than demanding impossible precision):</p>
+<p><span class="math display">\[
+r^I_t = \underbrace{0.65}_{w^p} r^p_t + \underbrace{0.10}_{w^v} r^v_t + \underbrace{0.15}_{w^e} r^e_t + \underbrace{0.10}_{w^c} r^c_t
+\]</span></p>
+<div class="fragment">
+<p><span class="math display">\[
+\begin{aligned}
+r^p_t &amp;= \exp\Big[-2\textstyle\sum_j \|\hat{q}^j_t \ominus q^j_t\|^2\Big] &amp;&amp;\text{joint orientations} \\
+r^v_t &amp;= \exp\Big[-0.1\textstyle\sum_j \|\dot{\hat{q}}^j_t - \dot{q}^j_t\|^2\Big] &amp;&amp;\text{joint velocities} \\
+r^e_t &amp;= \exp\Big[-40\textstyle\sum_e \|\hat{p}^e_t - p^e_t\|^2\Big] &amp;&amp;\text{hands and feet} \\
+r^c_t &amp;= \exp\Big[-10\|\hat{p}^c_t - p^c_t\|^2\Big] &amp;&amp;\text{centre of mass}
+\end{aligned}
+\]</span></p>
+<p><span class="red">Hats denote the reference clip; <span class="math inline">\(\ominus\)</span> is the quaternion difference. End-effectors get the sharpest coefficient: feet in the wrong place read as a different skill.</span></p>
+</div>
+</div>
+</section>
+<section id="what-actually-makes-it-work" class="slide level2">
+<h2>What actually makes it work</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Reference state initialization (RSI):</strong> at the start of each episode sample a phase <span class="math inline">\(\phi \sim U[0,1]\)</span> and initialize the character from the clip at that phase. Otherwise the agent must master the takeoff of a backflip before it ever <em>sees</em> the reward for landing one; exploration never reaches the later part of the clip.</p>
+<p>▶ <strong>Early termination (ET):</strong> end the episode, with zero reward for all remaining steps, as soon as the torso or head touches the ground. This kills the local optimum of falling over and collecting partial pose reward while lying down, and re-weights the data toward states the policy still has a chance in.</p>
+<div class="fragment">
+<p>▶ Ablation, normalized return:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>Backflip</th>
+<th>Sideflip</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>RSI + ET</td>
+<td><strong>0.791</strong></td>
+<td><strong>0.823</strong></td>
+</tr>
+<tr class="even">
+<td>ET only (no RSI)</td>
+<td>0.379</td>
+<td>0.355</td>
+</tr>
+</tbody>
+</table>
+<p>▶ Without RSI the character learns a small backwards hop while staying upright, never the mid-air rotation. <span class="red">Two initialization/termination choices matter more here than the RL algorithm itself.</span></p>
+</div>
+</div>
+</section>
+<section id="many-clips-one-character" class="slide level2">
+<h2>Many clips, one character</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Multi-clip reward:</strong> <span class="math inline">\(r^I_t = \max_{j=1,\dots,k} r^j_t\)</span>: reward the best-matching clip at each step, so the policy is never forced to commit to one demonstration.</p>
+<p>▶ <strong>Skill selector:</strong> feed a one-hot clip id as extra input, and a single policy covers a repertoire on demand.</p>
+<p>▶ <strong>Composite policy</strong> from separately trained skills, arbitrated by their own value functions:</p>
+<p><span class="math display">\[
+\Pi(a \mid s) = \sum_i p^i(s)\, \pi^i(a \mid s), \qquad p^i(s) = \frac{\exp[V^i(s)/\mathcal{T}]}{\sum_j \exp[V^j(s)/\mathcal{T}]}
+\]</span></p>
+<div class="fragment">
+<p>▶ Characters: humanoid (34 DOF), Atlas (31), T-Rex (55), dragon (79). Skills: walk/run, cartwheel, back/front/side flip, spin-kick, getup, vault, baseball pitch, terrain traversal from a heightmap.</p>
+<p>▶ Adding the task reward matters: strike success <strong>99% vs 19%</strong>, throwing accuracy <strong>75% vs 5%</strong>, against imitation-only policies.</p>
+<p>▶ <span class="red">Cost and limits: 41M–191M samples and <em>days</em> per skill; the phase variable locks in the clip’s timing; the similarity metric in the reward is hand-designed.</span></p>
+</div>
+</div>
+</section>
+<section id="todays-agenda-4" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="grey-text">
+<p>• Guided policy search (GPS)</p>
+<p>• Expert iteration &amp; learning to search</p>
+<p>• Blending MPC and value function approximation (MPQ(<span class="math inline">\(\lambda\)</span>))</p>
+<p>• Imitating motion capture with RL (DeepMimic)</p>
+</div>
+<p>• Combining behavioral cloning and RL</p>
+<p>• Dynamic movement primitives (DMPs)</p>
+
+<aside><div>
+<p>Acknowledgments<br>
+Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:<br>
+<a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory</a></p>
+</div></aside></section>
 <section id="learning-complex-dexterous-manipulation-with-deep-reinforcement-learning-and-demonstrations" class="slide level2">
 <h2>Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations</h2>
-<div class="center-align">
-<p>Aravind Rajeswaran , Vikash Kumar , Abhishek Gupta, Giulia Vezzani , John Schulman , Emanuel Todorov , Sergey Levine</p>
-<p><br></p>
-<p>Jason Rebello<br>
-UTIAS</p>
-</div>
+<p><a href="https://arxiv.org/abs/1709.10087">https://arxiv.org/abs/1709.10087</a></p>
+</section>
+<section id="section-8" class="slide level2">
+<h2></h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/jJtBll8l_OM?rel=0" width="800" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=jJtBll8l_OM" class="uri">https://www.youtube.com/watch?v=jJtBll8l_OM</a></span></p>
 </section>
 <section id="motivation" class="slide level2">
 <h2>Motivation</h2>
@@ -604,67 +917,9 @@ UTIAS</p>
 <u><strong><em>CyberGlove 3</em></strong></u></p>
 </div></div>
 </section>
-<section id="methodology-preliminaries" class="slide level2">
-<h2>Methodology (Preliminaries)</h2>
-<p><br></p>
-<div class="orange tiny-font">
-<p><span class="absolute" style="top: 120px; left: 250px; ">States <span class="math inline">\(\downarrow\)</span></span></p>
-<p><span class="absolute" style="top: 100px; left: 360px; ">Rewards<br>
-<span class="math inline">\(\downarrow\)</span></span></p>
-<p><span class="absolute" style="top: 100px; left: 450px; ">Initial Probability distribution<br>
-<span class="math inline">\(\downarrow\)</span></span></p>
-</div>
-<p><strong>MDP definition:</strong> <span class="math inline">\(\mathcal{M} = \{S, A, R, \mathcal{T}, \rho_0, \gamma\}\)</span></p>
-<div class="orange tiny-font">
-<p><span class="absolute" style="top: 170px; left: 280px; ">Actions <span class="math inline">\(\uparrow\)</span></span></p>
-<p><span class="absolute" style="top: 170px; left: 400px; "><span class="math inline">\(\uparrow\)</span><br>
-Transition<br>
-dynamics</span></p>
-<p><span class="absolute" style="top: 180px; left: 485px; "><span class="math inline">\(\uparrow\)</span><br>
-Discount Factor</span></p>
-</div>
-<p><br></p>
-<p><strong>Value function:</strong><br>
-<span class="math display">\[
-V^{\pi}(s) = \mathbb{E}_{\pi,\mathcal{M}} \left[ \sum_{t=0}^{\infty} \gamma^t r_t \,\big|\, s_0 = s \right]
-\]</span></p>
-<p><strong>Q function:</strong> <span class="math inline">\(Q^{\pi}(s, a) = \underline{\mathbb{E}_{\mathcal{M}} [R(s,a)]} + \underline{\mathbb{E}_{s' \sim \mathcal{T}(s,a)} [V^{\pi}(s')]}\)</span></p>
-<p><br><br></p>
-<p><strong>Advantage function:</strong> <span class="math inline">\(A^{\pi}(s, a) = Q^{\pi}(s,a) - V^{\pi}(s)\)</span></p>
-<div class="orange tiny-font">
-<p><span class="absolute" style="left: 300px; bottom: 190px; ">Reward for taking<br>
-action a in state s</span></p>
-<p><span class="absolute" style="left: 500px; bottom: 200px; ">Expected reward in state s’</span></p>
-</div>
-</section>
-<section id="methodology-npg" class="slide level2">
-<h2>Methodology (NPG)</h2>
-<p>• Directly optimize parameters of policy to maximize objective</p>
-<p><br></p>
-<p><span class="orange tiny-font absolute" style="top: 170px; left: 200px; ">Sub-optimal <span class="math inline">\(\searrow\)</span></span></p>
-<p><strong>Vanilla Policy Gradient:</strong> <span class="math inline">\(g = \frac{1}{NT} \sum_{i=1}^{N} \sum_{t=1}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \hat{A}^{\pi}(s_t^i, a_t^i, t)\)</span></p>
-<p><strong>Fisher Information Matrix:</strong> <span class="math inline">\(F_{\theta} = \frac{1}{NT} \sum_{i=1}^{N} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i)^{T}\)</span></p>
-<p><br></p>
-<p>• Fisher information matrix measures the curvature (sensitivity) of policy relative to model parameters</p>
-<p>• Fisher information matrix is related to the Hessian matrix</p>
-</section>
-<section id="methodology-npg-1" class="slide level2">
-<h2>Methodology (NPG)</h2>
-<p>• Limit policy change based on parameter change</p>
-<p>• Fisher information matrix maps between parameter space and policy space</p>
-<p>• Generally use learning rate in optimization</p>
-<p>• Poor step size leads to poor initialization</p>
-<p>• Use Fisher information matrix to perform update</p>
-<p><br></p>
-<p><strong>Gradient ascent update:</strong> <span class="math inline">\(\theta_{k+1} = \theta_k + \underline{\sqrt{\frac{\delta}{g^T F_{\theta_k}^{-1} g}}} \, \overline{F_{\theta_k}^{-1} g}\)</span></p>
-<div class="orange small-math">
-<p><span class="absolute" style="bottom: 210px; right: 400px; ">Normalized step-size</span></p>
-<p><span class="absolute" style="bottom: 320px; right: 280px; ">Steepest Ascent direction</span></p>
-</div>
-</section>
 <section id="methodology-problems-with-rl" class="slide level2">
 <h2>Methodology (Problems with RL)</h2>
-<p>• Challenges with using NPG</p>
+<p>• Challenges with using RL</p>
 <div class="line-block">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• RL requires careful reward shaping<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• Impractical number of samples to learn (approx. 100 hours)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• Unnatural movement<br>
@@ -717,6 +972,83 @@ function</span></p>
 hyperparameters</span></p>
 </div>
 </section>
+<section id="methodology-npg" class="slide level2">
+<h2>Methodology (NPG)</h2>
+<p><br></p>
+<p><strong>Vanilla Policy Gradient:</strong> <span class="math inline">\(g = \frac{1}{NT} \sum_{i=1}^{N} \sum_{t=1}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \hat{A}^{\pi}(s_t^i, a_t^i, t)\)</span></p>
+<p><strong>Fisher Information Matrix:</strong> <span class="math inline">\(F_{\theta} = \frac{1}{NT} \sum_{i=1}^{N} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i)^{T}\)</span></p>
+<p><strong>Natural Policy Gradient:</strong> <span class="math inline">\(\tilde{g} = F_{\theta}^{-1} g\)</span></p>
+<p><br></p>
+<div class="small-math arrow-bullets">
+<p>▶ Fisher information matrix measures the curvature (sensitivity) of policy relative to model parameters</p>
+<p>▶ <span class="math inline">\(\tilde{g}\)</span> is the steepest ascent direction when <em>distance between policies</em> is measured by KL divergence, instead of Euclidean distance between parameters:</p>
+<p><span class="math display">\[
+\tilde{g} \ \propto \ \arg\max_{\Delta\theta}\ g^{\top}\Delta\theta
+\quad \text{s.t.} \quad
+\underbrace{\tfrac{1}{2}\Delta\theta^{\top} F_{\theta}\, \Delta\theta}_{\approx\ \text{KL}(\pi_\theta \,\|\, \pi_{\theta+\Delta\theta})} \le \tfrac{\delta}{2}
+\]</span></p>
+<p>▶ <span class="red">Consequence: the update is invariant to how the policy is parameterized. Rescaling or reparameterizing <span class="math inline">\(\theta\)</span> changes <span class="math inline">\(g\)</span>, but not the policy change <span class="math inline">\(\tilde{g}\)</span> produces.</span></p>
+</div>
+</section>
+<section id="fisher-information-simple-examples" class="slide level2">
+<h2>Fisher Information: Simple Examples</h2>
+<div class="r-stack">
+<p><img data-src="images/fisher-information-gaussian.png" style="width:100.0%"></p>
+<p><img data-src="images/fisher-information-mixture.png" class="fragment" style="width:100.0%" data-fragment-index="1"></p>
+</div>
+<div class="small-math">
+<p>• <span class="math inline">\(\frac{1}{2}\Delta\theta^\top F_\theta \Delta\theta\)</span> is the second-order approximation of <span class="math inline">\(\text{KL}(\pi_\theta \,\|\, \pi_{\theta + \Delta\theta})\)</span>, i.e.&nbsp;<span class="math inline">\(F_\theta\)</span> is the curvature of the KL divergence</p>
+<p>• The same parameter step changes the policy much more where ellipses are small (low-variance Gaussians)</p>
+<p>• NPG limits every update to a KL ellipse of fixed size, so steps automatically shrink where the policy is sensitive</p>
+<div class="fragment" data-fragment-index="1">
+<p>• <span class="math inline">\(F_\theta\)</span> can be singular: pulling identical mixture components apart does not change the distribution to first order, so implementations invert <span class="math inline">\(F_\theta + \lambda I\)</span></p>
+</div>
+</div>
+</section>
+<section id="natural-gradient-vs-vanilla-gradient" class="slide level2">
+<h2>Natural Gradient vs Vanilla Gradient</h2>
+
+<img data-src="images/natural-vs-vanilla-gradient.png" style="width:100.0%" class="r-stretch"><div class="small-math arrow-bullets">
+<p>Max. likelihood fit of <span class="math inline">\(p_\theta(x) = \mathcal{N}(x;\, \theta, \Sigma)\)</span>, elongated <span class="math inline">\(\Sigma\)</span>: <span class="math inline">\(\ L(\theta) = \tfrac{1}{2}(\theta - \bar{x})^\top \Sigma^{-1} (\theta - \bar{x})\)</span>, <span class="math inline">\(\ \nabla_\theta L = \Sigma^{-1}(\theta - \bar{x})\)</span>, <span class="math inline">\(\ F_\theta = \Sigma^{-1}\)</span></p>
+<p>▶ <strong>Vanilla:</strong> <span class="math inline">\(-\nabla_\theta L\)</span> is perpendicular to the contours. <span class="math inline">\(\alpha &gt; 2/\lambda_{\max}\)</span> diverges along the sensitive direction, so the insensitive one shrinks by at best <span class="math inline">\(\frac{\kappa - 1}{\kappa + 1}\)</span> per step.</p>
+<p>▶ <strong>Natural:</strong> <span class="math inline">\(-F_\theta^{-1} \nabla_\theta L = -(\theta - \bar{x})\)</span> points straight at the minimum, and the error shrinks by <span class="math inline">\((1 - \alpha)\)</span> per step for any <span class="math inline">\(\kappa\)</span>.</p>
+<div class="fragment">
+<p>▶ <span class="red">Here <span class="math inline">\(F_\theta\)</span> happens to equal the Hessian of <span class="math inline">\(L\)</span>, so this is Newton’s method. In general <span class="math inline">\(F_\theta\)</span> is the curvature of the KL, not of <span class="math inline">\(L\)</span>. It is always positive semi-definite and only needs first derivatives of <span class="math inline">\(\log p_\theta\)</span>.</span></p>
+</div>
+</div>
+</section>
+<section id="natural-policy-gradient-vs-policy-gradient-simple-example" class="slide level2">
+<h2>Natural Policy Gradient vs Policy Gradient: Simple Example</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Take a Gaussian policy <span class="math inline">\(\pi_\theta(a) = \mathcal{N}(a;\, \mu, \sigma^2)\)</span> with <span class="math inline">\(\theta = (\mu, \sigma)\)</span>, and a loss that only cares about the mean:</p>
+<p><span class="math display">\[
+L(\theta) = \tfrac{1}{2}(\mu - \mu^\star)^2,
+\qquad
+\nabla_\theta L = \begin{pmatrix} \mu - \mu^\star \\ 0 \end{pmatrix},
+\qquad
+F_\theta = \begin{pmatrix} 1/\sigma^2 &amp; 0 \\ 0 &amp; 2/\sigma^2 \end{pmatrix}
+\]</span></p>
+<p>▶ The two updates, <span class="math inline">\(\theta \leftarrow \theta - \alpha\, \nabla_\theta L\)</span> versus <span class="math inline">\(\theta \leftarrow \theta - \alpha\, F^{-1}_\theta \nabla_\theta L\)</span>, move the mean by</p>
+<p><span class="math display">\[
+\Delta\mu_{\text{vanilla}} = -\alpha\,(\mu - \mu^\star)
+\qquad\text{vs.}\qquad
+\Delta\mu_{\text{natural}} = -\alpha\,\boxed{\sigma^2}\,(\mu - \mu^\star)
+\]</span></p>
+<div class="fragment">
+<p>▶ <span class="red">The vanilla step is the same size no matter how deterministic the policy already is.</span> For policies with <span class="math inline">\(\sigma \to 0\)</span> a fixed shift of <span class="math inline">\(\mu\)</span> is an enormous change in the distribution (<span class="math inline">\(\text{KL} \approx \Delta\mu^2 / 2\sigma^2 \to \infty\)</span>) and this is exactly when vanilla PG overshoots and collapses a nearly-converged policy.</p>
+<p>▶ The natural gradient scales by <span class="math inline">\(\sigma^2\)</span> and so keeps every step at a <strong>constant KL</strong>, automatically braking as the policy sharpens.</p>
+</div>
+<div class="fragment">
+<p>▶ Now reparameterize with <span class="math inline">\(\mu = c\,u\)</span>, i.e.&nbsp;just a change of units for the same policy class. Then <span class="math inline">\(\nabla_u L = c\,(\mu - \mu^\star)\)</span> and <span class="math inline">\(F_{uu} = c^2/\sigma^2\)</span>, so the <em>same</em> step <span class="math inline">\(\alpha\)</span> moves the mean by</p>
+<p><span class="math display">\[
+\Delta\mu_{\text{vanilla}} = -\alpha\, c^2 (\mu - \mu^\star)
+\qquad\text{vs.}\qquad
+\Delta\mu_{\text{natural}} = -\alpha\, \sigma^2 (\mu - \mu^\star)
+\]</span></p>
+<p>▶ <span class="red">Vanilla gradient descent follows a different trajectory for every choice of <span class="math inline">\(c\)</span>; the natural gradient follows the same one. The <span class="math inline">\(c^2\)</span> cancels because <span class="math inline">\(F\)</span> transforms the same way the gradient does.</span></p>
+</div>
+</div>
+</section>
 <section id="results-1" class="slide level2">
 <h2>Results 1</h2>
 <p><u>Reinforcement learning from scratch</u></p>
@@ -737,14 +1069,14 @@ hyperparameters</span></p>
 <img data-src="images/reinforcement-learning.png" class="r-stretch"><p>• NPG learns with reward shaping, DDPG fails to learn<br>
 • DDPG is sample efficient but sensitive to hyper-parameters<br>
 • Resulting policies have unnatural behaviors<br>
-• Poor sample efficiency, cant use on hardware<br>
+• Poor sample efficiency, can’t use on hardware<br>
 • Cannot generalize to unseen environment (weight and ball size change)</p>
 </section>
 <section id="results-2" class="slide level2">
 <h2>Results 2</h2>
 <p><u>Reinforcement learning with demonstrations</u></p>
 <p>• Does incorporating demonstrations reduce learning time?<br>
-• Comparison of DAPG vs DDPGfD (.. from Demonstrations)?<br>
+• Comparison of DAPG vs DDPGfD (fD = from demonstrations)<br>
 • Does it result in human like behaviour ?</p>
 <p><br></p>
 <p>• DDPGfD better version of DDPG (demonstrations in replay buffer, prioritized experience replay, n-step returns, regularization)<br>
@@ -765,188 +1097,129 @@ hyperparameters</span></p>
 <p><img data-src="images/dapg-table.png"></p>
 </div></div>
 </section>
-<section id="future-work" class="slide level2">
-<h2>Future Work</h2>
+<section id="left-for-future-work" class="slide level2">
+<h2>Left for Future Work</h2>
 <p>• Tests on real hardware</p>
 <p>• Reduce sample complexity using novelty based exploration methods</p>
 <p>• Learn policies from raw visual inputs and tactile sensing</p>
 </section>
-<section id="results" class="slide level2">
-<h2>Results</h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/jJtBll8l_OM?rel=0" width="800" height="450" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=jJtBll8l_OM" class="uri">https://www.youtube.com/watch?v=jJtBll8l_OM</a></span></p>
-</section>
-<section id="todays-agenda-3" class="slide level2">
+<section id="todays-agenda-5" class="slide level2">
 <h2>Today’s agenda</h2>
 <div class="grey-text">
 <p>• Guided policy search (GPS)</p>
-<p>• Policy learning from adaptive MPC with privileged information (PLATO)</p>
+<p>• Expert iteration &amp; learning to search</p>
+<p>• Blending MPC and value function approximation (MPQ(<span class="math inline">\(\lambda\)</span>))</p>
+<p>• Imitating motion capture with RL (DeepMimic)</p>
 <p>• Combining behavioral cloning and RL</p>
 </div>
 <p>• Dynamic movement primitives (DMPs)</p>
-<p>• Expert iteration &amp; learning to search</p>
 
 <aside><div>
 <p>Acknowledgments<br>
 Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:<br>
 <a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory</a></p>
 </div></aside></section>
-<section id="section-7" class="slide level2">
+<section id="section-9" class="slide level2">
 <h2></h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/IV8Eze9Hxrc?rel=0" width="900" height="506" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc</a></span></p>
 </section>
-<section id="todays-agenda-4" class="slide level2">
-<h2>Today’s agenda</h2>
-<div class="grey-text">
-<p>• Guided policy search (GPS)</p>
-<p>• Policy learning from adaptive MPC with privileged information (PLATO)</p>
-<p>• Combining behavioral cloning and RL</p>
-<p>• Dynamic movement primitives (DMPs)</p>
+<section id="dynamic-movement-primitives" class="slide level2">
+<h2>Dynamic Movement Primitives</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Idea: instead of storing a demonstrated movement as a time-indexed trajectory <span class="math inline">\(y^\star(t)\)</span> and tracking it, encode it as a <strong>dynamical system with a built-in attractor at the goal <span class="math inline">\(g\)</span></strong>. Each degree of freedom <span class="math inline">\(y\)</span> (a joint angle, or one coordinate of the end-effector) gets its own <em>transformation system</em>:</p>
+<p><span class="math display">\[
+\tau \dot z = \underbrace{\alpha_z\big(\beta_z (g - y) - z\big)}_{\text{spring-damper pulling } y \text{ to } g} + \underbrace{f(x)}_{\text{learned forcing term}},
+\qquad
+\tau \dot y = z
+\]</span></p>
+<p>▶ With <span class="math inline">\(f = 0\)</span> this is a linear spring-damper, i.e.&nbsp;a PD controller towards <span class="math inline">\(g\)</span>. Choosing <span class="math inline">\(\beta_z = \alpha_z / 4\)</span> makes it critically damped, so <span class="math inline">\((y, \dot y) = (g, 0)\)</span> is a globally asymptotically stable fixed point: <span class="math inline">\(y\)</span> converges to <span class="math inline">\(g\)</span> from any initial state, without oscillating.</p>
+<p>▶ The forcing term <span class="math inline">\(f\)</span> shapes <em>how</em> the system gets to <span class="math inline">\(g\)</span>, i.e.&nbsp;the path of the demonstration. It depends on a phase variable <span class="math inline">\(x\)</span> instead of time and is designed to vanish as the movement ends, <span class="red">so the attractor at <span class="math inline">\(g\)</span> is preserved for <em>any</em> learned weights.</span></p>
+<div class="fragment">
+<p>▶ Compared to tracking <span class="math inline">\(y^\star(t)\)</span> we get for free: robustness to perturbations (the state evolves from wherever it was pushed to, no replanning), a new goal <span class="math inline">\(g\)</span> or duration <span class="math inline">\(\tau\)</span> is just a change of parameters, and a compact parameterization (tens of weights per DoF) that is easy to learn from one demonstration and to refine with RL.</p>
 </div>
-<p>• Expert iteration &amp; learning to search</p>
+</div>
+<div class="tiny-font">
+<p>Dynamical Movement Primitives: Learning Attractor Models for Motor Behaviors. Ijspeert, Nakanishi, Hoffmann, Pastor, Schaal. Neural Computation’13. <a href="https://ieeexplore.ieee.org/document/6797340" class="uri">https://ieeexplore.ieee.org/document/6797340</a></p>
+</div>
+</section>
+<section id="dmps-canonical-system-and-forcing-term" class="slide level2">
+<h2>DMPs: Canonical System and Forcing Term</h2>
+<div class="small-math arrow-bullets">
+<p><span class="math display">\[
+\underbrace{\tau \dot x = -\alpha_x x, \quad x(0) = 1}_{\text{canonical system}}
+\qquad\qquad
+f(x) = \frac{\sum_{i=1}^{N} \psi_i(x)\, w_i}{\sum_{i=1}^{N} \psi_i(x)}\; x\,(g - y_0),
+\qquad
+\psi_i(x) = \exp\!\big(-h_i (x - c_i)^2\big)
+\]</span></p>
+<p>▶ The phase <span class="math inline">\(x\)</span> decays from 1 to 0 and acts as a clock that replaces explicit time. <span class="red">All DoFs of a movement share the same canonical system</span>, which keeps them synchronized: multi-DoF coordination comes from the shared phase, not from coupling the transformation systems to each other.</p>
+<p>▶ <span class="math inline">\(\psi_i\)</span> are Gaussian basis functions in <span class="math inline">\(x\)</span>, with centers <span class="math inline">\(c_i\)</span> spaced so that they are evenly spread in time. Their normalized weighted sum is a function approximator that is <strong>linear in the weights <span class="math inline">\(w_i\)</span></strong>.</p>
+<p>▶ Multiplying by <span class="math inline">\(x\)</span> makes <span class="math inline">\(f \to 0\)</span> as <span class="math inline">\(x \to 0\)</span>, so eventually only the spring-damper remains and <span class="math inline">\(y \to g\)</span>. Multiplying by <span class="math inline">\((g - y_0)\)</span> makes the movement scale with its amplitude.</p>
+<p>▶ No term depends on <span class="math inline">\(t\)</span> directly, so the DMP is an autonomous system in the state <span class="math inline">\((y, z, x)\)</span>, i.e.&nbsp;a policy <span class="math inline">\(\ddot y = \pi(y, \dot y, x;\, w, g, \tau)\)</span>. On a robot, its outputs <span class="math inline">\((y, \dot y, \ddot y)\)</span> are the desired states for a low-level tracking controller (e.g.&nbsp;inverse dynamics + PD).</p>
+<div class="fragment">
+<p>▶ <strong>Rhythmic DMPs</strong> (drumming, walking, wiping): replace the canonical system by a phase oscillator <span class="math inline">\(\tau \dot\phi = 1\)</span>, use periodic basis functions <span class="math inline">\(\psi_i = \exp\big(h_i(\cos(\phi - c_i) - 1)\big)\)</span> and scale <span class="math inline">\(f\)</span> by an amplitude <span class="math inline">\(r\)</span> instead of <span class="math inline">\(x(g - y_0)\)</span>. The goal <span class="math inline">\(g\)</span> becomes the center of the oscillation, and the point attractor becomes a limit cycle.</p>
+</div>
+</div>
+</section>
+<section id="learning-a-dmp-from-a-single-demonstration" class="slide level2">
+<h2>Learning a DMP from a Single Demonstration</h2>
 
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:<br>
-<a href="https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory" class="uri">https://www.youtube.com/watch?v=IV8Eze9Hxrc&amp;ab_channel=Dynamicfieldtheory</a></p>
-</div></aside></section>
-<section id="from-search-to-learning-and-back" class="slide level2">
-<h2>From Search to Learning and Back</h2>
+<img data-src="images/dmp-anatomy.png" style="width:90.0%" class="r-stretch"><div class="small-math arrow-bullets">
+<p>▶ Given a demonstration <span class="math inline">\(y_{\text{demo}}(t)\)</span>, <span class="math inline">\(t \in [0, T]\)</span>, set <span class="math inline">\(y_0 = y_{\text{demo}}(0)\)</span>, <span class="math inline">\(g = y_{\text{demo}}(T)\)</span>, <span class="math inline">\(\tau = T\)</span>, and differentiate numerically to get <span class="math inline">\(\dot y_{\text{demo}}, \ddot y_{\text{demo}}\)</span>. Solving the transformation system for <span class="math inline">\(f\)</span> gives the forcing term that reproduces the demo exactly:</p>
+<p><span class="math display">\[
+f_{\text{target}}(t) = \tau^2 \ddot y_{\text{demo}} - \alpha_z\big(\beta_z (g - y_{\text{demo}}) - \tau \dot y_{\text{demo}}\big)
+\]</span></p>
+<p>▶ Since <span class="math inline">\(f\)</span> is linear in <span class="math inline">\(w\)</span>, fitting it is locally weighted linear regression, with one closed-form solve per basis function:</p>
+<p><span class="math display">\[
+w_i = \frac{s^\top \Gamma_i\, f_{\text{target}}}{s^\top \Gamma_i\, s},
+\qquad
+s = \begin{pmatrix} x_1 (g - y_0) \\ \vdots \\ x_T (g - y_0) \end{pmatrix},
+\qquad
+\Gamma_i = \operatorname{diag}\big(\psi_i(x_1), \ldots, \psi_i(x_T)\big)
+\]</span></p>
+<p>▶ <span class="red">Imitation becomes supervised regression of <span class="math inline">\(f\)</span>, and the dynamics, not the accuracy of the regression, guarantee that the rollout reaches <span class="math inline">\(g\)</span>.</span> No iterative optimization, no rollouts, one demonstration.</p>
+</div>
+</section>
+<section id="dmps-generalize-by-construction" class="slide level2">
+<h2>DMPs Generalize by Construction</h2>
 
-<img data-src="images/search-learning-back.png" class="r-stretch"><div class="columns" style="font-size:0.6em;">
-<div class="column" style="width:30%;">
-<p>Logic Geometric Programming<br>
-Marc Toussaint et al.&nbsp;IJCAI’15, RSS’17</p>
-<p>PDDLStream Planners<br>
-Caelan Garret et al.&nbsp;ICAPS’20</p>
-<p>TAMP = SMT + Motion Planning<br>
-Neil Dantam et al.&nbsp;IJRR’18</p>
-<p>. . .</p>
-<div class="red">
-<p><span class="math inline">\(-\)</span> Need to specify symbols / logic</p>
-<p><span class="math inline">\(-\)</span> Slow to plan, not very reactive</p>
+<img data-src="images/dmp-generalization.png" style="width:100.0%" class="r-stretch"><div class="small-math arrow-bullets">
+<p>▶ <strong>New goal</strong> (left): keep <span class="math inline">\(w\)</span>, change <span class="math inline">\(g\)</span>. Because <span class="math inline">\(f \propto (g - y_0)\)</span>, each DoF is rescaled by <span class="math inline">\((g - y_0) / (g_{\text{demo}} - y_{0,\text{demo}})\)</span>. The shape is preserved up to a per-axis stretch, which distorts it when the axes are scaled very differently (green).</p>
+<p>▶ <strong>New duration</strong> (middle): <span class="math inline">\(\tau\)</span> rescales time in both the canonical and the transformation system, so the rollout traces the same path at a different speed.</p>
+<p>▶ <strong>Perturbations</strong> (right): the DMP is a policy of its current state, so after the push it continues from where it is and still converges to <span class="math inline">\(g\)</span>.</p>
+<div class="fragment">
+<p>▶ <strong>Coupling terms</strong> add online feedback. <em>Phase stopping</em>: <span class="math inline">\(\tau \dot x = -\alpha_x x \,/\, \big(1 + \alpha_c \|\tilde y - y\|^2\big)\)</span> slows down the clock when the actual robot position <span class="math inline">\(\tilde y\)</span> lags behind the DMP state <span class="math inline">\(y\)</span>, e.g.&nbsp;when the arm is blocked. <em>Obstacle avoidance</em>: add a term <span class="math inline">\(C_t(y, \dot y, o)\)</span> to <span class="math inline">\(\tau \dot z\)</span> that steers the movement away from an obstacle at <span class="math inline">\(o\)</span>.</p>
 </div>
-<div class="green">
-<p><span class="math inline">\(+\)</span> Generalize</p>
-<p><span class="math inline">\(+\)</span> No training data</p>
 </div>
-</div><div class="column" style="width:5%;">
-
-</div><div class="column fragment" data-fragment-index="2" style="width:30%;">
-<p>Learning to Guide TAMP<br>
-Beomjoom Kim et al., AAAI’18</p>
-<p>PLOI<br>
-Tom Silver, Rohan Chitnis et al.&nbsp;AAAI’21</p>
-<p>Deep Visual Heuristics<br>
-Danny Driess et al.&nbsp;ICRA’20</p>
-<p>Learning to Search for TAMP<br>
-Mohamed Khodeir et al.&nbsp;RAL’22, ICRA’23</p>
-<p>Text2Motion<br>
-Chris Agia et al.&nbsp;ICRA’23</p>
-<p><span class="red"><span class="math inline">\(-\)</span> Need to specify symbols / logic</span></p>
-<p><span class="light-orange"><span class="math inline">\(+\)</span> Can be made fast, reactive</span></p>
-<div class="green">
-<p><span class="math inline">\(+\)</span> Generalize</p>
-<p><span class="math inline">\(+\)</span> Few training data needed</p>
+<div class="tiny-font">
+<p>Biologically-inspired dynamical systems for movement generation: automatic real-time goal adaptation and obstacle avoidance. Hoffmann, Pastor, Park, Schaal. ICRA’09.<br>
+Learning and generalization of motor skills by learning from demonstration. Pastor, Hoffmann, Asfour, Schaal. ICRA’09.</p>
 </div>
+</section>
+<section id="dmps-as-policies-for-rl-and-their-limitations" class="slide level2">
+<h2>DMPs as Policies for RL, and Their Limitations</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:48%;">
+<p><u>DMPs as a policy class for RL</u></p>
+<p>▶ The weights <span class="math inline">\(w\)</span> (and optionally <span class="math inline">\(g\)</span>, <span class="math inline">\(\tau\)</span>) form a low-dimensional, smooth and stable policy parameterization <span class="math inline">\(\theta\)</span>. Every sample of <span class="math inline">\(\theta\)</span> is a goal-reaching movement, so exploring by perturbing parameters per episode, <span class="math inline">\(\theta + \epsilon\)</span>, is feasible on real hardware.</p>
+<p>▶ Same recipe as DAPG earlier today: <span class="red">initialize from a demonstration, then improve with RL.</span></p>
+<p>▶ Episodic natural actor-critic on DMPs (Peters &amp; Schaal ’08), i.e.&nbsp;the natural gradient from earlier today. PoWER (Kober &amp; Peters ’09) learns ball-in-a-cup on a real arm in under 100 trials. PI<span class="math inline">\(^2\)</span> (Theodorou et al.&nbsp;’10).</p>
 </div><div class="column" style="width:4%;">
 
-</div><div class="column right-align fragment" data-fragment-index="1" style="width:30%;">
-<p>PaLM-E<br>
-Danny Driess et al.&nbsp;’23</p>
-<p>SayCan<br>
-Michael Ahn et al.&nbsp;CoRL‘23</p>
-<p>RT-1<br>
-Anthony Brohan et al.&nbsp;’22</p>
-<p>Deep Affordance Foresight<br>
-Danfei Xu et al.&nbsp;ICRA’21</p>
-<p>PlaNet, Dreamer, Hierarchical RL<br>
-Danijar Hafner et al.</p>
-<div class="green">
-<p><span class="math inline">\(+\)</span> Symbols not needed</p>
-<p><span class="math inline">\(+\)</span> Fast, reactive</p>
-</div>
-<div class="red">
-<p><span class="math inline">\(-\)</span> Do not generalize</p>
-<p><span class="math inline">\(-\)</span> Large data regime</p>
-</div>
-</div></div>
-</section>
-<section id="learning-to-plan-via-expert-iteration" class="slide level2">
-<h2>Learning to Plan via Expert Iteration</h2>
-<p><br></p>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="images/expert-iteration.png"></p>
-</div><div class="column" style="width:50%;">
-<p>If we do multiple rounds of heuristic learning and tree search, we could potentially get:</p>
-<p>• monotonic improvement guarantees for the policy / planning heuristic</p>
-<p>• convergence to a point where tree search and the policy are equally good</p>
+</div><div class="column small-math arrow-bullets fragment" style="width:48%;">
+<p><u>Limitations</u></p>
+<p>▶ One DMP encodes one movement from one demonstration. It does not capture the variability across several demos (→ Probabilistic Movement Primitives).</p>
+<p>▶ Perception only enters through <span class="math inline">\(g\)</span>, <span class="math inline">\(\tau\)</span> and hand-designed coupling terms, so it is not a visuomotor policy (→ predict <span class="math inline">\(w, g\)</span> from images, e.g.&nbsp;Neural Dynamic Policies).</p>
+<p>▶ Per-DoF scaling by <span class="math inline">\((g - y_0)\)</span>: if <span class="math inline">\(g \approx y_0\)</span> in some DoF the forcing term vanishes and the shape is lost, and if the sign flips the movement is mirrored. It is also not invariant to rotating the task (→ reformulation of Pastor et al.&nbsp;’09).</p>
+<p>▶ Multi-step tasks need a library of primitives plus a way to select and sequence them.</p>
 </div></div>
 <div class="tiny-font">
-<p>Dual Policy Iteration. Sun, Gordon, Boots, Bagnell. NeurIPS’18.<br>
-Thinking Fast and Slow with Deep Learning and Tree Search. Anthony, Tian, Barber. NeurIPS’17.<br>
-AlphaGo Zero: Mastering the Game of Go Without Human Knowledge. Silver, Schrittwieser, Simonyan, Antonoglou. Nature’17.</p>
-</div>
-</section>
-<section id="alphago-zero" class="slide level2">
-<h2>AlphaGo Zero</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="images/alphago-zero.png"></p>
-</div><div class="column" style="width:50%;">
-<p><img data-src="images/alphagozero-descrip.png"></p>
-</div></div>
-<p><span class="tiny-font">AlphaGo Zero: Mastering the Game of Go Without Human Knowledge. Silver, Schrittwieser, Simonyan, Antonoglou. Nature’17.</span></p>
-</section>
-<section id="mcts-in-alphago-zero" class="slide level2">
-<h2>MCTS in AlphaGo Zero</h2>
-
-<img data-src="images/mcts-alphago.png" class="r-stretch"><p><span class="tiny-font">AlphaGo Zero: Mastering the Game of Go Without Human Knowledge. Silver, Schrittwieser, Simonyan, Antonoglou. Nature’17.</span></p>
-</section>
-<section id="section-8" class="slide level2">
-<h2></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="images/dual-policy.png"></p>
-</div><div class="column red small-math" style="width:50%;">
-<p><br><br></p>
-<p>A policy optimization framework that includes</p>
-<ul>
-<li>Guided Policy Search</li>
-<li>Expert Iteration</li>
-<li>AlphaGo Zero</li>
-<li>“Thinking fast and slow”</li>
-<li>AggreVaTeD (a varianbt of DAgger)</li>
-</ul>
-<p>as special cases and provides conditions under which we expect monotonic improvement of the fast, reactive policy.</p>
-</div></div>
-</section>
-<section id="section-9" class="slide level2">
-<h2></h2>
-<p><img data-src="images/dual-policy-iteration.png" height="300"></p>
-<p><img data-src="images/dual-policy-steps.png"></p>
-</section>
-<section id="section-10" class="slide level2">
-<h2></h2>
-<p><img data-src="images/dual-policy-iteration.png" height="300"></p>
-<div class="small-math">
-<p><span class="math display">\[
-\begin{array}{ll}
-\text{1.} &amp; \text{Fit MLE } \hat{P} \text{ on states and actions from } d_{\pi_n} \pi_n \text{ (Eq. 2).} \\
-\text{2.} &amp; \eta_n \leftarrow \text{MBOC}(\hat{P}), \text{ subject to trust region } \mathbb{E}_{s \sim d_{\pi_n}} D_{TV}(\pi, \pi_n) \leq \alpha \text{ (Eq. 4)} \\
-\text{3.} &amp; \boxed{\text{Update to } \pi_{n+1} \text{ by imitating } \eta_n, \text{ subject to trust region } \mathbb{E}_{s \sim d_{\pi_{\eta}}} D_{TV}(\pi, \pi_n) \leq \beta \text{ (Eq. 5)}}
-\end{array}
-\]</span></p>
-</div>
-<div class="center-align">
-<p><span class="red-annotation">Main difference with respect to Guided Policy Search</span></p>
-</div>
-<div class="tiny-font">
-<p>GPS, including the mirror descent version, phrases the update procedure of the reactive policy as<br>
-a <em>behavior cloning procedure</em>, i.e., given an expert policy <span class="math inline">\(\eta\)</span>, we perform <span class="math inline">\(\min_{\pi} D_{KL}(d_{\mu \mu} \,\|\, d_{\pi \pi})^3\)</span><br>
-Note that our approach to updating <span class="math inline">\(\pi\)</span> is fundamentally on-policy, i.e., we generate samples from <span class="math inline">\(\pi\)</span>.</p>
+<p>Reinforcement Learning of Motor Skills with Policy Gradients. Peters, Schaal. Neural Networks’08.<br>
+Policy Search for Motor Primitives in Robotics. Kober, Peters. NeurIPS’08.<br>
+A Generalized Path Integral Control Approach to Reinforcement Learning. Theodorou, Buchli, Schaal. JMLR’10.<br>
+Probabilistic Movement Primitives. Paraschos, Daniel, Peters, Neumann. NeurIPS’13.<br>
+Neural Dynamic Policies for End-to-End Sensorimotor Learning. Bahl, Mukadam, Gupta, Pathak. NeurIPS’20.</p>
 </div>
 
 

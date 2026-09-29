@@ -75,6 +75,22 @@ font-size: 0.5em;
     text-indent: -1.2em;
 }
 
+/* Bullets written as "▶ text" paragraphs: wrapped lines line up with the
+   first word, not with the marker. 0.775em is the rendered width of "▶ ". */
+.arrow-bullets p {
+    margin: 0 0 0.6em 0;
+    padding-left: 0.775em;
+    text-indent: -0.775em;
+}
+
+/* Keep display equations inside .arrow-bullets centred as usual, i.e.
+   undo the hanging indent that would otherwise be inherited. */
+.arrow-bullets p > span.math.display {
+    display: block;
+    margin-left: -0.775em;
+    text-indent: 0;
+}
+
 .proof-toggle {
     text-decoration: underline;
     cursor: pointer;
@@ -87,4 +103,13 @@ font-size: 0.5em;
 
 .proof-content.revealed {
     opacity: 1;
+}
+
+/* Unlike .proof-content, takes no space until revealed. */
+.derivation-content {
+    display: none;
+}
+
+.derivation-content.revealed {
+    display: block;
 }
