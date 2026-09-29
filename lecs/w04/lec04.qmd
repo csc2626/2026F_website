@@ -29,13 +29,15 @@ html-math-method:
 
 • Guided policy search (GPS)
 
-• Policy learning from adaptive MPC with privileged information (PLATO)
+• Expert iteration & learning to search
+
+• Blending MPC and value function approximation (MPQ($\lambda$))
+
+• Imitating motion capture with RL (DeepMimic)
 
 • Combining behavioral cloning and RL
 
 • Dynamic movement primitives (DMPs)
-
-• Expert iteration & learning to search
 
 ::: aside
 Acknowledgments\
@@ -46,6 +48,13 @@ Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Ji
 ## 
 
 ![](images/overview-1.png)
+
+## 
+
+{{< video https://www.youtube.com/embed/Q4bMcUk6pcw?rel=0 width="800" height="500">}}
+
+[<https://www.youtube.com/watch?v=Q4bMcUk6pcw&t=40s&ab_channel=RAIL>]{.tiny-font}
+
 
 ## 
 
@@ -99,8 +108,8 @@ We want to solve a stochastic version of this problem
 
 $$
 \begin{align}
-\min_{\mathbf{u}_1, \ldots, \mathbf{u}_T, \mathbf{x}_1, \ldots, \mathbf{x}_T, \theta} \sum_{t=1}^{T} c(\mathbf{x}_t, \mathbf{u}_t) \text{s.t.} \mathbb{x}_t = f(x_{t-1}, u_{t-1}) \\
-\text{s.t.} \mathbf{u}_t = \pi_\theta (x_t)
+\min_{\mathbf{u}_1, \ldots, \mathbf{u}_T, \mathbf{x}_1, \ldots, \mathbf{x}_T, \theta} \sum_{t=1}^{T} c(\mathbf{x}_t, \mathbf{u}_t) \text{s.t.} \mathbf{x}_t = f(\mathbf{x}_{t-1}, \mathbf{u}_{t-1}) \\
+\text{s.t.} \mathbf{u}_t = \pi_\theta (\mathbf{x}_t)
 \end{align}
 $$
 
@@ -162,8 +171,28 @@ $$\mathcal{L}_{\text{traj}}(p(\tau), \eta) = E_p[l(\tau)] + \eta[D_{\text{KL}}(p
 ▶ Assuming $p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t) = \hat{p}(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t) = \mathcal{N}(f_{\mathbf{x}t}\mathbf{x}_t + f_{\mathbf{u}t}\mathbf{u}_t, \mathbf{F}_t)$
 
 $$
-\mathcal{L}_{\text{traj}}(p(\tau), \eta) = \left[\sum_t E_{p(\mathbf{x}_t, \mathbf{u}_t)}[l(\mathbf{x}_t, \mathbf{u}_t) - \eta \log p(\mathbf{u}_t|\mathbf{x}_t)]\right] - \eta H(p(\tau)) - \eta \epsilon
+\mathcal{L}_{\text{traj}}(p(\tau), \eta) = \left[\sum_t E_{p(\mathbf{x}_t, \mathbf{u}_t)}[l(\mathbf{x}_t, \mathbf{u}_t) - \eta \log \hat{p}(\mathbf{u}_t|\mathbf{x}_t)]\right] - \eta H(p(\tau)) - \eta \epsilon
 $$
+
+[Derivation]{#gps-lagrangian-toggle .proof-toggle} (click to show / hide)
+
+::: {#gps-lagrangian-derivation .derivation-content .medium}
+$$
+\begin{aligned}
+D_{\text{KL}}(p(\tau)\,\|\,\hat{p}(\tau)) &= E_p[\log p(\tau)] - E_p[\log \hat{p}(\tau)] = -H(p(\tau)) - E_p[\log \hat{p}(\tau)] \\
+\log \hat{p}(\tau) &= \log p(\mathbf{x}_1) + \textstyle\sum_t \log \hat{p}(\mathbf{u}_t|\mathbf{x}_t) + \sum_t \log p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t) && \text{same dynamics as } p \\
+E_{p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t)}[\log p(\mathbf{x}_{t+1}|\mathbf{x}_t, \mathbf{u}_t)] &= -\tfrac{1}{2}\log\left|2\pi e\, \mathbf{F}_t\right| && \text{constant w.r.t. } p
+\end{aligned}
+$$
+
+Plug these into the Lagrangian, use $l(\tau) = \sum_t l(\mathbf{x}_t, \mathbf{u}_t)$ so that each expectation only needs the marginal $p(\mathbf{x}_t, \mathbf{u}_t)$, and drop the initial-state and dynamics terms, which do not depend on $p$. The linear-Gaussian assumption with a fixed $\mathbf{F}_t$ is what makes the dynamics term constant: with general dynamics its entropy would depend on $(\mathbf{x}_t, \mathbf{u}_t)$, i.e. on which states $p$ visits.
+:::
+
+<script>
+document.getElementById('gps-lagrangian-toggle').addEventListener('click', function () {
+  document.getElementById('gps-lagrangian-derivation').classList.toggle('revealed');
+});
+</script>
 
 ::: fragment
 ▶ Augmented cost function
@@ -276,571 +305,22 @@ $$
 :::
 :::::
 
-## 
-
-{{< video https://www.youtube.com/embed/Q4bMcUk6pcw?rel=0 width="800" height="500">}}
-
-[<https://www.youtube.com/watch?v=Q4bMcUk6pcw&t=40s&ab_channel=RAIL>]{.tiny-font}
-
-## Today’s agenda
-
-[• Guided policy search (GPS)]{.grey-text}
-
-• Policy learning from adaptive MPC with privileged information (PLATO)
-
-• Combining behavioral cloning and RL
-
-• Dynamic movement primitives (DMPs)
-
-• Expert iteration & learning to search
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
-<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
-:::
-
-## 
-
-{{< video https://www.youtube.com/watch?v=clHp6QgVyAU?rel=0&enablejsapi=1 aspect-ratio="16x9" width="800" >}}\
-[<https://www.youtube.com/watch?v=clHp6QgVyAU>]{.tiny-font}
-
-## Problem Set-up
-
-::: small-math
--   States $x$, actions $u$.\
--   The policy could only control the system from observations $o$.\
--   The policy $\pi_\theta(u \mid o_t)$, parametrized by $\theta$.\
--   At test time, the agent chooses actions according to $\pi_\theta(u \mid o_t)$ at each time step $t$, and experiences a loss $c(x_t \mid o_t) \in [0, 1]$.\
--   The next state is distributed by dynamics $p(x_{t+1} \mid x_t, u_t)$.
-
-The objective is to learn policy $\pi_\theta(u \mid o_t)$ such that
-
-$$
-\arg\min_\pi J(\pi) = \mathbb{E}_\pi \left[ \sum_{t=1}^{T} c(x_t, u_t) \right].
-$$
-
-At the same time, let’s define expected cost from state $x_t$ at time $t$ as
-
-$$
-J(\pi \mid x_t) = \mathbb{E}_\pi \left[ \sum_{t=1}^{T} c(x_t, u_t) \mid x_t \right].
-$$
-:::
-
-## Adaptive MPC Teacher
-
-One naive way is to train the policy with supervised learning from data generated from an MPC teacher. However, because the state distribution for the teacher and learner are different, the learned policy might fail.\
-In order to overcome this challenge, an adaptive MPC teacher is used which generates actions from a controller obtained by:
-
-$$
-\pi^t_\lambda(u \mid x_t, \theta) \leftarrow \arg\min_\pi J_t(\pi \mid x_t) + \lambda D_{KL}(\pi(u \mid x_t) \,\|\, \pi_\theta(u \mid o_t)) \qquad \tag{1}
-$$
-
-where $\lambda$ determines the relative importance of matching the learner policy versus optimizing the expected return. Note that the particular MPC algorithm is based on iLQG.
-
-## Algorithm
-
-**Algorithm 1: PLATO algorithm**
-
-Initialize data $D \leftarrow \emptyset$\
-**for** $i = 1$ to $N$ **do**\
- **for** $t = 1$ to $T$ **do**\
-  $\pi_\lambda^{t}(u_t \mid x_t, \theta) \leftarrow \arg\min_{\pi} J_t(\pi \mid x_t) + \lambda D_{KL}(\pi(u \mid x_t) \,\|\, \pi_{\theta}(u \mid o_t))$\
-  Sample $u_t \sim \pi_\lambda^{t}(u \mid x_t, \theta)$\
-  $\pi^{*}(u_t \mid x_t) \leftarrow \arg\min_{\pi} J(\pi)$\
-  Sample $u_t^{*} \sim \pi^{*}(u \mid x_t)$\
-  Append $(o_t, u_t^{*})$ to dataset $D$\
-  State evolves $x_{t+1} \sim p(x_{t+1} \mid x_t, u_t)$\
- **end for**\
-Train $\pi_\theta$ on $D$\
-**end for**
-
-## Training the learner's policy
-
-During the supervised learning phase, we minimize the KL-divergence between the learner policy $\pi_\theta$ and precomputed near-optimal policies $\pi^*$, which is estimated by iLQG:
-
-$$
-\theta \leftarrow \arg\min_\theta \sum_{(x_t, o_t) \in D} D_{KL}(\pi_\theta(u \mid o_t) \,\|\, \pi^*(u \mid x_t)).
-$$
-
-Since both $\pi_\theta$ and $\pi^*$ are conditionally Gaussian, the KL divergence can be expressed in closed form if we ignore the terms not involving the learner policy means $\mu_\theta(o_t)$:
-
-$$
-\min_\theta \sum_{(x_t, o_t) \in D} \left\| \mu^*(x_t) - \mu_\theta(o_t) \right\|^2_{\Sigma_{\pi^*}^{-1/2}}.
-$$
-
-In this paper, $\mu_\theta$ is represented by a NN, and solved by SGD.
-
-## Theoretical Analysis
-
-Let $Q_t(x, \pi, \tilde{\pi})$ denote the cost of executing $\pi$ for one time step starting from an initial state, and then executing $\tilde{\pi}$ for the remaining $t - 1$ time steps. We assume the cost-to-go difference between the learned policy and the optimal policy is bounded: $Q_t(x, \pi, \pi^*) - Q_t(x, \pi^*, \pi^*) \leq \delta$
-
-::: callout
-**Theorem**
-
-Let the cost-to-go $Q_t(x,\pi,\pi^*) - Q_t(x,\pi^*,\pi^*) \leq \delta$ for all $t \in \{1,\ldots,T\}$.\
-Then for PLATO, $J(\pi_\theta) \leq J(\pi^*) + \delta \sqrt{\epsilon_\theta *} \cdot O(T) + O(1)$
-:::
-
-Therefore, the policy learned by PLATO converges to a policy with bounded cost.
-
-## 
-
-![](images/canvon.png)
-
-## Comparison to DAgger
-
-PLATO could be viewed as a generalization of DAgger, which samples from mixture policy
-
-$$
-\pi_{\text{mix},i} = \beta_i \pi^* + (1 - \beta_i) \pi_{\theta_i}
-$$
-
-**Differences with the DAgger:**
-
-1.  The training data is labeled with actions from $\pi^*$.\
-2.  PLATO uses adaptive MPC policy to select actions at each time step, rather than the mixture policy $\pi_{\text{mix},i}$ used.
 
 ## Today’s agenda
 
 ::: grey-text
 • Guided policy search (GPS)
-
-• Policy learning from adaptive MPC with privileged information (PLATO)
 :::
+
+• Expert iteration & learning to search
+
+• Blending MPC and value function approximation (MPQ($\lambda$))
+
+• Imitating motion capture with RL (DeepMimic)
 
 • Combining behavioral cloning and RL
 
 • Dynamic movement primitives (DMPs)
-
-• Expert iteration & learning to search
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
-<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
-:::
-
-## 
-
-{{< video https://www.youtube.com/watch?v=vppFvq2quQ0?rel=0&enablejsapi=1 aspect-ratio="16x9" width="800" >}}
-
-[<https://www.youtube.com/watch?v=vppFvq2quQ0>]{.tiny-font}
-
-## Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations
-
-::: center-align
-Aravind Rajeswaran , Vikash Kumar , Abhishek Gupta, Giulia Vezzani , John Schulman , Emanuel Todorov , Sergey Levine
-
-<br>
-
-Jason Rebello\
-UTIAS
-:::
-
-## Motivation
-
-::::: columns
-::: {.column width="70%"}
-• Dexterous multi-fingered hands are ***extremely versatile***
-
-• ***Control*** is challenging due to high dimensionality, complex contact patterns
-
-• Previous methods require ***reward shaping***
-
-• DRL limited to ***simpler manipulators and simple tasks***
-
-• Lack of physical systems due to ***sample inefficiency***
-:::
-
-::: {.column width="30%"}
-![Object Relocation task](images/object-relocation.png)
-:::
-:::::
-
-## Contributions
-
-::::: columns
-::: {.column width="70%"}
-• Manipulation with ***24-DOF*** hand
-
-• ***Model Free*** DRL
-
-• Used in ***complex tasks with variety of tools***
-
-• Small number of ***human demonstrations*** reduces sample complexity
-
-• ***Reduces learning time***
-
-• ***Robust*** and natural movements
-:::
-
-::: {.column width="30%"}
-![Tool use task](images/grab-object.png)
-:::
-:::::
-
-## Manipulation Task 1
-
-[***Object Relocation***]{.underline}
-
-![](images/object-relocation-4.png)
-
-• Move Blue ball to green position
-
-• Task complete when ball is epsilon ball away from target
-
-• Positions of ball and target are randomized
-
-• Main challenge is exploration (reach object, grab and move to target location)
-
-## Manipulation Task 2
-
-[***In-hand Manipulation***]{.underline}
-
-![](images/inhand-manipulation.png)
-
-• Reposition blue pen to match orientation of green target
-
-• Task complete when orientation is achieved
-
-• Base of hand is fixed
-
-• Large number of contacts with complex solutions
-
-• Used a well shaped reward for training an expert
-
-## Manipulation Task 3
-
-[***Door Opening***]{.underline}
-
-![](images/door-open.png)
-
-• Undo latch and swing door open
-
-• Task complete when door touches door stopper
-
-• No information of latch explicitly provided
-
-• A lot of hidden sub-tasks
-
-• Position of door is randomized
-
-## Manipulation Task 4
-
-[***Tool Use***]{.underline}
-
-![](images/tool-use.png)
-
-• Pickup and hammer nail
-
-• Task complete when entire nail is inside the board
-
-• Use tool instead of just relocation
-
-• Multiple steps in task
-
-## Experimental Setup
-
-:::::: columns
-:::: {.column .small-math width="55%"}
-::: {layout="[1,1]"}
-[***ADROIT hand***]{.underline} ![](images/adroit-hand.png)
-
-[***HTC headset***]{.underline} ![](images/ntc-headset.png)
-:::
-
--   24-DOF hand
--   First, middle, ring – 4 DOF each
--   Little finger, thumb – 5 DOF each
--   Wrist – 2 DOF
--   Actuated with position control and has joint angle sensor
--   MuJoCo physics simulation with friction
--   25 demonstrations for each task
-::::
-
-::: {.column .small-math width="45%"}
-[***HAPTIX Simulator***]{.underline}
-
-{{< video https://roboti.us/book/file/bakeoff.mp4?rel=0&enablejsapi=1 width="360" height="250" >}}
-
-![](images/cyberglove.png)\
-[***CyberGlove 3***]{.underline}
-:::
-::::::
-
-## Methodology (Preliminaries)
-
-<br>
-
-::: {.orange .tiny-font}
-[States $\downarrow$]{.absolute top="120" left="250"}
-
-[Rewards\
-$\downarrow$]{.absolute top="100" left="360"}
-
-[Initial Probability distribution\
-$\downarrow$]{.absolute top="100" left="450"}
-:::
-
-**MDP definition:** $\mathcal{M} = \{S, A, R, \mathcal{T}, \rho_0, \gamma\}$
-
-::: {.orange .tiny-font}
-[Actions $\uparrow$]{.absolute top="170" left="280"}
-
-[$\uparrow$\
-Transition\
-dynamics]{.absolute top="170" left="400"}
-
-[$\uparrow$\
-Discount Factor]{.absolute top="180" left="485"}
-:::
-
-<br>
-
-**Value function:**\
-$$
-V^{\pi}(s) = \mathbb{E}_{\pi,\mathcal{M}} \left[ \sum_{t=0}^{\infty} \gamma^t r_t \,\big|\, s_0 = s \right]
-$$
-
-**Q function:** $Q^{\pi}(s, a) = \underline{\mathbb{E}_{\mathcal{M}} [R(s,a)]} + \underline{\mathbb{E}_{s' \sim \mathcal{T}(s,a)} [V^{\pi}(s')]}$
-
-<br><br>
-
-**Advantage function:** $A^{\pi}(s, a) = Q^{\pi}(s,a) - V^{\pi}(s)$
-
-::: {.orange .tiny-font}
-[Reward for taking\
-action a in state s]{.absolute bottom="190" left="300"}
-
-[Expected reward in state s’]{.absolute bottom="200" left="500"}
-:::
-
-## Methodology (NPG)
-
-• Directly optimize parameters of policy to maximize objective
-
-<br>
-
-[Sub-optimal $\searrow$]{.orange .tiny-font .absolute top="170" left="200"}
-
-**Vanilla Policy Gradient:** $g = \frac{1}{NT} \sum_{i=1}^{N} \sum_{t=1}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \hat{A}^{\pi}(s_t^i, a_t^i, t)$
-
-**Fisher Information Matrix:** $F_{\theta} = \frac{1}{NT} \sum_{i=1}^{N} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i)^{T}$
-
-<br>
-
-• Fisher information matrix measures the curvature (sensitivity) of policy relative to model parameters
-
-• Fisher information matrix is related to the Hessian matrix
-
-## Methodology (NPG)
-
-• Limit policy change based on parameter change
-
-• Fisher information matrix maps between parameter space and policy space
-
-• Generally use learning rate in optimization
-
-• Poor step size leads to poor initialization
-
-• Use Fisher information matrix to perform update
-
-<br>
-
-**Gradient ascent update:** $\theta_{k+1} = \theta_k + \underline{\sqrt{\frac{\delta}{g^T F_{\theta_k}^{-1} g}}} \, \overline{F_{\theta_k}^{-1} g}$
-
-::: {.orange .small-math}
-[Normalized step-size]{.absolute bottom="210" right="400"}
-
-[Steepest Ascent direction]{.absolute bottom="320" right="280"}
-:::
-
-## Methodology (Problems with RL)
-
-• Challenges with using NPG
-
-|       • RL requires careful reward shaping
-|       • Impractical number of samples to learn (approx. 100 hours)
-|       • Unnatural movement
-|       • Not as robust to environmental variations
-
-<br>
-
-• Solution
-
-|       • Combine RL with demonstrations
-|       • Guide exploration and decrease sample complexity
-|       • Robust and natural looking behaviour
-|       • Demonstration Augmented Policy Gradient (DAPG)
-
-## Methodology (Pretraining with BC)
-
-• Exploration in PG achieved with stochastic action distribution\
-• Poor initialization leads to slow exploration\
-• Behavioral Cloning (BC) guides exploration\
-• Reduces sample complexity
-
-$$
-\text{maximize}_{\theta} \sum_{(s, a) \in \rho_D} \ln \pi_{\theta}(a \mid s)
-$$
-
-• Mimic actions taken in demonstrations\
-• Does not guarantee effectiveness of policy due to distributional shift
-
-## Methodology (Fine-tuning with augmented loss)
-
-• BC does not make optimal use of demonstrations\
-• Cannot learn subtasks (reaching, grasping, hammering)\
-• BC policy (only grasping)\
-• Capturing all data
-
-$$
-g_{\text{aug}} = \sum_{(s,a) \in \rho_{\pi}} \overline{\nabla_{\theta} \ln \pi_{\theta}(a \mid s)} \, A^{\pi}(s, a) + \sum_{(s,a) \in \rho_{D}} \overline{\nabla_{\theta} \ln \pi_{\theta}(a \mid s)} \, w(s, a)
-$$
-
-<br>
-
-$$
-w(s, a) = \lambda_0 \lambda_1^k \max_{(s', a') \in \rho_\pi} A^\pi(s', a') \quad \forall (s, a) \in \rho_D
-$$
-
-::: {.orange .small-math}
-[Policy gradient]{.absolute bottom="360" left="300"}
-
-[Behavioral cloning]{.absolute bottom="360" right="200"}
-
-[$\uparrow$\
-Dataset from policy]{.absolute bottom="230" left="235"}
-
-[$\uparrow$\
-Dataset from\
-demonstrations]{.absolute bottom="210" right="260"}
-
-[$\uparrow$\
-Weighting\
-function]{.absolute bottom="240" right="70"}
-
-[$\downarrow$ iteration]{.absolute bottom="190" left="400"}
-
-[$\uparrow \quad \uparrow$\
-hyperparameters]{.absolute bottom="90" left="350"}
-:::
-
-## Results 1
-
-[Reinforcement learning from scratch]{.underline}
-
-• Can RL cope with high dimensional manipulation tasks ?\
-• Is it robust to variations in environment ?\
-• Are movements safe and can they be used on real hardware ?
-
-<br>
-
-• Compare NPG vs DDPG (Deep Deterministic Policy Gradient)\
-• DDPG is a policy gradient actor-critic algorithm that is off-policy\
-• Stochastic policy for exploration, estimates deterministic policy\
-• Score based on percentage of successful trajectories (100 samples)\
-• Sparse Reward vs Reward shaping
-
-## Results 1
-
-[Reinforcement learning from scratch]{.underline}
-
-![](images/reinforcement-learning.png)
-
-• NPG learns with reward shaping, DDPG fails to learn\
-• DDPG is sample efficient but sensitive to hyper-parameters\
-• Resulting policies have unnatural behaviors\
-• Poor sample efficiency, cant use on hardware\
-• Cannot generalize to unseen environment (weight and ball size change)
-
-## Results 2
-
-[Reinforcement learning with demonstrations]{.underline}
-
-• Does incorporating demonstrations reduce learning time?\
-• Comparison of DAPG vs DDPGfD (.. from Demonstrations)?\
-• Does it result in human like behaviour ?
-
-<br>
-
-• DDPGfD better version of DDPG (demonstrations in replay buffer, prioritized experience replay, n-step returns, regularization)\
-• Only use sparse rewards
-
-## Results 2
-
-[Reinforcement learning with demonstrations]{.underline}
-
-![](images/reinforcement-learning2.png)
-
-::::: columns
-::: {.column width="50%"}
-• DAPG outperforms DDPGfD\
-• DAPG requires few robot hours\
-• Can be used on real hardware\
-• Robust and human behavior\
-• Generalizes to unseen environment
-:::
-
-::: {.column width="50%"}
-![](images/dapg-table.png)
-:::
-:::::
-
-## Future Work
-
-• Tests on real hardware
-
-• Reduce sample complexity using novelty based exploration methods
-
-• Learn policies from raw visual inputs and tactile sensing
-
-## Results
-
-{{< video https://www.youtube.com/watch?v=jJtBll8l_OM?rel=0&enablejsapi=1 aspect-ratio="16x9" width="800" >}}
-
-[<https://www.youtube.com/watch?v=jJtBll8l_OM>]{.tiny-font}
-
-## Today’s agenda
-
-::: grey-text
-• Guided policy search (GPS)
-
-• Policy learning from adaptive MPC with privileged information (PLATO)
-
-• Combining behavioral cloning and RL
-:::
-
-• Dynamic movement primitives (DMPs)
-
-• Expert iteration & learning to search
-
-::: aside
-Acknowledgments\
-Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
-<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
-:::
-
-## 
-
-{{< video https://www.youtube.com/watch?v=IV8Eze9Hxrc?rel=0&enablejsapi=1 aspect-ratio="16x9" width="900" >}}
-
-[<https://www.youtube.com/watch?v=IV8Eze9Hxrc>]{.tiny-font}
-
-## Today’s agenda
-
-::: grey-text
-• Guided policy search (GPS)
-
-• Policy learning from adaptive MPC with privileged information (PLATO)
-
-• Combining behavioral cloning and RL
-
-• Dynamic movement primitives (DMPs)
-:::
-
-• Expert iteration & learning to search
 
 ::: aside
 Acknowledgments\
@@ -1035,4 +515,888 @@ $$
 GPS, including the mirror descent version, phrases the update procedure of the reactive policy as\
 a *behavior cloning procedure*, i.e., given an expert policy $\eta$, we perform $\min_{\pi} D_{KL}(d_{\mu \mu} \,\|\, d_{\pi \pi})^3$\
 Note that our approach to updating $\pi$ is fundamentally on-policy, i.e., we generate samples from $\pi$.
+:::
+
+## Today’s agenda
+
+::: grey-text
+• Guided policy search (GPS)
+
+• Expert iteration & learning to search
+:::
+
+• Blending MPC and value function approximation (MPQ($\lambda$))
+
+• Imitating motion capture with RL (DeepMimic)
+
+• Combining behavioral cloning and RL
+
+• Dynamic movement primitives (DMPs)
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
+<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
+:::
+
+## Blending MPC & Value Function Approximation
+
+::: {.small-math .arrow-bullets}
+**Motivation:** MPC is practical, but real-time budgets force *simple, approximate* models. Model bias compounds over the horizon and caps performance. Model-free RL has no model bias, but needs too much data.
+
+::: fragment
+▶ Prior work (e.g. AlphaGo, POLO, MPQ) learns a **terminal** value function to extend the effective horizon of MPC.
+
+▶ But the learned value is only invoked at step $H$ and model error still accumulates *inside* the horizon.
+:::
+
+::: fragment
+::: {style="color:red;"}
+Question: can learning both extend the horizon of MPC **and** correct for model bias?
+:::
+:::
+:::
+
+
+::: aside
+Bhardwaj, Choudhury, Boots. *Blending MPC & Value Function Approximation for Efficient Reinforcement Learning.* ICLR 2021.\
+[<https://arxiv.org/abs/2012.05909>]{.tiny-font}
+:::
+
+## MPC as a series of local Q-function approximations
+
+::::: {.small-math .arrow-bullets}
+▶ MPC solves a **surrogate MDP** $\hat{M} = (S, A, \hat{c}, \hat{P}, \gamma, \hat{\mu}, H)$ online, with approximate cost $\hat{c}$, approximate dynamics $\hat{P}$, finite horizon $H$, terminal value $\hat{Q}$, and start-state distribution $\hat{\mu}$:
+
+$$
+Q^{\pi_{\phi}}_H(s,a) = \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\sum_{i=0}^{H-1} \gamma^i \hat{c}(s_i, a_i) + \gamma^H \underbrace{\hat{Q}(s_H, a_H)}_{\text{terminal state-action value}} \;\Big|\; s_0 = s,\, a_0 = a\right] \tag{1}
+$$
+
+▶ At the current state $s_t$, MPC optimizes action distribution: 
+
+$$
+\arg\min_{\phi} \; \mathbb{E}_{a_t \sim \pi_{\phi}(a|s_t)}\left[ Q^{\pi_{\phi}}_H(s_t, a_t) \right]
+$$
+
+::: fragment
+▶ Equivalently, via a telescoping sum, we can define $A(s_i,a_i) = \hat{c}(s_i,a_i) + \gamma \hat{Q}(s_{i+1},a_{i+1}) - \hat{Q}(s_i,a_i)$ and\
+formulate (1) in terms of the 1-step disadvantage w.r.t. $\hat{Q}$:
+
+$$
+ \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\hat{Q}(s_0,a_0) + \sum_{i=0}^{H-1} \gamma^i A(s_i,a_i) \;\Big|\; s_0 = s\right]
+$$
+
+[This form is exactly equivalent to (1), so it does **not** yet fix model bias, but it is the form we will modify.]{.red}
+:::
+:::::
+
+## Error as a function of H
+
+::: {.small-math .arrow-bullets}
+1.  **Model bias** compounds along predicted trajectories → worse as $H \to \infty$.
+2.  **Terminal value error** propagates back to $s_0$, but is discounted → better as $H \to \infty$.
+3.  **Myopic behavior**: small $H$ with an inaccurate $\hat{Q}$ makes the controller greedy.
+
+::: fragment
+**Theorem 3.1.** If $\hat{M}$ is an $\alpha$-approximation of $M$ ($\lVert \hat{P} - P \rVert_1 \leq \alpha$, $\lvert \hat{c} - c \rvert \leq \alpha$) and $\lVert \hat{Q} - Q^{\pi^*}_M \rVert_\infty \leq \epsilon$, then the $H$-step greedy policy satisfies
+
+$$
+\left\lVert V^{\pi^*}_M - V^{\hat{\pi}}_M \right\rVert_\infty \leq 2\left(\frac{\gamma(1-\gamma^{H-1})}{(1-\gamma^H)(1-\gamma)}\alpha H \frac{c_{\max}-c_{\min}}{2} + \frac{\gamma^H \alpha H}{1-\gamma^H}\frac{V_{\max}-V_{\min}}{2} + \frac{\alpha}{1-\gamma} + \frac{\gamma^H \epsilon}{1-\gamma^H}\right)
+$$
+:::
+
+::: fragment
+▶ [Model error grows with $H$; value error shrinks with $H$.]{.red}
+:::
+:::
+
+## Key idea: blending with $\lambda$
+
+::::: {.small-math .arrow-bullets}
+▶ Naive blend (value function as a residual on the MPC output) is *ad hoc*, it uses $\hat{Q}$ only at the ends:
+
+$$
+\underbrace{(1-\lambda)\hat{Q}(s,a)}_{\text{model-free}} + \underbrace{\lambda Q^{\phi}_H(s,a)}_{\text{model-based}}
+$$
+
+::: fragment
+▶ Instead, define a **recursive** blend that invokes $\hat{Q}$ at *every* step of the horizon:
+
+$$
+\underbrace{Q^{\lambda}(s_i,a_i)}_{\text{current blended estimate}} = \underbrace{(1-\lambda)\hat{Q}(s_i,a_i)}_{\text{model-free}} + \lambda\big(\underbrace{\hat{c}(s_i,a_i)}_{\text{model-based}} + \gamma \underbrace{Q^{\lambda}(s_{i+1},a_{i+1})}_{\text{future blended estimate}}\big), \qquad Q^{\lambda}(s_H,a_H) = \hat{Q}(s_H,a_H)
+$$
+:::
+
+::: fragment
+▶ Unrolling gives an **exponentially weighted average over all horizon estimates** $Q^{\phi}_i$:
+
+$$
+Q^{\lambda}_H(s,a) = (1-\lambda)\sum_{i=0}^{H-1}\lambda^i Q^{\phi}_i(s,a) + \lambda^H Q^{\phi}_H(s,a)
+\qquad
+\boxed{\lambda = 0 \Rightarrow \hat{Q}, \quad \lambda = 1 \Rightarrow \text{plain MPC}}
+$$
+:::
+
+::: fragment
+▶ Running $H$ copies of MPC would be far too expensive, but the same telescoping trick makes it **free**: every horizon estimate $Q^{\phi}_i$ is a *prefix* of the one $H$-step rollout MPC already simulates, so all we do is discount each per-step term by an extra $\lambda^i$.
+
+$$
+Q^{\lambda}_H(s,a) = \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\hat{Q}(s_0,a_0) + \lambda\sum_{i=0}^{H-1}(\gamma\lambda)^i A(s_i,a_i)\right] \tag{2}
+$$
+
+[Same form as TD($\lambda$), but here $\lambda$ trades off **model bias vs. value-function bias**, not bias vs. variance.]{.red}
+:::
+:::::
+
+## Deriving the telescoped form of Eqn (2)
+
+::::: {.small-math .arrow-bullets}
+▶ Write $\hat{Q}_i \equiv \hat{Q}(s_i,a_i)$, $\hat{c}_i \equiv \hat{c}(s_i,a_i)$, $Q^{\lambda}_i \equiv Q^{\lambda}(s_i,a_i)$, and track the gap $\Delta_i \equiv Q^{\lambda}_i - \hat{Q}_i$ between the blend and the value function. The recursion ends at $Q^{\lambda}_H = \hat{Q}_H$, so $\Delta_H = 0$.
+
+▶ Subtract $\hat{Q}_i$ from both sides of the recursion, then add and subtract $\gamma\hat{Q}_{i+1}$:
+
+$$
+\begin{aligned}
+\Delta_i &= (1-\lambda)\hat{Q}_i + \lambda\big(\hat{c}_i + \gamma Q^{\lambda}_{i+1}\big) - \hat{Q}_i = \lambda\big(\hat{c}_i + \gamma Q^{\lambda}_{i+1} - \hat{Q}_i\big) \\
+&= \lambda\underbrace{\big(\hat{c}_i + \gamma\hat{Q}_{i+1} - \hat{Q}_i\big)}_{A(s_i,a_i)} + \gamma\lambda\underbrace{\big(Q^{\lambda}_{i+1} - \hat{Q}_{i+1}\big)}_{\Delta_{i+1}}
+\end{aligned}
+$$
+
+::: fragment
+▶ So $\Delta_i = \lambda A(s_i,a_i) + (\gamma\lambda)\,\Delta_{i+1}$ is a one-step recursion with $\Delta_H = 0$. Unrolling it from $i=0$:
+
+$$
+Q^{\lambda}_H(s,a) = \hat{Q}(s_0,a_0) + \Delta_0 = \mathbb{E}_{\hat{\mu}, \pi_{\phi}, \hat{P}}\left[\hat{Q}(s_0,a_0) + \lambda\sum_{i=0}^{H-1}(\gamma\lambda)^i A(s_i,a_i)\right]
+$$
+:::
+
+::: fragment
+▶ Check the endpoints: $\lambda = 0$ leaves $\hat{Q}(s_0,a_0)$, and $\lambda = 1$ telescopes back to $\sum_i \gamma^i \hat{c}_i + \gamma^H \hat{Q}_H = Q^{\pi_{\phi}}_H$.
+
+▶ Every $A(s_i,a_i)$ is read off the **same** rollout, so the blend costs one $H$-step rollout, not $H$ of them.
+
+[Eq. (8) in the paper drops the leading $\lambda$. That version is TD($\lambda$)'s weighting, $(1-\lambda)\lambda^{i-1}$ starting at the **1-step** estimate, so at $\lambda = 0$ it collapses to $\hat{c}_0 + \gamma\hat{Q}_1$ rather than to $\hat{Q}$]{.red}
+:::
+:::::
+
+## The MPQ($\lambda$) algorithm
+
+![](images/mpq-algorithm.png){height="400"}
+
+::: {.small-math .arrow-bullets}
+▶ MPC (here MPPI) optimizes the *blended* estimate for action selection **and** for generating Q-targets.
+
+▶ $\lambda$ is **decayed** over training: trust the model early, trust $\hat{Q}_\theta$ as it becomes accurate.
+:::
+
+## Results
+
+:::: columns
+::: {.column width="50%"}
+![](images/mpq-fixed-lambda.png){height="330"}
+
+[CartPoleSwingup, mass bias $b=-0.5$, $H=64$]{.tiny-font}
+:::
+
+::: {.column width="50%"}
+![](images/mpq-inhand-success.png){height="330"}
+
+[24-DOF hand, biased mass/inertia/friction]{.tiny-font}
+:::
+::::
+
+::: {.small-math .arrow-bullets}
+▶ A wide range of $\lambda$ beats MPPI with the biased model, and even MPPI with the **true** dynamics. $\lambda \approx 1$ (pure MPC) and $\lambda < 0.6$ both degrade.
+
+▶ Far more sample-efficient than model-free RL. PPO does not improve at all on in-hand manipulation over 150k steps.
+
+▶ Robust to horizon, particle count, and large model bias, but if the model is *extremely* uninformative, leaning on MPC hurts.
+:::
+
+## Today’s agenda
+
+::: grey-text
+• Guided policy search (GPS)
+
+• Expert iteration & learning to search
+
+• Blending MPC and value function approximation (MPQ($\lambda$))
+:::
+
+• Imitating motion capture with RL (DeepMimic)
+
+• Combining behavioral cloning and RL
+
+• Dynamic movement primitives (DMPs)
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
+<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
+:::
+
+## 
+
+{{< video https://www.youtube.com/watch?v=vppFvq2quQ0?rel=0&enablejsapi=1 aspect-ratio="16x9" width="800" >}}
+
+[<https://www.youtube.com/watch?v=vppFvq2quQ0>]{.tiny-font}
+
+
+## Problem setup
+
+::: {.small-math .arrow-bullets}
+▶ **State** $s_t$: link positions, orientations (quaternions), and linear/angular velocities, all expressed in a character-local frame, plus a **phase variable** $\phi \in [0,1]$ marking where in the clip we are ($\phi = 0$ start, $\phi = 1$ end).
+
+▶ The phase is what makes the problem Markov: without it the target pose depends on time, and the same character pose would demand different actions at different points in the clip.
+
+▶ **Action** $a_t$: target joint angles for PD controllers, not torques. The policy is queried at 30 Hz; the PD controllers run at simulation rate and act as a low-level stabilizer, which speeds up learning considerably.
+
+▶ **Goal** $g$: task-specific and optional (desired heading, target to strike), so the policy is $\pi_\theta(a \mid s, g)$ with value function $V_\psi(s,g)$.
+
+▶ Trained with **PPO**; both networks are two fully-connected layers with ReLU. Terrain-aware variants prepend a small conv net over a heightmap.
+:::
+
+## The reward: imitation + task
+
+::::: {.small-math .arrow-bullets}
+▶ Total reward mixes tracking the clip with doing the job:
+
+$$
+r_t = w^I r^I_t + w^G r^G_t, \qquad w^I = 0.7,\ w^G = 0.3
+$$
+
+▶ The imitation term is a weighted sum of four **bounded** similarity measures, each an exponential of a squared error (so it saturates rather than demanding impossible precision):
+
+$$
+r^I_t = \underbrace{0.65}_{w^p} r^p_t + \underbrace{0.10}_{w^v} r^v_t + \underbrace{0.15}_{w^e} r^e_t + \underbrace{0.10}_{w^c} r^c_t
+$$
+
+::: fragment
+$$
+\begin{aligned}
+r^p_t &= \exp\Big[-2\textstyle\sum_j \|\hat{q}^j_t \ominus q^j_t\|^2\Big] &&\text{joint orientations} \\
+r^v_t &= \exp\Big[-0.1\textstyle\sum_j \|\dot{\hat{q}}^j_t - \dot{q}^j_t\|^2\Big] &&\text{joint velocities} \\
+r^e_t &= \exp\Big[-40\textstyle\sum_e \|\hat{p}^e_t - p^e_t\|^2\Big] &&\text{hands and feet} \\
+r^c_t &= \exp\Big[-10\|\hat{p}^c_t - p^c_t\|^2\Big] &&\text{centre of mass}
+\end{aligned}
+$$
+
+[Hats denote the reference clip; $\ominus$ is the quaternion difference. End-effectors get the sharpest coefficient: feet in the wrong place read as a different skill.]{.red}
+:::
+:::::
+
+## What actually makes it work
+
+::: {.small-math .arrow-bullets}
+▶ **Reference state initialization (RSI):** at the start of each episode sample a phase $\phi \sim U[0,1]$ and initialize the character from the clip at that phase. Otherwise the agent must master the takeoff of a backflip before it ever *sees* the reward for landing one; exploration never reaches the later part of the clip.
+
+▶ **Early termination (ET):** end the episode, with zero reward for all remaining steps, as soon as the torso or head touches the ground. This kills the local optimum of falling over and collecting partial pose reward while lying down, and re-weights the data toward states the policy still has a chance in.
+
+::: fragment
+▶ Ablation, normalized return:
+
+|   | Backflip | Sideflip |
+|---|---|---|
+| RSI + ET | **0.791** | **0.823** |
+| ET only (no RSI) | 0.379 | 0.355 |
+
+▶ Without RSI the character learns a small backwards hop while staying upright, never the mid-air rotation. [Two initialization/termination choices matter more here than the RL algorithm itself.]{.red}
+:::
+:::
+
+
+## Many clips, one character
+
+::: {.small-math .arrow-bullets}
+▶ **Multi-clip reward:** $r^I_t = \max_{j=1,\dots,k} r^j_t$: reward the best-matching clip at each step, so the policy is never forced to commit to one demonstration.
+
+▶ **Skill selector:** feed a one-hot clip id as extra input, and a single policy covers a repertoire on demand.
+
+▶ **Composite policy** from separately trained skills, arbitrated by their own value functions:
+
+$$
+\Pi(a \mid s) = \sum_i p^i(s)\, \pi^i(a \mid s), \qquad p^i(s) = \frac{\exp[V^i(s)/\mathcal{T}]}{\sum_j \exp[V^j(s)/\mathcal{T}]}
+$$
+
+::: fragment
+▶ Characters: humanoid (34 DOF), Atlas (31), T-Rex (55), dragon (79). Skills: walk/run, cartwheel, back/front/side flip, spin-kick, getup, vault, baseball pitch, terrain traversal from a heightmap.
+
+▶ Adding the task reward matters: strike success **99% vs 19%**, throwing accuracy **75% vs 5%**, against imitation-only policies.
+
+▶ [Cost and limits: 41M–191M samples and *days* per skill; the phase variable locks in the clip's timing; the similarity metric in the reward is hand-designed.]{.red}
+:::
+:::
+
+## Today’s agenda
+
+::: grey-text
+• Guided policy search (GPS)
+
+• Expert iteration & learning to search
+
+• Blending MPC and value function approximation (MPQ($\lambda$))
+
+• Imitating motion capture with RL (DeepMimic)
+:::
+
+• Combining behavioral cloning and RL
+
+• Dynamic movement primitives (DMPs)
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
+<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
+:::
+
+## Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations
+
+[https://arxiv.org/abs/1709.10087](https://arxiv.org/abs/1709.10087)
+
+## 
+
+{{< video https://www.youtube.com/watch?v=jJtBll8l_OM?rel=0&enablejsapi=1 aspect-ratio="16x9" width="800" >}}
+
+[<https://www.youtube.com/watch?v=jJtBll8l_OM>]{.tiny-font}
+
+
+## Motivation
+
+::::: columns
+::: {.column width="70%"}
+• Dexterous multi-fingered hands are ***extremely versatile***
+
+• ***Control*** is challenging due to high dimensionality, complex contact patterns
+
+• Previous methods require ***reward shaping***
+
+• DRL limited to ***simpler manipulators and simple tasks***
+
+• Lack of physical systems due to ***sample inefficiency***
+:::
+
+::: {.column width="30%"}
+![Object Relocation task](images/object-relocation.png)
+:::
+:::::
+
+## Contributions
+
+::::: columns
+::: {.column width="70%"}
+• Manipulation with ***24-DOF*** hand
+
+• ***Model Free*** DRL
+
+• Used in ***complex tasks with variety of tools***
+
+• Small number of ***human demonstrations*** reduces sample complexity
+
+• ***Reduces learning time***
+
+• ***Robust*** and natural movements
+:::
+
+::: {.column width="30%"}
+![Tool use task](images/grab-object.png)
+:::
+:::::
+
+## Manipulation Task 1
+
+[***Object Relocation***]{.underline}
+
+![](images/object-relocation-4.png)
+
+• Move Blue ball to green position
+
+• Task complete when ball is epsilon ball away from target
+
+• Positions of ball and target are randomized
+
+• Main challenge is exploration (reach object, grab and move to target location)
+
+## Manipulation Task 2
+
+[***In-hand Manipulation***]{.underline}
+
+![](images/inhand-manipulation.png)
+
+• Reposition blue pen to match orientation of green target
+
+• Task complete when orientation is achieved
+
+• Base of hand is fixed
+
+• Large number of contacts with complex solutions
+
+• Used a well shaped reward for training an expert
+
+## Manipulation Task 3
+
+[***Door Opening***]{.underline}
+
+![](images/door-open.png)
+
+• Undo latch and swing door open
+
+• Task complete when door touches door stopper
+
+• No information of latch explicitly provided
+
+• A lot of hidden sub-tasks
+
+• Position of door is randomized
+
+## Manipulation Task 4
+
+[***Tool Use***]{.underline}
+
+![](images/tool-use.png)
+
+• Pickup and hammer nail
+
+• Task complete when entire nail is inside the board
+
+• Use tool instead of just relocation
+
+• Multiple steps in task
+
+## Experimental Setup
+
+:::::: columns
+:::: {.column .small-math width="55%"}
+::: {layout="[1,1]"}
+[***ADROIT hand***]{.underline} ![](images/adroit-hand.png)
+
+[***HTC headset***]{.underline} ![](images/ntc-headset.png)
+:::
+
+-   24-DOF hand
+-   First, middle, ring – 4 DOF each
+-   Little finger, thumb – 5 DOF each
+-   Wrist – 2 DOF
+-   Actuated with position control and has joint angle sensor
+-   MuJoCo physics simulation with friction
+-   25 demonstrations for each task
+::::
+
+::: {.column .small-math width="45%"}
+[***HAPTIX Simulator***]{.underline}
+
+{{< video https://roboti.us/book/file/bakeoff.mp4?rel=0&enablejsapi=1 width="360" height="250" >}}
+
+![](images/cyberglove.png)\
+[***CyberGlove 3***]{.underline}
+:::
+::::::
+
+## Methodology (Problems with RL)
+
+• Challenges with using RL
+
+|       • RL requires careful reward shaping
+|       • Impractical number of samples to learn (approx. 100 hours)
+|       • Unnatural movement
+|       • Not as robust to environmental variations
+
+<br>
+
+• Solution
+
+|       • Combine RL with demonstrations
+|       • Guide exploration and decrease sample complexity
+|       • Robust and natural looking behaviour
+|       • Demonstration Augmented Policy Gradient (DAPG)
+
+## Methodology (Pretraining with BC)
+
+• Exploration in PG achieved with stochastic action distribution\
+• Poor initialization leads to slow exploration\
+• Behavioral Cloning (BC) guides exploration\
+• Reduces sample complexity
+
+$$
+\text{maximize}_{\theta} \sum_{(s, a) \in \rho_D} \ln \pi_{\theta}(a \mid s)
+$$
+
+• Mimic actions taken in demonstrations\
+• Does not guarantee effectiveness of policy due to distributional shift
+
+## Methodology (Fine-tuning with augmented loss)
+
+• BC does not make optimal use of demonstrations\
+• Cannot learn subtasks (reaching, grasping, hammering)\
+• BC policy (only grasping)\
+• Capturing all data
+
+$$
+g_{\text{aug}} = \sum_{(s,a) \in \rho_{\pi}} \overline{\nabla_{\theta} \ln \pi_{\theta}(a \mid s)} \, A^{\pi}(s, a) + \sum_{(s,a) \in \rho_{D}} \overline{\nabla_{\theta} \ln \pi_{\theta}(a \mid s)} \, w(s, a)
+$$
+
+<br>
+
+$$
+w(s, a) = \lambda_0 \lambda_1^k \max_{(s', a') \in \rho_\pi} A^\pi(s', a') \quad \forall (s, a) \in \rho_D
+$$
+
+::: {.orange .small-math}
+[Policy gradient]{.absolute bottom="360" left="300"}
+
+[Behavioral cloning]{.absolute bottom="360" right="200"}
+
+[$\uparrow$\
+Dataset from policy]{.absolute bottom="230" left="235"}
+
+[$\uparrow$\
+Dataset from\
+demonstrations]{.absolute bottom="210" right="260"}
+
+[$\uparrow$\
+Weighting\
+function]{.absolute bottom="240" right="70"}
+
+[$\downarrow$ iteration]{.absolute bottom="190" left="400"}
+
+[$\uparrow \quad \uparrow$\
+hyperparameters]{.absolute bottom="90" left="350"}
+:::
+
+
+## Methodology (NPG)
+
+<br>
+
+**Vanilla Policy Gradient:** $g = \frac{1}{NT} \sum_{i=1}^{N} \sum_{t=1}^{T} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \hat{A}^{\pi}(s_t^i, a_t^i, t)$
+
+**Fisher Information Matrix:** $F_{\theta} = \frac{1}{NT} \sum_{i=1}^{N} \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i) \nabla_{\theta} \log \pi_{\theta}(a_t^i \mid s_t^i)^{T}$
+
+**Natural Policy Gradient:** $\tilde{g} = F_{\theta}^{-1} g$
+
+<br>
+
+::: {.small-math .arrow-bullets}
+▶ Fisher information matrix measures the curvature (sensitivity) of policy relative to model parameters
+
+▶ $\tilde{g}$ is the steepest ascent direction when *distance between policies* is measured by KL divergence, instead of Euclidean distance between parameters:
+
+$$
+\tilde{g} \ \propto \ \arg\max_{\Delta\theta}\ g^{\top}\Delta\theta
+\quad \text{s.t.} \quad
+\underbrace{\tfrac{1}{2}\Delta\theta^{\top} F_{\theta}\, \Delta\theta}_{\approx\ \text{KL}(\pi_\theta \,\|\, \pi_{\theta+\Delta\theta})} \le \tfrac{\delta}{2}
+$$
+
+▶ [Consequence: the update is invariant to how the policy is parameterized. Rescaling or reparameterizing $\theta$ changes $g$, but not the policy change $\tilde{g}$ produces.]{.red}
+:::
+
+
+## Fisher Information: Simple Examples
+
+::: r-stack
+![](images/fisher-information-gaussian.png){width="100%"}
+
+![](images/fisher-information-mixture.png){.fragment fragment-index=1 width="100%"}
+:::
+
+:::: small-math
+• $\frac{1}{2}\Delta\theta^\top F_\theta \Delta\theta$ is the second-order approximation of $\text{KL}(\pi_\theta \,\|\, \pi_{\theta + \Delta\theta})$, i.e. $F_\theta$ is the curvature of the KL divergence
+
+• The same parameter step changes the policy much more where ellipses are small (low-variance Gaussians)
+
+• NPG limits every update to a KL ellipse of fixed size, so steps automatically shrink where the policy is sensitive
+
+::: {.fragment fragment-index=1}
+• $F_\theta$ can be singular: pulling identical mixture components apart does not change the distribution to first order, so implementations invert $F_\theta + \lambda I$
+:::
+::::
+
+## Natural Gradient vs Vanilla Gradient
+
+![](images/natural-vs-vanilla-gradient.png){width="100%"}
+
+::::: {.small-math .arrow-bullets}
+Max. likelihood fit of $p_\theta(x) = \mathcal{N}(x;\, \theta, \Sigma)$, elongated $\Sigma$:
+$\ L(\theta) = \tfrac{1}{2}(\theta - \bar{x})^\top \Sigma^{-1} (\theta - \bar{x})$,
+$\ \nabla_\theta L = \Sigma^{-1}(\theta - \bar{x})$,
+$\ F_\theta = \Sigma^{-1}$
+
+▶ **Vanilla:** $-\nabla_\theta L$ is perpendicular to the contours. $\alpha > 2/\lambda_{\max}$ diverges along the sensitive direction, so the insensitive one shrinks by at best $\frac{\kappa - 1}{\kappa + 1}$ per step.
+
+▶ **Natural:** $-F_\theta^{-1} \nabla_\theta L = -(\theta - \bar{x})$ points straight at the minimum, and the error shrinks by $(1 - \alpha)$ per step for any $\kappa$.
+
+::: fragment
+▶ [Here $F_\theta$ happens to equal the Hessian of $L$, so this is Newton's method. In general $F_\theta$ is the curvature of the KL, not of $L$. It is always positive semi-definite and only needs first derivatives of $\log p_\theta$.]{.red}
+:::
+:::::
+
+## Natural Policy Gradient vs Policy Gradient: Simple Example
+
+::::: {.small-math .arrow-bullets}
+▶ Take a Gaussian policy $\pi_\theta(a) = \mathcal{N}(a;\, \mu, \sigma^2)$ with $\theta = (\mu, \sigma)$, and a loss that only cares about the mean:
+
+$$
+L(\theta) = \tfrac{1}{2}(\mu - \mu^\star)^2,
+\qquad
+\nabla_\theta L = \begin{pmatrix} \mu - \mu^\star \\ 0 \end{pmatrix},
+\qquad
+F_\theta = \begin{pmatrix} 1/\sigma^2 & 0 \\ 0 & 2/\sigma^2 \end{pmatrix}
+$$
+
+▶ The two updates, $\theta \leftarrow \theta - \alpha\, \nabla_\theta L$ versus $\theta \leftarrow \theta - \alpha\, F^{-1}_\theta \nabla_\theta L$, move the mean by
+
+$$
+\Delta\mu_{\text{vanilla}} = -\alpha\,(\mu - \mu^\star)
+\qquad\text{vs.}\qquad
+\Delta\mu_{\text{natural}} = -\alpha\,\boxed{\sigma^2}\,(\mu - \mu^\star)
+$$
+
+::: fragment
+▶ [The vanilla step is the same size no matter how deterministic the policy already is.]{.red} For policies with $\sigma \to 0$ a fixed shift of $\mu$ is an enormous change in the distribution  ($\text{KL} \approx \Delta\mu^2 / 2\sigma^2 \to \infty$) and this is exactly when vanilla PG overshoots and collapses a nearly-converged policy.
+
+▶ The natural gradient scales by $\sigma^2$ and so keeps every step at a **constant KL**, automatically braking as the policy sharpens.
+:::
+
+::: fragment
+▶ Now reparameterize with $\mu = c\,u$, i.e. just a change of units for the same policy class. Then $\nabla_u L = c\,(\mu - \mu^\star)$ and $F_{uu} = c^2/\sigma^2$, so the *same* step $\alpha$ moves the mean by
+
+$$
+\Delta\mu_{\text{vanilla}} = -\alpha\, c^2 (\mu - \mu^\star)
+\qquad\text{vs.}\qquad
+\Delta\mu_{\text{natural}} = -\alpha\, \sigma^2 (\mu - \mu^\star)
+$$
+
+▶ [Vanilla gradient descent follows a different trajectory for every choice of $c$; the natural gradient follows the same one. The $c^2$ cancels because $F$ transforms the same way the gradient does.]{.red}
+:::
+:::::
+
+
+
+
+
+## Results 1
+
+[Reinforcement learning from scratch]{.underline}
+
+• Can RL cope with high dimensional manipulation tasks ?\
+• Is it robust to variations in environment ?\
+• Are movements safe and can they be used on real hardware ?
+
+<br>
+
+• Compare NPG vs DDPG (Deep Deterministic Policy Gradient)\
+• DDPG is a policy gradient actor-critic algorithm that is off-policy\
+• Stochastic policy for exploration, estimates deterministic policy\
+• Score based on percentage of successful trajectories (100 samples)\
+• Sparse Reward vs Reward shaping
+
+## Results 1
+
+[Reinforcement learning from scratch]{.underline}
+
+![](images/reinforcement-learning.png)
+
+• NPG learns with reward shaping, DDPG fails to learn\
+• DDPG is sample efficient but sensitive to hyper-parameters\
+• Resulting policies have unnatural behaviors\
+• Poor sample efficiency, can't use on hardware\
+• Cannot generalize to unseen environment (weight and ball size change)
+
+## Results 2
+
+[Reinforcement learning with demonstrations]{.underline}
+
+• Does incorporating demonstrations reduce learning time?\
+• Comparison of DAPG vs DDPGfD (fD = from demonstrations)\
+• Does it result in human like behaviour ?
+
+<br>
+
+• DDPGfD better version of DDPG (demonstrations in replay buffer, prioritized experience replay, n-step returns, regularization)\
+• Only use sparse rewards
+
+## Results 2
+
+[Reinforcement learning with demonstrations]{.underline}
+
+![](images/reinforcement-learning2.png)
+
+::::: columns
+::: {.column width="50%"}
+• DAPG outperforms DDPGfD\
+• DAPG requires few robot hours\
+• Can be used on real hardware\
+• Robust and human behavior\
+• Generalizes to unseen environment
+:::
+
+::: {.column width="50%"}
+![](images/dapg-table.png)
+:::
+:::::
+
+## Left for Future Work
+
+• Tests on real hardware
+
+• Reduce sample complexity using novelty based exploration methods
+
+• Learn policies from raw visual inputs and tactile sensing
+
+
+## Today’s agenda
+
+::: grey-text
+• Guided policy search (GPS)
+
+• Expert iteration & learning to search
+
+• Blending MPC and value function approximation (MPQ($\lambda$))
+
+• Imitating motion capture with RL (DeepMimic)
+
+• Combining behavioral cloning and RL
+:::
+
+• Dynamic movement primitives (DMPs)
+
+::: aside
+Acknowledgments\
+Today’s slides are based on student presentations from 2019 by: Yuwei Chen, Jienan Yao, and Jason Rebello as well as from YouTube recordings of lectures from Gregor Schöner, for his Autonomous Robotics course:\
+<https://www.youtube.com/watch?v=IV8Eze9Hxrc&ab_channel=Dynamicfieldtheory>
+:::
+
+## 
+
+{{< video https://www.youtube.com/watch?v=IV8Eze9Hxrc?rel=0&enablejsapi=1 aspect-ratio="16x9" width="900" >}}
+
+[<https://www.youtube.com/watch?v=IV8Eze9Hxrc>]{.tiny-font}
+
+## Dynamic Movement Primitives
+
+::::: {.small-math .arrow-bullets}
+▶ Idea: instead of storing a demonstrated movement as a time-indexed trajectory $y^\star(t)$ and tracking it, encode it as a **dynamical system with a built-in attractor at the goal $g$**. Each degree of freedom $y$ (a joint angle, or one coordinate of the end-effector) gets its own *transformation system*:
+
+$$
+\tau \dot z = \underbrace{\alpha_z\big(\beta_z (g - y) - z\big)}_{\text{spring-damper pulling } y \text{ to } g} + \underbrace{f(x)}_{\text{learned forcing term}},
+\qquad
+\tau \dot y = z
+$$
+
+▶ With $f = 0$ this is a linear spring-damper, i.e. a PD controller towards $g$. Choosing $\beta_z = \alpha_z / 4$ makes it critically damped, so $(y, \dot y) = (g, 0)$ is a globally asymptotically stable fixed point: $y$ converges to $g$ from any initial state, without oscillating.
+
+▶ The forcing term $f$ shapes *how* the system gets to $g$, i.e. the path of the demonstration. It depends on a phase variable $x$ instead of time and is designed to vanish as the movement ends, [so the attractor at $g$ is preserved for *any* learned weights.]{.red}
+
+::: fragment
+▶ Compared to tracking $y^\star(t)$ we get for free: robustness to perturbations (the state evolves from wherever it was pushed to, no replanning), a new goal $g$ or duration $\tau$ is just a change of parameters, and a compact parameterization (tens of weights per DoF) that is easy to learn from one demonstration and to refine with RL.
+:::
+:::::
+
+::: tiny-font
+Dynamical Movement Primitives: Learning Attractor Models for Motor Behaviors. Ijspeert, Nakanishi, Hoffmann, Pastor, Schaal. Neural Computation'13. <https://ieeexplore.ieee.org/document/6797340>
+:::
+
+## DMPs: Canonical System and Forcing Term
+
+::::: {.small-math .arrow-bullets}
+$$
+\underbrace{\tau \dot x = -\alpha_x x, \quad x(0) = 1}_{\text{canonical system}}
+\qquad\qquad
+f(x) = \frac{\sum_{i=1}^{N} \psi_i(x)\, w_i}{\sum_{i=1}^{N} \psi_i(x)}\; x\,(g - y_0),
+\qquad
+\psi_i(x) = \exp\!\big(-h_i (x - c_i)^2\big)
+$$
+
+▶ The phase $x$ decays from 1 to 0 and acts as a clock that replaces explicit time. [All DoFs of a movement share the same canonical system]{.red}, which keeps them synchronized: multi-DoF coordination comes from the shared phase, not from coupling the transformation systems to each other.
+
+▶ $\psi_i$ are Gaussian basis functions in $x$, with centers $c_i$ spaced so that they are evenly spread in time. Their normalized weighted sum is a function approximator that is **linear in the weights $w_i$**.
+
+▶ Multiplying by $x$ makes $f \to 0$ as $x \to 0$, so eventually only the spring-damper remains and $y \to g$. Multiplying by $(g - y_0)$ makes the movement scale with its amplitude.
+
+▶ No term depends on $t$ directly, so the DMP is an autonomous system in the state $(y, z, x)$, i.e. a policy $\ddot y = \pi(y, \dot y, x;\, w, g, \tau)$. On a robot, its outputs $(y, \dot y, \ddot y)$ are the desired states for a low-level tracking controller (e.g. inverse dynamics + PD).
+
+::: fragment
+▶ **Rhythmic DMPs** (drumming, walking, wiping): replace the canonical system by a phase oscillator $\tau \dot\phi = 1$, use periodic basis functions $\psi_i = \exp\big(h_i(\cos(\phi - c_i) - 1)\big)$ and scale $f$ by an amplitude $r$ instead of $x(g - y_0)$. The goal $g$ becomes the center of the oscillation, and the point attractor becomes a limit cycle.
+:::
+:::::
+
+## Learning a DMP from a Single Demonstration
+
+![](images/dmp-anatomy.png){width="90%"}
+
+::::: {.small-math .arrow-bullets}
+▶ Given a demonstration $y_{\text{demo}}(t)$, $t \in [0, T]$, set $y_0 = y_{\text{demo}}(0)$, $g = y_{\text{demo}}(T)$, $\tau = T$, and differentiate numerically to get $\dot y_{\text{demo}}, \ddot y_{\text{demo}}$. Solving the transformation system for $f$ gives the forcing term that reproduces the demo exactly:
+
+$$
+f_{\text{target}}(t) = \tau^2 \ddot y_{\text{demo}} - \alpha_z\big(\beta_z (g - y_{\text{demo}}) - \tau \dot y_{\text{demo}}\big)
+$$
+
+▶ Since $f$ is linear in $w$, fitting it is locally weighted linear regression, with one closed-form solve per basis function:
+
+$$
+w_i = \frac{s^\top \Gamma_i\, f_{\text{target}}}{s^\top \Gamma_i\, s},
+\qquad
+s = \begin{pmatrix} x_1 (g - y_0) \\ \vdots \\ x_T (g - y_0) \end{pmatrix},
+\qquad
+\Gamma_i = \operatorname{diag}\big(\psi_i(x_1), \ldots, \psi_i(x_T)\big)
+$$
+
+▶ [Imitation becomes supervised regression of $f$, and the dynamics, not the accuracy of the regression, guarantee that the rollout reaches $g$.]{.red} No iterative optimization, no rollouts, one demonstration.
+:::::
+
+## DMPs Generalize by Construction
+
+![](images/dmp-generalization.png){width="100%"}
+
+::::: {.small-math .arrow-bullets}
+▶ **New goal** (left): keep $w$, change $g$. Because $f \propto (g - y_0)$, each DoF is rescaled by $(g - y_0) / (g_{\text{demo}} - y_{0,\text{demo}})$. The shape is preserved up to a per-axis stretch, which distorts it when the axes are scaled very differently (green).
+
+▶ **New duration** (middle): $\tau$ rescales time in both the canonical and the transformation system, so the rollout traces the same path at a different speed.
+
+▶ **Perturbations** (right): the DMP is a policy of its current state, so after the push it continues from where it is and still converges to $g$.
+
+::: fragment
+▶ **Coupling terms** add online feedback. *Phase stopping*: $\tau \dot x = -\alpha_x x \,/\, \big(1 + \alpha_c \|\tilde y - y\|^2\big)$ slows down the clock when the actual robot position $\tilde y$ lags behind the DMP state $y$, e.g. when the arm is blocked. *Obstacle avoidance*: add a term $C_t(y, \dot y, o)$ to $\tau \dot z$ that steers the movement away from an obstacle at $o$.
+:::
+:::::
+
+::: tiny-font
+Biologically-inspired dynamical systems for movement generation: automatic real-time goal adaptation and obstacle avoidance. Hoffmann, Pastor, Park, Schaal. ICRA'09.\
+Learning and generalization of motor skills by learning from demonstration. Pastor, Hoffmann, Asfour, Schaal. ICRA'09.
+:::
+
+## DMPs as Policies for RL, and Their Limitations
+
+::::: columns
+::: {.column .small-math .arrow-bullets width="48%"}
+[DMPs as a policy class for RL]{.underline}
+
+▶ The weights $w$ (and optionally $g$, $\tau$) form a low-dimensional, smooth and stable policy parameterization $\theta$. Every sample of $\theta$ is a goal-reaching movement, so exploring by perturbing parameters per episode, $\theta + \epsilon$, is feasible on real hardware.
+
+▶ Same recipe as DAPG earlier today: [initialize from a demonstration, then improve with RL.]{.red}
+
+▶ Episodic natural actor-critic on DMPs (Peters & Schaal '08), i.e. the natural gradient from earlier today. PoWER (Kober & Peters '09) learns ball-in-a-cup on a real arm in under 100 trials. PI$^2$ (Theodorou et al. '10).
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column .small-math .arrow-bullets .fragment width="48%"}
+[Limitations]{.underline}
+
+▶ One DMP encodes one movement from one demonstration. It does not capture the variability across several demos (→ Probabilistic Movement Primitives).
+
+▶ Perception only enters through $g$, $\tau$ and hand-designed coupling terms, so it is not a visuomotor policy (→ predict $w, g$ from images, e.g. Neural Dynamic Policies).
+
+▶ Per-DoF scaling by $(g - y_0)$: if $g \approx y_0$ in some DoF the forcing term vanishes and the shape is lost, and if the sign flips the movement is mirrored. It is also not invariant to rotating the task (→ reformulation of Pastor et al. '09).
+
+▶ Multi-step tasks need a library of primitives plus a way to select and sequence them.
+:::
+:::::
+
+::: tiny-font
+Reinforcement Learning of Motor Skills with Policy Gradients. Peters, Schaal. Neural Networks'08.\
+Policy Search for Motor Primitives in Robotics. Kober, Peters. NeurIPS'08.\
+A Generalized Path Integral Control Approach to Reinforcement Learning. Theodorou, Buchli, Schaal. JMLR'10.\
+Probabilistic Movement Primitives. Paraschos, Daniel, Peters, Neumann. NeurIPS'13.\
+Neural Dynamic Policies for End-to-End Sensorimotor Learning. Bahl, Mukadam, Gupta, Pathak. NeurIPS'20.
 :::
