@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="330" viewBox="0 0 560 330" font-family="Arial, Helvetica, sans-serif">
+<rect width="560" height="330" fill="#ffffff"/>
+<text x="10" y="20" font-size="15" font-weight="bold" fill="#000">Sorting per-sequence accuracy vs. # training examples</text>
+<line x1="50" x2="545" y1="250.0" y2="250.0" stroke="#333" stroke-width="1"/>
+<text x="42" y="254.5" font-size="13" fill="#444" text-anchor="end">0</text>
+<line x1="50" x2="545" y1="195.0" y2="195.0" stroke="#cccccc" stroke-width="1"/>
+<text x="42" y="199.5" font-size="13" fill="#444" text-anchor="end">25</text>
+<line x1="50" x2="545" y1="140.0" y2="140.0" stroke="#cccccc" stroke-width="1"/>
+<text x="42" y="144.5" font-size="13" fill="#444" text-anchor="end">50</text>
+<line x1="50" x2="545" y1="85.0" y2="85.0" stroke="#cccccc" stroke-width="1"/>
+<text x="42" y="89.5" font-size="13" fill="#444" text-anchor="end">75</text>
+<line x1="50" x2="545" y1="30.0" y2="30.0" stroke="#cccccc" stroke-width="1"/>
+<text x="42" y="34.5" font-size="13" fill="#444" text-anchor="end">100</text>
+<text x="70.6" y="265" font-size="12" fill="#222" text-anchor="middle">1</text>
+<text x="111.9" y="265" font-size="12" fill="#222" text-anchor="middle">2</text>
+<text x="153.1" y="265" font-size="12" fill="#222" text-anchor="middle">4</text>
+<text x="194.4" y="265" font-size="12" fill="#222" text-anchor="middle">8</text>
+<text x="235.6" y="265" font-size="12" fill="#222" text-anchor="middle">16</text>
+<text x="276.9" y="265" font-size="12" fill="#222" text-anchor="middle">32</text>
+<text x="318.1" y="265" font-size="12" fill="#222" text-anchor="middle">64</text>
+<text x="359.4" y="265" font-size="12" fill="#222" text-anchor="middle">128</text>
+<text x="400.6" y="265" font-size="12" fill="#222" text-anchor="middle">256</text>
+<text x="441.9" y="265" font-size="12" fill="#222" text-anchor="middle">512</text>
+<text x="483.1" y="265" font-size="12" fill="#222" text-anchor="middle">1024</text>
+<text x="524.4" y="265" font-size="12" fill="#222" text-anchor="middle">2048</text>
+<text x="297.5" y="282" font-size="14" font-style="italic" fill="#222" text-anchor="middle"># Training examples</text>
+<polyline points="70.6,248.9 111.9,248.9 153.1,91.6 194.4,30.0 235.6,30.0 276.9,32.2 318.1,30.0 359.4,30.0 400.6,30.0 441.9,30.0 483.1,30.0 524.4,30.0" fill="none" stroke="#dc3912" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="70.6" cy="248.9" r="5" fill="#dc3912"/>
+<circle cx="111.9" cy="248.9" r="5" fill="#dc3912"/>
+<circle cx="153.1" cy="91.6" r="5" fill="#dc3912"/>
+<circle cx="194.4" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="235.6" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="276.9" cy="32.2" r="5" fill="#dc3912"/>
+<circle cx="318.1" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="359.4" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="400.6" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="441.9" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="483.1" cy="30.0" r="5" fill="#dc3912"/>
+<circle cx="524.4" cy="30.0" r="5" fill="#dc3912"/>
+<polyline points="70.6,250.0 111.9,250.0 153.1,250.0 194.4,250.0 235.6,250.0 276.9,250.0 318.1,247.8 359.4,109.2 400.6,41.0 441.9,34.4 483.1,30.0 524.4,30.0" fill="none" stroke="#3366cc" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="70.6,243.0 63.6,255.0 77.6,255.0" fill="#3366cc"/>
+<polygon points="111.9,243.0 104.9,255.0 118.9,255.0" fill="#3366cc"/>
+<polygon points="153.1,243.0 146.1,255.0 160.1,255.0" fill="#3366cc"/>
+<polygon points="194.4,243.0 187.4,255.0 201.4,255.0" fill="#3366cc"/>
+<polygon points="235.6,243.0 228.6,255.0 242.6,255.0" fill="#3366cc"/>
+<polygon points="276.9,243.0 269.9,255.0 283.9,255.0" fill="#3366cc"/>
+<polygon points="318.1,240.8 311.1,252.8 325.1,252.8" fill="#3366cc"/>
+<polygon points="359.4,102.2 352.4,114.2 366.4,114.2" fill="#3366cc"/>
+<polygon points="400.6,34.0 393.6,46.0 407.6,46.0" fill="#3366cc"/>
+<polygon points="441.9,27.4 434.9,39.4 448.9,39.4" fill="#3366cc"/>
+<polygon points="483.1,23.0 476.1,35.0 490.1,35.0" fill="#3366cc"/>
+<polygon points="524.4,23.0 517.4,35.0 531.4,35.0" fill="#3366cc"/>
+<line x1="320" x2="360" y1="302" y2="302" stroke="#dc3912" stroke-width="2"/>
+<circle cx="340.0" cy="302.0" r="5" fill="#dc3912"/>
+<text x="367" y="307" font-size="14" fill="#222">NPI</text>
+<line x1="195" x2="235" y1="302" y2="302" stroke="#3366cc" stroke-width="2"/>
+<polygon points="215.0,295.0 208.0,307.0 222.0,307.0" fill="#3366cc"/>
+<text x="242" y="307" font-size="14" fill="#222">Seq2Seq</text>
+</svg>

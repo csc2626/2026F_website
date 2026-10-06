@@ -949,7 +949,7 @@
     "href": "lecs/w05/lec05.html#todays-agenda",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu"
+    "text": "Today’s agenda\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n• Compositional generalization in diffusion planning"
   },
   {
     "objectID": "lecs/w05/lec05.html#neural-programmer-interpreters",
@@ -984,14 +984,7 @@
     "href": "lecs/w05/lec05.html#model",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Model",
-    "text": "Model\n• The NPI core is a LSTM network that learns to represent and execute programs given their execution traces"
-  },
-  {
-    "objectID": "lecs/w05/lec05.html#npi-core-module",
-    "href": "lecs/w05/lec05.html#npi-core-module",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "NPI core module",
-    "text": "NPI core module"
+    "text": "Model\nThe NPI core is a LSTM network that learns to represent and execute programs given their execution traces"
   },
   {
     "objectID": "lecs/w05/lec05.html#algorithm---inference",
@@ -1026,7 +1019,7 @@
     "href": "lecs/w05/lec05.html#tasks",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Tasks",
-    "text": "Tasks\n• Addition\n• Teach the model the standard grade school algorithm of adding 2 base-10 numbers\n• Sorting\n• Teach the model bubble sorting to sort an array of numbers in ascending order\n• Canonicalizing 3D models\n• Teach the model to generate a trajectory of actions that delivers the camera to the target view, e.g, frontal pose at a 15° elevation"
+    "text": "Tasks\n• Addition: Teach the model the standard grade school algorithm of adding 2 base-10 numbers\n• Sorting: Teach the model bubble sorting to sort an array of numbers in ascending order\n• Canonicalizing 3D models: Teach the model to generate a trajectory of actions that delivers the camera to the target view, e.g, frontal pose at a 15° elevation"
   },
   {
     "objectID": "lecs/w05/lec05.html#adding-numbers-together",
@@ -1127,32 +1120,39 @@
     "text": "Quantitative Results\n\n\n\n\n\n• Numbers are per-sequence % accuracy\n• + Max: indicates performance after addition of MAX program to memory\n• “unseen” uses a test set with disjoint car models from the training set"
   },
   {
+    "objectID": "lecs/w05/lec05.html#followup-work-alphanpi-training-npi-without-execution-traces",
+    "href": "lecs/w05/lec05.html#followup-work-alphanpi-training-npi-without-execution-traces",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Followup work: AlphaNPI (training NPI without execution traces)",
+    "text": "Followup work: AlphaNPI (training NPI without execution traces)\n\n\n\n\n\nNPI needs full execution traces. AlphaNPI only needs a specification: a hierarchy of programs, each with pre- and post-conditions\nSparse reward: 1 if the post-conditions hold when the program calls STOP, 0 otherwise\nNPI becomes an actor-critic (policy \\(\\pi\\), value \\(V\\)), trained as in AlphaZero: MCTS gives an improved policy \\(\\pi^{mcts}\\), and the loss is \\(-\\pi^{mcts\\top} \\log \\pi + (V - r)^2\\)\nRecursive MCTS: calling a learned program builds a new search tree for it\nRecursive bubble sort trained on lists of length ≤ 4: 100% on length 100 with MCTS, 10% with the network alone. Tower of Hanoi trained on 2 disks: 100% on 12 disks\n\n\nLearning Compositional Neural Programs with Recursive Tree Search and Planning, Pierrot et al, NeurIPS 2019. https://arxiv.org/abs/1905.12941"
+  },
+  {
     "objectID": "lecs/w05/lec05.html#todays-agenda-1",
     "href": "lecs/w05/lec05.html#todays-agenda-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu"
+    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n• Compositional generalization in diffusion planning"
   },
   {
     "objectID": "lecs/w05/lec05.html#neural-task-programming-learning-to-generalize-across-hierarchical-tasks",
     "href": "lecs/w05/lec05.html#neural-task-programming-learning-to-generalize-across-hierarchical-tasks",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Neural Task Programming: Learning to Generalize Across Hierarchical Tasks",
-    "text": "Neural Task Programming: Learning to Generalize Across Hierarchical Tasks\nDanfei Xu, Suraj Nair, Yuke Zhu, Julian Gao, Animesh Garg, Li Fei-Fei, Silvio Savarese\nPresented by Angran Li\nFebruary 8, 2019"
+    "text": "Neural Task Programming: Learning to Generalize Across Hierarchical Tasks\nDanfei Xu, Suraj Nair, Yuke Zhu, Julian Gao, Animesh Garg, Li Fei-Fei, Silvio Savarese"
   },
   {
     "objectID": "lecs/w05/lec05.html#how-the-algorithm-works",
     "href": "lecs/w05/lec05.html#how-the-algorithm-works",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "How the Algorithm works?",
-    "text": "How the Algorithm works?\n\n\nTask Demonstration: state trajectory, first/third-person video demonstrations, or a list of language instructions.\nTask-Conditional Policy: a neural program.\nUsing callable primitive actions to interact with the environment."
+    "section": "How the algorithm works",
+    "text": "How the algorithm works\n\n\nTask Demonstration: state trajectory, first/third-person video demonstrations, or a list of language instructions.\nTask-Conditional Policy: a neural program.\nUsing callable primitive actions to interact with the environment."
   },
   {
     "objectID": "lecs/w05/lec05.html#how-the-algorithm-works-1",
     "href": "lecs/w05/lec05.html#how-the-algorithm-works-1",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "How the Algorithm works?",
-    "text": "How the Algorithm works?\n\nTop-level program block_stacking is recursively decomposed to bottom-level API move_to and grip."
+    "section": "How the algorithm works",
+    "text": "How the algorithm works\n\nTop-level program block_stacking is recursively decomposed to bottom-level API move_to and grip."
   },
   {
     "objectID": "lecs/w05/lec05.html#goals",
@@ -1169,11 +1169,11 @@
     "text": "Implementation: Neural Task Programming\n\n\nObservation Encoder: observation \\(o_i \\Rightarrow\\) state representation \\(s_i\\)\nTask Spec. Interpreter: \\(\\Rightarrow\\) API arguments \\(a_i\\) or task spec. \\(\\psi_{i+1}\\)\nTask Spec. Encoder: task spec. \\(\\psi_i \\Rightarrow\\) vector space \\(\\phi_i\\)\nCore Network: \\(s_i, P_i, \\phi_i \\Rightarrow P_{i+1}, r_i\\)"
   },
   {
-    "objectID": "lecs/w05/lec05.html#implementation-standing-on-the-shoulder-of-npi",
-    "href": "lecs/w05/lec05.html#implementation-standing-on-the-shoulder-of-npi",
+    "objectID": "lecs/w05/lec05.html#implementation-extending-npi",
+    "href": "lecs/w05/lec05.html#implementation-extending-npi",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Implementation: Standing on the shoulder of NPI",
-    "text": "Implementation: Standing on the shoulder of NPI\nNeural Task Programming combines the idea of Few-Shot Learning from Demonstration and Neural Programmer-Interpreters.\n\nSimilarities when executing a program:\n\nWhen the EOP probability exceeds a threshold \\(\\alpha\\), control is returned to the caller program;\nWhen the program is not primitive, a sub-program with its arguments is called;\nWhen the program is primitive, a low-level basic action is performed.\n\nTwo similar modules:\n\nDomain-specific task encoders that map an observation to a state representation.\nA key-value memory that stores and retrieves program embeddings."
+    "section": "Implementation: Extending NPI",
+    "text": "Implementation: Extending NPI\nNeural Task Programming combines the idea of Few-Shot Learning from Demonstration and Neural Programmer-Interpreters.\n\nSimilarities when executing a program:\n\nWhen the EOP probability exceeds a threshold \\(\\alpha\\), control is returned to the caller program;\nWhen the program is not primitive, a sub-program with its arguments is called;\nWhen the program is primitive, a low-level basic action is performed.\n\nTwo similar modules:\n\nDomain-specific task encoders that map an observation to a state representation.\nA key-value memory that stores and retrieves program embeddings."
   },
   {
     "objectID": "lecs/w05/lec05.html#implementation-ntp-vs-npi",
@@ -1222,7 +1222,7 @@
     "href": "lecs/w05/lec05.html#discussion-future-work",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Discussion & Future Work",
-    "text": "Discussion & Future Work\n\nNeural Task Programming:\n\nA meta-learning framework that learns modular and reusable neural programs for hierarchical tasks.\nGeneralizing well towards the variation of task length, semantics, and topology for complex tasks.\n\nFuture work:\n\nImprove the state encoder to extract more task-salient information such as object relationships;\nDevise a richer set of APls such as velocity and torque-based controllers;\nExtend this framework to tackle more complex tasks on real robots."
+    "text": "Discussion & Future Work\n\nNeural Task Programming:\n\nLearns modular and reusable neural programs for hierarchical tasks.\nGeneralizes with respect to task length, semantics, and topology for complex tasks.\n\nFuture work:\n\nImprove the state encoder to extract more task-salient information such as object relationships;\nDevise a richer set of APls such as velocity and torque-based controllers;\nExtend this framework to tackle more complex tasks on real robots."
   },
   {
     "objectID": "lecs/w05/lec05.html#section",
@@ -1243,7 +1243,7 @@
     "href": "lecs/w05/lec05.html#todays-agenda-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu"
+    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n• Compositional generalization in diffusion planning"
   },
   {
     "objectID": "lecs/w05/lec05.html#taco-learning-task-decomposition-via-temporal-alignment-for-control",
@@ -1271,7 +1271,7 @@
     "href": "lecs/w05/lec05.html#taco-temporal-alignment-for-control",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "TACO: Temporal Alignment for Control",
-    "text": "TACO: Temporal Alignment for Control\n\nPartly supervised\nDomain agnostic\nDemonstration is augmented by task sketches - a sequence of sub-tasks that occur within the demonstration\n\n\\[\n𝛕 = (b1, b2, . . . , bL),\n\\]\n\nSimultaneously aligns the sketches with the observed demonstrations and learns the required sub-policies"
+    "text": "TACO: Temporal Alignment for Control\n\nPartly supervised\nDomain agnostic\nDemonstration is augmented by task sketches: a sequence of sub-tasks that occur within the demonstration\n\n\\[\n\\tau = (b_1, b_2, . . . , b_L),\n\\]\n\nSimultaneously aligns the sketches with the observed demonstrations and learns the required sub-policies"
   },
   {
     "objectID": "lecs/w05/lec05.html#example-block-stacking-task",
@@ -1285,35 +1285,35 @@
     "href": "lecs/w05/lec05.html#problem",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Problem",
-    "text": "Problem\n\nHow to align task-sketches with the demonstration?\nSolution: Borrow temporal sequence alignment techniques from speech recognition!"
+    "text": "Problem\n\nHow do we align task-sketches with the demonstration?\nMain idea: Borrow temporal sequence alignment techniques from speech recognition"
   },
   {
     "objectID": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-1",
     "href": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "TACO: Temporal Alignment for Control",
-    "text": "TACO: Temporal Alignment for Control\n\n\n\n𝛕 = (b1, b2, . . . , bL),\nInput sequence ρ with length T\nA path \\(ζ = (ζ_1, ζ_2, ..., ζ_T )\\) is a sequence of sub- tasks of the same length as the input sequence ρ, describing the active sub-task \\(ζ_t\\) at every time-step\n\\(Z_{T,𝛕}\\) is the set of all possible paths of length T for a task sketch 𝛕\nEg. T = 6, 𝛕 = (b1, b2, b3), ζ = (b1, b1, b2, b3, b3, b3)"
+    "text": "TACO: Temporal Alignment for Control\n\n\n\n\nInput trajectory \\(\\rho=((s_1,a_1),...,(s_T,a_T))\\)\nTask sketch \\(\\tau = (b_1, b_2, . . . , b_L)\\) indicating which sub-tasks are active in \\(\\rho\\). Assume \\(L \\ll T\\)\nA path \\(\\zeta = (\\zeta_1, \\zeta_2, ..., \\zeta_T )\\) is a sequence of sub-tasks of the same length as the input sequence \\(\\rho\\), describing the active sub-task \\(\\zeta_t\\) at every time-step\n\\(Z_{T,\\tau}\\) is the set of all possible paths \\(\\zeta\\) of length T, given a task sketch \\(\\tau\\)\nEg. T = 6, \\(\\tau = (b_1, b_2, b_3), \\zeta = (b_1, b_1, b_2, b_3, b_3, b_3)\\)"
   },
   {
     "objectID": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-2",
     "href": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "TACO: Temporal Alignment for Control",
-    "text": "TACO: Temporal Alignment for Control\nObjective: Maximise the joint log likelihood of the task sequence and the actions conditioned on the states\n\\[\np(\\tau, \\mathbf{a}_\\rho \\mid s_\\rho) = \\sum_{\\zeta \\in \\mathbb{Z}_{T, \\tau}} p(\\zeta \\mid s_\\rho) \\prod_{t=1}^{T} \\pi_{\\theta_{\\zeta_t}} (a_t \\mid s_t)\n\\]\n\\(p(ζ |s_ρ)\\) is the product of the stop, \\(a_{STOP}\\) , and nonstop, \\(ā_{STOP}\\), probabilities associated with any given path.\nEg. T = 4, \\(s_⍴ = (s_0, s_1, s_2, s_3)\\), 𝛕 = (b1, b2), ζ = (b1, b1, b2, b2)\n\\(p(ζ |sρ) = π_{b1}(non-stop)^* π_{b1}(stop)^* π_{b2}(non-stop)^* π_{b2}(stop)\\)"
+    "text": "TACO: Temporal Alignment for Control\nObjective: Maximise the joint log likelihood of the task sketch sequence \\(\\tau\\) and the action sequence \\(\\mathbf{a}_\\rho\\) of a training trajectory \\(\\rho\\), conditioned on the state sequence \\(\\mathbf{s}_{\\rho}\\) of \\(\\rho\\)\n\\[\np(\\tau, \\mathbf{a}_\\rho \\mid \\mathbf{s}_\\rho) = \\sum_{\\zeta \\in Z_{T, \\tau}} p(\\zeta \\mid \\mathbf{s}_\\rho) \\prod_{t=1}^{T} \\pi_{\\theta_{\\zeta_t}} (a_t \\mid s_t)\n\\]\n\\(p(ζ |\\mathbf{s}_ρ)\\) is the product of the stop, \\(a_{STOP}\\) , and nonstop, \\(ā_{STOP}\\), probabilities associated with any given path.\nEg. T = 4, \\(\\mathbf{s}_{\\rho} = (s_1, s_2, s_3, s_4)\\), \\(\\tau = (b_1, b_2), \\zeta = (b_1, b_1, b_2, b_2)\\)\n\\(p(\\zeta |\\mathbf{s}_{\\rho}) = \\pi_{\\theta_{b_1}}(\\bar{a}_{STOP}|s_2)\\,\\pi_{\\theta_{b_1}}(a_{STOP}|s_3)\\,\\pi_{\\theta_{b_2}}(\\bar{a}_{STOP}|s_4)\\)\nNo stop factor at \\(s_1\\), since \\(\\zeta_1 = \\tau_1\\) is fixed (Eq. 10 in the TACO paper)."
   },
   {
     "objectID": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-3",
     "href": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-3",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "TACO: Temporal Alignment for Control",
-    "text": "TACO: Temporal Alignment for Control\nProblem: Impossible to compute all paths ζ in \\(Z_{T,tau}\\) for long sequence\nSolution: Dynamic Programming\nThe (joint) likelihood of a being at sub-task l at time t can be formulated in terms of forward variables:\n\\[\n\\alpha_t(l) := \\sum_{\\zeta_{1:t} \\in \\mathbb{Z}_t, \\tau_{1:l}} p(\\zeta \\mid s_\\rho) \\prod_{t' = 1}^{t} \\pi_{\\theta_{\\zeta_{t'}}}(a_{t'} \\mid s_{t'})\n\\]"
+    "text": "TACO: Temporal Alignment for Control\nProblem: Impossible to compute all paths \\(\\zeta\\) in \\(Z_{T,\\tau}\\) for long sequence\nSolution: Dynamic Programming\nThe (joint) likelihood of being at sub-task \\(l\\) at time \\(t\\) can be formulated in terms of forward variables:\n\\[\n\\alpha_t(l) := \\sum_{\\zeta_{1:t} \\in Z_{t, \\tau_{1:l}}} p(\\zeta \\mid \\mathbf{s}_\\rho) \\prod_{t' = 1}^{t} \\pi_{\\theta_{\\zeta_{t'}}}(a_{t'} \\mid s_{t'})\n\\]"
   },
   {
     "objectID": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-4",
     "href": "lecs/w05/lec05.html#taco-temporal-alignment-for-control-4",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "TACO: Temporal Alignment for Control",
-    "text": "TACO: Temporal Alignment for Control\n\n\n\n\\(\\alpha_1(l) = \\begin{cases}\n\\pi_{\\theta_{b_1}}(a_1|s_1), & \\text{if } l = 1, \\\\\n0, & \\text{otherwise}.\n\\end{cases}\\)\n\\(\\alpha_t(l) = \\pi_{\\theta_{b_l}}(a_t|s_t) \\left[ \\alpha_{t-1}(l-1) \\pi_{\\theta_{b_{l-1}}}(a_{STOP}|s_t) \\right.\\)\n\\(\\left. + \\alpha_{t-1}(l)(1 - \\pi_{\\theta_{b_l}}(a_{STOP}|s_t)) \\right].\\)\n\n\\(\\alpha_T(L) = p(\\tau, \\mathbf{a}_\\rho|\\mathbf{s}_\\rho).\\)\n\n\n\nTraining: Maximize \\(⍺_T(L)\\) over θ"
+    "text": "TACO: Temporal Alignment for Control\n\n\n\n\\(\\alpha_1(l) = \\begin{cases}\n\\pi_{\\theta_{b_1}}(a_1|s_1), & \\text{if } l = 1, \\\\\n0, & \\text{otherwise}.\n\\end{cases}\\)\n\\(\\alpha_t(l) = \\pi_{\\theta_{b_l}}(a_t|s_t) \\left[ \\alpha_{t-1}(l-1) \\pi_{\\theta_{b_{l-1}}}(a_{STOP}|s_t) \\right.\\)\n\\(\\left. + \\alpha_{t-1}(l)(1 - \\pi_{\\theta_{b_l}}(a_{STOP}|s_t)) \\right].\\)\n\n\\(\\alpha_T(L) = p(\\tau, \\mathbf{a}_\\rho|\\mathbf{s}_\\rho).\\)\n\n\n\nTraining: Maximize \\(\\sum_{\\rho} \\log \\alpha_T(L)\\) over all demonstrations, w.r.t. the sub-policy parameters \\(\\theta=(\\theta_1, ..., \\theta_K)\\), which define both the action policies \\(\\pi_{\\theta_k}(a|s)\\) and the stop policies \\(\\pi_{\\theta_k}(a_{STOP}|s)\\)"
   },
   {
     "objectID": "lecs/w05/lec05.html#experiments-nav-world",
@@ -1348,14 +1348,14 @@
     "href": "lecs/w05/lec05.html#future-work-limitation",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Future Work & Limitation",
-    "text": "Future Work & Limitation\nLimitation:\n\nSub-tasks in the task sketch has to be placed in the correct order\n\n\nFuture work:\n\nTask sketches are dissimilar to natural human communication. Combination of TACO with architectures that can handle natural language.\nHierarchical task decomposition."
+    "text": "Future Work & Limitation\nLimitation:\n\nSub-tasks in the task sketch have to be placed in the correct order\n\n\nFuture work:\n\nTask sketches are dissimilar to natural human communication. Combination of TACO with architectures that can handle natural language.\nHierarchical task decomposition."
   },
   {
     "objectID": "lecs/w05/lec05.html#todays-agenda-3",
     "href": "lecs/w05/lec05.html#todays-agenda-3",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu"
+    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n• Compositional generalization in diffusion planning\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu"
   },
   {
     "objectID": "lecs/w05/lec05.html#task-and-motion-planning",
@@ -1386,10 +1386,10 @@
     "text": "Task and Motion Planning\n\n\n\nDiscrete action space: M objects x N operations\nContinuous action space: 5 joint angles on the robot arm x T timesteps\n\nDiscrete + Continuous Optimization\n\nExpanding 1 and 2 requires solving continuous optimization problems with constraints"
   },
   {
-    "objectID": "lecs/w05/lec05.html#section-1",
-    "href": "lecs/w05/lec05.html#section-1",
+    "objectID": "lecs/w05/lec05.html#solubility-experiment",
+    "href": "lecs/w05/lec05.html#solubility-experiment",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "",
+    "section": "Solubility experiment",
     "text": "Solubility experiment\n\nhttps://www.youtube.com/watch?v=NjpZmaKQWls"
   },
   {
@@ -1400,8 +1400,8 @@
     "text": "Constrained Motion Planner to Avoid Spilling\n\nhttps://www.youtube.com/watch?v=NjpZmaKQWls"
   },
   {
-    "objectID": "lecs/w05/lec05.html#section-2",
-    "href": "lecs/w05/lec05.html#section-2",
+    "objectID": "lecs/w05/lec05.html#section-1",
+    "href": "lecs/w05/lec05.html#section-1",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
     "text": "These plans are useful, but unfortunately discrete + continuous optimization is slow\nQ: How can we learn to plan from past experience of having solved similar problems?"
@@ -1421,8 +1421,8 @@
     "text": "Learning to Rank Objects and Operations from Past Experience"
   },
   {
-    "objectID": "lecs/w05/lec05.html#section-3",
-    "href": "lecs/w05/lec05.html#section-3",
+    "objectID": "lecs/w05/lec05.html#section-2",
+    "href": "lecs/w05/lec05.html#section-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "",
     "text": "https://www.youtube.com/watch?v=pzzpR4wh_Zk&t=15s"
@@ -1435,11 +1435,144 @@
     "text": "Learned (Informed) Planner Finds Solutions Faster\n\n*Learning to Search in Task and Motion Planning with Streams, Khodeir et al, Robotics and Automation Letters. 2022"
   },
   {
+    "objectID": "lecs/w05/lec05.html#automated-planning-domain-inference-for-task-and-motion-planning",
+    "href": "lecs/w05/lec05.html#automated-planning-domain-inference-for-task-and-motion-planning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Automated Planning Domain Inference for Task and Motion Planning",
+    "text": "Automated Planning Domain Inference for Task and Motion Planning\nJinbang Huang, Allen Tao, Rozilyn Marco, Miroslav Bogdanovic, Jonathan Kelly, Florian Shkurti\nICRA 2025\nhttps://arxiv.org/abs/2410.16445"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#motivation-who-writes-the-planning-domain",
+    "href": "lecs/w05/lec05.html#motivation-who-writes-the-planning-domain",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Motivation: who writes the planning domain?",
+    "text": "Motivation: who writes the planning domain?\n\n\n\n\n\n\nGoal: infer the planning domain of a new task from one (or a few) human demonstrations, then plan with a standard TAMP planner\nUnlike behavioural cloning of the planner, only the domain is learned. The search is still done by the planner, which helps generalize to more objects"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#problem-setting",
+    "href": "lecs/w05/lec05.html#problem-setting",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Problem setting",
+    "text": "Problem setting\n\nGiven: candidate predicates \\(\\mathbf{P}\\), e.g. (is_on ?o1 ?o2), and actions \\(\\mathbf{A}\\), e.g. stack, cook, each with its motion planner\nFind: a planning domain \\(\\mathbf{D}\\), i.e. a subset of \\(\\mathbf{P}\\) and \\(\\mathbf{A}\\), plus each action’s preconditions and effects\n\nFrom one demonstration \\(\\tau_e\\) and a few unsolved validation problems \\(\\mathbf{Q}_v\\)\nComplete domain: can solve the task. Optimal domain: complete, with the fewest predicates and actions"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#method-overview",
+    "href": "lecs/w05/lec05.html#method-overview",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Method overview",
+    "text": "Method overview\n\nTraining: from TAMP problems of 9 basic tasks (30 demonstrations each, 2-4 objects), learn estimators that score the relevance \\(u \\in [0, 1]\\) of every predicate and action\nTesting: predict the relevance scores from the demonstration, convert the most likely domain to PDDL, then refine it by search using \\(\\mathbf{Q}_v\\). If no domain solves \\(\\mathbf{Q}_v\\), ask for more demonstrations"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#predicate-and-action-estimators",
+    "href": "lecs/w05/lec05.html#predicate-and-action-estimators",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Predicate and action estimators",
+    "text": "Predicate and action estimators\n\n\n\n\n\n\nInitial and goal states as scene graphs: objects are nodes, predicates are node features and edges\nGraph attention network → relevance score \\(u_p, u_a \\in [0, 1]\\) for every predicate and action\n\n\nScore of a candidate domain with predicates and actions \\(\\omega_\\mathbf{D}\\):\n\\[\nu_\\mathbf{D} = \\prod_{p \\in \\omega_\\mathbf{D}} u_p \\prod_{p \\notin \\omega_\\mathbf{D}} (1 - u_p) \\prod_{a \\in \\omega_\\mathbf{D}} u_a \\prod_{a \\notin \\omega_\\mathbf{D}} (1 - u_a)\n\\]\nThe best-scoring \\(\\omega_\\mathbf{D}^{top}\\) is the initial guess. The rest are ranked by score in a priority list \\(L\\)"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#generate-and-test-domain-search",
+    "href": "lecs/w05/lec05.html#generate-and-test-domain-search",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Generate-and-test domain search",
+    "text": "Generate-and-test domain search\n\n\n\n\n\n\\(\\omega_\\mathbf{D}^{top}\\) → PDDL domain \\(\\mathbf{D}_{top}\\), using the demonstration:\n\nPrecondition of an action: intersection of its pre-images (logical state just before the action) over all its instances\nEffect: intersection of its post-images, keeping only the predicates that changed\n\nExpansion: add the highest-scored element of \\(L\\) until the domain solves all of \\(\\mathbf{Q}_v\\)\nContraction: try removing each element. Keep the removal if \\(\\mathbf{Q}_v\\) is still solved\nAssumes that a subdomain of an incomplete domain is incomplete, and that the optimal domain is contained in any complete domain\nEach plan call queries the motion planners, which dominates the cost. A good initial guess means few calls"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#results-more-objects-and-new-tasks",
+    "href": "lecs/w05/lec05.html#results-more-objects-and-new-tasks",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Results: more objects and new tasks",
+    "text": "Results: more objects and new tasks\n\n\n\n\nOne demonstration per task at test time. Test problems have up to 9 objects, training problems at most 4\nBehavioural cloning baselines: graph attention policies that predict the next logical action from logical, continuous or hybrid object states\nInferred domains stay above 90% success up to 9 objects, while the baselines degrade on complex tasks\n\n\nUnseen composed tasks, one demonstration each (success rate % vs. number of objects):\n\n\n\nTask\n3\n4\n5\n6\n7\n8\n9\n\n\n\n\nCook and plate\n100\n100\n100\n100\n100\n40\n50\n\n\nUnpack and cook\n100\n100\n100\n100\n100\n80\n50\n\n\nLabel\n100\n100\n100\n100\n100\n100\n100"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#results-search-cost-and-real-robot-experiments",
+    "href": "lecs/w05/lec05.html#results-search-cost-and-real-robot-experiments",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Results: search cost and real robot experiments",
+    "text": "Results: search cost and real robot experiments"
+  },
+  {
     "objectID": "lecs/w05/lec05.html#todays-agenda-4",
     "href": "lecs/w05/lec05.html#todays-agenda-4",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n\n• Generalization through imitation – using hierarchical policies\nsource: https://www.youtube.com/watch?v=hlvRmLlYHZ0&t=111s&ab_channel=RoboticsScienceandSystems\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu"
+    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n\n• Generalization through imitation – using hierarchical policies\n• Compositional generalization in diffusion planning"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#todays-agenda-5",
+    "href": "lecs/w05/lec05.html#todays-agenda-5",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Today’s agenda",
+    "text": "Today’s agenda\n\n• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)\n• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)\n• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)\n• Learning to search in Task and Motion Planning (TAMP)\n• Generalization through imitation – using hierarchical policies\n\n• Compositional generalization in diffusion planning"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#what-do-you-need-for-compositional-generalization-in-diffusion-planning",
+    "href": "lecs/w05/lec05.html#what-do-you-need-for-compositional-generalization-in-diffusion-planning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "What do you need for compositional generalization in diffusion planning?",
+    "text": "What do you need for compositional generalization in diffusion planning?\n\n\nDiffusion planners trained via imitation (generative behavioural cloning), not RL\nCompositional generalization: generating new trajectories by stitching together sub-trajectories from different demonstrations\nWhich design choices enable it?\n\nWhat Do You Need for Compositional Generalization in Diffusion Planning? Quentin Clark and Florian Shkurti. CoRL 2026. https://arxiv.org/abs/2505.18083"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#popular-diffusion-planners-memorize",
+    "href": "lecs/w05/lec05.html#popular-diffusion-planners-memorize",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Popular diffusion planners memorize",
+    "text": "Popular diffusion planners memorize\n\n\n\n\n\n\n\nMemorized: every sub-task of the generated trajectory appears together in a single training trajectory. Novel: requires combining parts of two or more training trajectories\nComplete: as many sub-tasks as a training trajectory. Partial: fewer"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#eq-net-design",
+    "href": "lecs/w05/lec05.html#eq-net-design",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Eq-Net design",
+    "text": "Eq-Net design\n\n\n\n\n\nA ResNet CNN with:\n\nSmall convolution kernels\nNo max-pooling\nNo indexed upsampling\n\n\n✅ Local receptive fields\n✅ Shift-equivariance"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#eq-net-memorizes-less",
+    "href": "lecs/w05/lec05.html#eq-net-memorizes-less",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Eq-Net memorizes less",
+    "text": "Eq-Net memorizes less\n\n\n\n\n\nEq-Net generates many more novel trajectories than U-Net and DiT backbones"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#locality-vs-dataset-size",
+    "href": "lecs/w05/lec05.html#locality-vs-dataset-size",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Locality vs dataset size",
+    "text": "Locality vs dataset size\n\n\n\n\n\nLower receptive field integral = more local. Models trained on more data are more local, and Eq-Net is local even with little data"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#more-data-induces-local-receptive-fields",
+    "href": "lecs/w05/lec05.html#more-data-induces-local-receptive-fields",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "More data induces local receptive fields",
+    "text": "More data induces local receptive fields\n\n\n\nGradient of the center state w.r.t. the trajectory\n\n\nLow-data regime: large receptive fields\n\nHigh-data regime: small receptive fields"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#compositionality-vs-dataset-size",
+    "href": "lecs/w05/lec05.html#compositionality-vs-dataset-size",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Compositionality vs dataset size",
+    "text": "Compositionality vs dataset size\n\n\n\n\n\nEq-Net composes with much less data. U-Net and DiT only start composing once the dataset is large enough to make them local"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#locality-matters-more-than-equivariance",
+    "href": "lecs/w05/lec05.html#locality-matters-more-than-equivariance",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Locality matters more than equivariance",
+    "text": "Locality matters more than equivariance\n\nPositional encodings remove shift-equivariance from Eq-Net, and data augmentation adds it to U-Net. Locality alone helps more than shift-equivariance alone, and both together work best"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#locality-matters-more-than-equivariance-1",
+    "href": "lecs/w05/lec05.html#locality-matters-more-than-equivariance-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Locality matters more than equivariance",
+    "text": "Locality matters more than equivariance"
+  },
+  {
+    "objectID": "lecs/w05/lec05.html#different-routes-to-compositionality",
+    "href": "lecs/w05/lec05.html#different-routes-to-compositionality",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Different routes to compositionality",
+    "text": "Different routes to compositionality\n\n\n\n\n\n\nEq-Net: through architectural inductive biases (locality and shift-equivariance)\nDiffusion Policy and CompDiffuser: through action chunking and replanning"
   },
   {
     "objectID": "lecs/w03/lec03.html#todays-agenda",

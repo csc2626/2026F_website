@@ -157,11 +157,8 @@ Florian Shkurti
 <p>• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)</p>
 <p>• Learning to search in Task and Motion Planning (TAMP)</p>
 <p>• Generalization through imitation – using hierarchical policies</p>
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu</p>
-</div></aside></section>
+<p>• Compositional generalization in diffusion planning</p>
+</section>
 <section id="neural-programmer-interpreters" class="slide level2 center">
 <h2>Neural Programmer-Interpreters</h2>
 <p>By Scott Reed &amp; Nando de Freitas</p>
@@ -189,13 +186,10 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 </section>
 <section id="model" class="slide level2">
 <h2>Model</h2>
-<p>• The NPI core is a LSTM network that learns to represent and execute programs given their execution traces</p>
-
-<img data-src="images/traces.png" class="r-stretch"></section>
-<section id="npi-core-module" class="slide level2">
-<h2>NPI core module</h2>
-
-<img data-src="images/npi-inference.png" class="r-stretch"></section>
+<p>The NPI core is a LSTM network that learns to represent and execute programs given their execution traces</p>
+<p><img data-src="images/traces.png"></p>
+<p><img data-src="images/npi-inference.svg"></p>
+</section>
 <section id="algorithm---inference" class="slide level2">
 <h2>Algorithm - inference</h2>
 
@@ -229,12 +223,9 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 </section>
 <section id="tasks" class="slide level2">
 <h2>Tasks</h2>
-<p>• Addition</p>
-<p><span class="small-math">• Teach the model the standard grade school algorithm of adding 2 base-10 numbers</span></p>
-<p>• Sorting</p>
-<p><span class="small-math">• Teach the model bubble sorting to sort an array of numbers in ascending order</span></p>
-<p>• Canonicalizing 3D models</p>
-<p><span class="small-math">• Teach the model to generate a trajectory of actions that delivers the camera to the target view, e.g, frontal pose at a 15° elevation</span></p>
+<p>• Addition: <span class="small-math">Teach the model the standard grade school algorithm of adding 2 base-10 numbers</span></p>
+<p>• Sorting: <span class="small-math">Teach the model bubble sorting to sort an array of numbers in ascending order</span></p>
+<p>• Canonicalizing 3D models: <span class="small-math">Teach the model to generate a trajectory of actions that delivers the camera to the target view, e.g, frontal pose at a 15° elevation</span></p>
 </section>
 <section id="adding-numbers-together" class="slide level2">
 <h2>Adding numbers together</h2>
@@ -271,9 +262,9 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 <h2>Data Efficiency - Sorting</h2>
 <p><br></p>
 <div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="images/data-sort.png"></p>
-</div><div class="column" style="width:50%;">
+<div class="column" style="width:70%;">
+<p><img data-src="images/data-sort.svg"></p>
+</div><div class="column" style="width:30%;">
 <p>• Seq2Seq LSTM and NPI used the same number of layers and hidden units.</p>
 <p>• Trained on length up to 20 arrays of single-digit numbers.</p>
 <p>• NPI benefits from mining multiple subprogram examples per sorting instance, and additional parameters of the program memory.</p>
@@ -283,9 +274,9 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 <h2>Generalization - Sorting</h2>
 <p><br></p>
 <div class="columns">
-<div class="column" style="width:50%;">
-<p><img data-src="images/gen-sort.png"></p>
-</div><div class="column" style="width:50%;">
+<div class="column" style="width:70%;">
+<p><img data-src="images/gen-sort.svg"></p>
+</div><div class="column" style="width:30%;">
 <p>• For each length <strong>up to 20</strong>, they provided 64 example bubble sort traces, for a total of 1216 examples.</p>
 <p>• Then, they evaluated whether the network can learn to sort arrays beyond length 20</p>
 </div></div>
@@ -294,9 +285,9 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 <h2>Generalization - Adding</h2>
 <p><br></p>
 <div class="columns">
-<div class="column" style="width:50%;">
+<div class="column" style="width:70%;">
 <p><img data-src="images/add-sort.png"></p>
-</div><div class="column" style="width:50%;">
+</div><div class="column" style="width:30%;">
 <p>• NPI trained on <strong>32 examples</strong> for sequence <strong>length up to 20</strong></p>
 <p>• s2s-easy trained on <strong>twice</strong> as many examples as NPI (purple curve)</p>
 <p>• s2s-stack trained on <strong>16 times</strong> more examples than NPI (orange curve)</p>
@@ -306,9 +297,9 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 <h2>Generalization - Adding</h2>
 <p><br></p>
 <div class="columns">
-<div class="column" style="width:50%;">
+<div class="column" style="width:70%;">
 <p><img data-src="images/npi-demo.png"></p>
-</div><div class="column" style="width:50%;">
+</div><div class="column" style="width:30%;">
 <p>• NPI trained on <strong>32 examples</strong> for sequence <strong>length up to 20</strong></p>
 <p>• s2s-easy trained on <strong>twice</strong> as many examples as NPI (purple curve)</p>
 <p>• s2s-stack trained on <strong>16 times</strong> more examples than NPI (orange curve)</p>
@@ -351,6 +342,22 @@ fixed!</p>
 <p>• + Max: indicates performance after addition of MAX program to memory</p>
 <p>• “unseen” uses a test set with disjoint car models from the training set</p>
 </section>
+<section id="followup-work-alphanpi-training-npi-without-execution-traces" class="slide level2">
+<h2><span class="medium">Followup work: AlphaNPI (training NPI without execution traces)</span></h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/alphanpi-training.png" style="width:100.0%"></p>
+</div><div class="column medium" style="width:50%;">
+<ul>
+<li><p>NPI needs full execution traces. AlphaNPI only needs a <span class="red">specification</span>: a hierarchy of programs, each with pre- and post-conditions</p></li>
+<li><p>Sparse reward: 1 if the post-conditions hold when the program calls STOP, 0 otherwise</p></li>
+<li><p>NPI becomes an actor-critic (policy <span class="math inline">\(\pi\)</span>, value <span class="math inline">\(V\)</span>), trained as in AlphaZero: MCTS gives an improved policy <span class="math inline">\(\pi^{mcts}\)</span>, and the loss is <span class="math inline">\(-\pi^{mcts\top} \log \pi + (V - r)^2\)</span></p></li>
+<li><p><span class="red">Recursive MCTS</span>: calling a learned program builds a new search tree for it</p></li>
+<li><p>Recursive bubble sort trained on lists of length ≤ 4: 100% on length 100 with MCTS, 10% with the network alone. Tower of Hanoi trained on 2 disks: 100% on 12 disks</p></li>
+</ul>
+</div></div>
+<p><span class="tiny-font">Learning Compositional Neural Programs with Recursive Tree Search and Planning, Pierrot et al, NeurIPS 2019. <a href="https://arxiv.org/abs/1905.12941" class="uri">https://arxiv.org/abs/1905.12941</a></span></p>
+</section>
 <section id="todays-agenda-1" class="slide level2">
 <h2>Today’s agenda</h2>
 <div class="grey-text">
@@ -360,19 +367,14 @@ fixed!</p>
 <p>• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)</p>
 <p>• Learning to search in Task and Motion Planning (TAMP)</p>
 <p>• Generalization through imitation – using hierarchical policies</p>
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu</p>
-</div></aside></section>
+<p>• Compositional generalization in diffusion planning</p>
+</section>
 <section id="neural-task-programming-learning-to-generalize-across-hierarchical-tasks" class="slide level2 center">
 <h2>Neural Task Programming: Learning to Generalize Across Hierarchical Tasks</h2>
 <p>Danfei Xu, Suraj Nair, Yuke Zhu, Julian Gao, Animesh Garg, Li Fei-Fei, Silvio Savarese</p>
-<p>Presented by Angran Li<br>
-February 8, 2019</p>
 </section>
 <section id="how-the-algorithm-works" class="slide level2">
-<h2>How the Algorithm works?</h2>
+<h2>How the algorithm works</h2>
 
 <img data-src="images/how-algo-works.png" class="r-stretch"><ul>
 <li>Task Demonstration: state trajectory, first/third-person video demonstrations, or a list of language instructions.</li>
@@ -381,7 +383,7 @@ February 8, 2019</p>
 </ul>
 </section>
 <section id="how-the-algorithm-works-1" class="slide level2">
-<h2>How the Algorithm works?</h2>
+<h2>How the algorithm works</h2>
 
 <img data-src="images/how-algo-works2.png" class="quarto-figure quarto-figure-center r-stretch"><p>Top-level program block_stacking is recursively decomposed to bottom-level API move_to and grip.</p>
 </section>
@@ -412,8 +414,8 @@ February 8, 2019</p>
 <li>Core Network: <span class="math inline">\(s_i, P_i, \phi_i \Rightarrow P_{i+1}, r_i\)</span></li>
 </ul>
 </section>
-<section id="implementation-standing-on-the-shoulder-of-npi" class="slide level2">
-<h2>Implementation: Standing on the shoulder of NPI</h2>
+<section id="implementation-extending-npi" class="slide level2">
+<h2>Implementation: Extending NPI</h2>
 <p>Neural Task Programming combines the idea of <strong>Few-Shot Learning from Demonstration</strong> and <strong>Neural Programmer-Interpreters</strong>.</p>
 <ul>
 <li>Similarities when executing a program:
@@ -493,8 +495,8 @@ February 8, 2019</p>
 <ul>
 <li><strong>Neural Task Programming</strong>:
 <ul>
-<li>A meta-learning framework that learns modular and reusable neural programs for hierarchical tasks.</li>
-<li>Generalizing well towards the variation of task length, semantics, and topology for complex tasks.</li>
+<li>Learns modular and reusable neural programs for hierarchical tasks.</li>
+<li>Generalizes with respect to task length, semantics, and topology for complex tasks.</li>
 </ul></li>
 <li><strong>Future work</strong>:
 <ul>
@@ -523,11 +525,8 @@ February 8, 2019</p>
 <p>• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)</p>
 <p>• Learning to search in Task and Motion Planning (TAMP)</p>
 <p>• Generalization through imitation – using hierarchical policies</p>
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu</p>
-</div></aside></section>
+<p>• Compositional generalization in diffusion planning</p>
+</section>
 <section id="taco-learning-task-decomposition-via-temporal-alignment-for-control" class="slide level2 center">
 <h2>TACO: Learning Task Decomposition via Temporal Alignment for Control</h2>
 <p>Kyriacos Shiarlis, Markus Wulfmeier, Sasha Salter, Shimon Whiteson, Ingmar Posner</p>
@@ -561,10 +560,10 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 <ul>
 <li>Partly supervised</li>
 <li>Domain agnostic</li>
-<li>Demonstration is augmented by <span class="red">task sketches - a sequence of sub-tasks that occur within the demonstration</span></li>
+<li>Demonstration is augmented by <span class="red">task sketches: a sequence of sub-tasks that occur within the demonstration</span></li>
 </ul>
 <p><span class="math display">\[
-𝛕 = (b1, b2, . . . , bL),
+\tau = (b_1, b_2, . . . , b_L),
 \]</span></p>
 <ul>
 <li>Simultaneously aligns the sketches with the observed demonstrations and learns the required sub-policies</li>
@@ -577,40 +576,43 @@ Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angra
 <section id="problem" class="slide level2">
 <h2>Problem</h2>
 <p><br></p>
-<p>How to align task-sketches with the demonstration?</p>
-<p>Solution: Borrow temporal sequence alignment techniques from speech recognition!</p>
+<p>How do we align task-sketches with the demonstration?</p>
+<p>Main idea: Borrow temporal sequence alignment techniques from speech recognition</p>
 </section>
 <section id="taco-temporal-alignment-for-control-1" class="slide level2">
 <h2>TACO: Temporal Alignment for Control</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
 <p><br></p>
-<p>𝛕 = (b1, b2, . . . , bL),</p>
-<p>Input sequence ρ with length T</p>
-<p>A path <span class="math inline">\(ζ = (ζ_1, ζ_2, ..., ζ_T )\)</span> is a sequence of sub- tasks of the same length as the input sequence ρ, describing the active sub-task <span class="math inline">\(ζ_t\)</span> at every time-step</p>
-<p><span class="math inline">\(Z_{T,𝛕}\)</span> is the set of all possible paths of length T for a task sketch 𝛕</p>
-<p>Eg. T = 6, 𝛕 = (b1, b2, b3), ζ = (b1, b1, b2, b3, b3, b3)</p>
+<ul>
+<li><p>Input trajectory <span class="math inline">\(\rho=((s_1,a_1),...,(s_T,a_T))\)</span></p></li>
+<li><p>Task sketch <span class="math inline">\(\tau = (b_1, b_2, . . . , b_L)\)</span> indicating which sub-tasks are active in <span class="math inline">\(\rho\)</span>. Assume <span class="math inline">\(L \ll T\)</span></p></li>
+<li><p>A path <span class="math inline">\(\zeta = (\zeta_1, \zeta_2, ..., \zeta_T )\)</span> is a sequence of sub-tasks of the same length as the input sequence <span class="math inline">\(\rho\)</span>, describing the active sub-task <span class="math inline">\(\zeta_t\)</span> at every time-step</p></li>
+<li><p><span class="math inline">\(Z_{T,\tau}\)</span> is the set of all possible paths <span class="math inline">\(\zeta\)</span> of length T, given a task sketch <span class="math inline">\(\tau\)</span></p></li>
+<li><p>Eg. T = 6, <span class="math inline">\(\tau = (b_1, b_2, b_3), \zeta = (b_1, b_1, b_2, b_3, b_3, b_3)\)</span></p></li>
+</ul>
 </div><div class="column" style="width:40%;">
 <p><img data-src="images/taco.png"></p>
 </div></div>
 </section>
 <section id="taco-temporal-alignment-for-control-2" class="slide level2">
 <h2>TACO: Temporal Alignment for Control</h2>
-<p>Objective: Maximise the joint log likelihood of the task sequence and the actions conditioned on the states</p>
+<p>Objective: Maximise the joint log likelihood of the task sketch sequence <span class="math inline">\(\tau\)</span> and the action sequence <span class="math inline">\(\mathbf{a}_\rho\)</span> of a training trajectory <span class="math inline">\(\rho\)</span>, conditioned on the state sequence <span class="math inline">\(\mathbf{s}_{\rho}\)</span> of <span class="math inline">\(\rho\)</span></p>
 <p><span class="math display">\[
-p(\tau, \mathbf{a}_\rho \mid s_\rho) = \sum_{\zeta \in \mathbb{Z}_{T, \tau}} p(\zeta \mid s_\rho) \prod_{t=1}^{T} \pi_{\theta_{\zeta_t}} (a_t \mid s_t)
+p(\tau, \mathbf{a}_\rho \mid \mathbf{s}_\rho) = \sum_{\zeta \in Z_{T, \tau}} p(\zeta \mid \mathbf{s}_\rho) \prod_{t=1}^{T} \pi_{\theta_{\zeta_t}} (a_t \mid s_t)
 \]</span></p>
-<p><span class="math inline">\(p(ζ |s_ρ)\)</span> is the product of the stop, <span class="math inline">\(a_{STOP}\)</span> , and nonstop, <span class="math inline">\(ā_{STOP}\)</span>, probabilities associated with any given path.</p>
-<p>Eg. T = 4, <span class="math inline">\(s_⍴ = (s_0, s_1, s_2, s_3)\)</span>, 𝛕 = (b1, b2), ζ = (b1, b1, b2, b2)</p>
-<p><span class="math inline">\(p(ζ |sρ) = π_{b1}(non-stop)^* π_{b1}(stop)^* π_{b2}(non-stop)^* π_{b2}(stop)\)</span></p>
+<p><span class="math inline">\(p(ζ |\mathbf{s}_ρ)\)</span> is the product of the stop, <span class="math inline">\(a_{STOP}\)</span> , and nonstop, <span class="math inline">\(ā_{STOP}\)</span>, probabilities associated with any given path.</p>
+<p>Eg. T = 4, <span class="math inline">\(\mathbf{s}_{\rho} = (s_1, s_2, s_3, s_4)\)</span>, <span class="math inline">\(\tau = (b_1, b_2), \zeta = (b_1, b_1, b_2, b_2)\)</span></p>
+<p><span class="math inline">\(p(\zeta |\mathbf{s}_{\rho}) = \pi_{\theta_{b_1}}(\bar{a}_{STOP}|s_2)\,\pi_{\theta_{b_1}}(a_{STOP}|s_3)\,\pi_{\theta_{b_2}}(\bar{a}_{STOP}|s_4)\)</span></p>
+<p>No stop factor at <span class="math inline">\(s_1\)</span>, since <span class="math inline">\(\zeta_1 = \tau_1\)</span> is fixed (Eq. 10 in the TACO paper).</p>
 </section>
 <section id="taco-temporal-alignment-for-control-3" class="slide level2">
 <h2>TACO: Temporal Alignment for Control</h2>
-<p>Problem: Impossible to compute all paths ζ in <span class="math inline">\(Z_{T,tau}\)</span> for long sequence</p>
+<p>Problem: Impossible to compute all paths <span class="math inline">\(\zeta\)</span> in <span class="math inline">\(Z_{T,\tau}\)</span> for long sequence</p>
 <p>Solution: Dynamic Programming</p>
-<p>The (joint) likelihood of a being at sub-task l at time t can be formulated in terms of <strong>forward variables</strong>:</p>
+<p>The (joint) likelihood of being at sub-task <span class="math inline">\(l\)</span> at time <span class="math inline">\(t\)</span> can be formulated in terms of <strong>forward variables</strong>:</p>
 <p><span class="math display">\[
-\alpha_t(l) := \sum_{\zeta_{1:t} \in \mathbb{Z}_t, \tau_{1:l}} p(\zeta \mid s_\rho) \prod_{t' = 1}^{t} \pi_{\theta_{\zeta_{t'}}}(a_{t'} \mid s_{t'})
+\alpha_t(l) := \sum_{\zeta_{1:t} \in Z_{t, \tau_{1:l}}} p(\zeta \mid \mathbf{s}_\rho) \prod_{t' = 1}^{t} \pi_{\theta_{\zeta_{t'}}}(a_{t'} \mid s_{t'})
 \]</span></p>
 </section>
 <section id="taco-temporal-alignment-for-control-4" class="slide level2">
@@ -629,7 +631,7 @@ p(\tau, \mathbf{a}_\rho \mid s_\rho) = \sum_{\zeta \in \mathbb{Z}_{T, \tau}} p(\
 </div><div class="column" style="width:50%;">
 <p><img data-src="images/taco-alignment.png"></p>
 </div></div>
-<p>Training: Maximize <span class="math inline">\(⍺_T(L)\)</span> over θ</p>
+<p>Training: Maximize <span class="math inline">\(\sum_{\rho} \log \alpha_T(L)\)</span> over all demonstrations, w.r.t. the sub-policy parameters <span class="math inline">\(\theta=(\theta_1, ..., \theta_K)\)</span>, which define both the action policies <span class="math inline">\(\pi_{\theta_k}(a|s)\)</span> and the stop policies <span class="math inline">\(\pi_{\theta_k}(a_{STOP}|s)\)</span></p>
 </section>
 <section id="experiments-nav-world" class="slide level2">
 <h2>Experiments: Nav-World</h2>
@@ -697,7 +699,7 @@ p(\tau, \mathbf{a}_\rho \mid s_\rho) = \sum_{\zeta \in \mathbb{Z}_{T, \tau}} p(\
 <h2>Future Work &amp; Limitation</h2>
 <p>Limitation:</p>
 <ul>
-<li>Sub-tasks in the task sketch has to be placed in the correct order</li>
+<li>Sub-tasks in the task sketch have to be placed in the correct order</li>
 </ul>
 <p><br></p>
 <p>Future work:</p>
@@ -715,6 +717,7 @@ p(\tau, \mathbf{a}_\rho \mid s_\rho) = \sum_{\zeta \in \mathbb{Z}_{T, \tau}} p(\
 </div>
 <p>• Learning to search in Task and Motion Planning (TAMP)</p>
 <p>• Generalization through imitation – using hierarchical policies</p>
+<p>• Compositional generalization in diffusion planning</p>
 
 <aside><div>
 <p>Acknowledgments<br>
@@ -785,9 +788,8 @@ Continuous action space: 5 joint angles on the robot arm x T timesteps</p>
 <p>Expanding 1 and 2 requires solving continuous optimization problems with constraints</p>
 </div></div>
 </section>
-<section id="section-1" class="slide level2">
-<h2></h2>
-<p>Solubility experiment</p>
+<section id="solubility-experiment" class="slide level2">
+<h2>Solubility experiment</h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/NjpZmaKQWls?rel=0" width="80%" height="60%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=NjpZmaKQWls" class="uri">https://www.youtube.com/watch?v=NjpZmaKQWls</a></span></p>
 </section>
@@ -796,7 +798,7 @@ Continuous action space: 5 joint angles on the robot arm x T timesteps</p>
 <iframe data-external="1" src="https://www.youtube.com/embed/NjpZmaKQWls?rel=0" width="80%" height="60%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=NjpZmaKQWls" class="uri">https://www.youtube.com/watch?v=NjpZmaKQWls</a></span></p>
 </section>
-<section id="section-2" class="slide level2 center">
+<section id="section-1" class="slide level2 center">
 <h2></h2>
 <p>These plans are useful, but unfortunately discrete + continuous optimization is <span class="red">slow</span></p>
 <p>Q: How can we <span class="red">learn to plan</span> from past experience of having solved similar problems?</p>
@@ -809,7 +811,7 @@ Continuous action space: 5 joint angles on the robot arm x T timesteps</p>
 <h2><span class="medium">Learning to Rank Objects and Operations from Past Experience</span></h2>
 
 <img data-src="images/rank-obj2.png" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-3" class="slide level2">
+<section id="section-2" class="slide level2">
 <h2></h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/pzzpR4wh_Zk" width="100%" height="80%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
 <p><span class="tiny-font"><a href="https://www.youtube.com/watch?v=pzzpR4wh_Zk&amp;t=15s" class="uri">https://www.youtube.com/watch?v=pzzpR4wh_Zk&amp;t=15s</a></span></p>
@@ -819,6 +821,143 @@ Continuous action space: 5 joint angles on the robot arm x T timesteps</p>
 
 <img data-src="images/learned-planner.png" class="r-stretch"><p><span class="tiny-font">*Learning to Search in Task and Motion Planning with Streams, Khodeir et al, Robotics and Automation Letters. 2022</span></p>
 </section>
+<section id="automated-planning-domain-inference-for-task-and-motion-planning" class="slide level2 center">
+<h2>Automated Planning Domain Inference for Task and Motion Planning</h2>
+<p>Jinbang Huang, Allen Tao, Rozilyn Marco, Miroslav Bogdanovic, Jonathan Kelly, Florian Shkurti</p>
+<p>ICRA 2025</p>
+<p><span class="tiny-font"><a href="https://arxiv.org/abs/2410.16445" class="uri">https://arxiv.org/abs/2410.16445</a></span></p>
+</section>
+<section id="motivation-who-writes-the-planning-domain" class="slide level2">
+<h2><span class="medium">Motivation: who writes the planning domain?</span></h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pdi-overview.png" class="quarto-figure quarto-figure-center" height="380"></p>
+</figure>
+</div>
+<ul>
+<li>Goal: <span class="red">infer the planning domain</span> of a new task from one (or a few) human demonstrations, then plan with a standard TAMP planner</li>
+<li>Unlike behavioural cloning of the planner, only the domain is learned. The search is still done by the planner, which helps generalize to more objects</li>
+</ul>
+</section>
+<section id="problem-setting" class="slide level2">
+<h2>Problem setting</h2>
+<p><br></p>
+<p><u>Given</u>: candidate predicates <span class="math inline">\(\mathbf{P}\)</span>, e.g.&nbsp;<code>(is_on ?o1 ?o2)</code>, and actions <span class="math inline">\(\mathbf{A}\)</span>, e.g.&nbsp;<code>stack</code>, <code>cook</code>, each with its motion planner</p>
+<p><u>Find</u>: a planning domain <span class="math inline">\(\mathbf{D}\)</span>, i.e.&nbsp;a subset of <span class="math inline">\(\mathbf{P}\)</span> and <span class="math inline">\(\mathbf{A}\)</span>, plus each action’s preconditions and effects</p>
+<ul>
+<li>From one demonstration <span class="math inline">\(\tau_e\)</span> and a few unsolved validation problems <span class="math inline">\(\mathbf{Q}_v\)</span></li>
+<li><span class="red">Complete</span> domain: can solve the task. <span class="red">Optimal</span> domain: complete, with the fewest predicates and actions</li>
+</ul>
+</section>
+<section id="method-overview" class="slide level2">
+<h2>Method overview</h2>
+<ul>
+<li><p><u>Training</u>: from TAMP problems of 9 basic tasks (30 demonstrations each, 2-4 objects), learn estimators that score the relevance <span class="math inline">\(u \in [0, 1]\)</span> of every predicate and action</p></li>
+<li><p><u>Testing</u>: predict the relevance scores from the demonstration, convert the most likely domain to PDDL, then refine it by search using <span class="math inline">\(\mathbf{Q}_v\)</span>. If no domain solves <span class="math inline">\(\mathbf{Q}_v\)</span>, ask for more demonstrations</p></li>
+</ul>
+</section>
+<section id="predicate-and-action-estimators" class="slide level2">
+<h2>Predicate and action estimators</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><img data-src="images/pdi-scene-graph.png" style="width:100.0%"></p>
+</div><div class="column" style="width:40%;">
+<p><br></p>
+<ul>
+<li><p>Initial and goal states as scene graphs: objects are nodes, predicates are node features and edges</p></li>
+<li><p>Graph attention network → relevance score <span class="math inline">\(u_p, u_a \in [0, 1]\)</span> for every predicate and action</p></li>
+</ul>
+</div></div>
+<p>Score of a candidate domain with predicates and actions <span class="math inline">\(\omega_\mathbf{D}\)</span>:</p>
+<p><span class="math display">\[
+u_\mathbf{D} = \prod_{p \in \omega_\mathbf{D}} u_p \prod_{p \notin \omega_\mathbf{D}} (1 - u_p) \prod_{a \in \omega_\mathbf{D}} u_a \prod_{a \notin \omega_\mathbf{D}} (1 - u_a)
+\]</span></p>
+<p>The best-scoring <span class="math inline">\(\omega_\mathbf{D}^{top}\)</span> is the initial guess. The rest are ranked by score in a priority list <span class="math inline">\(L\)</span></p>
+</section>
+<section id="generate-and-test-domain-search" class="slide level2">
+<h2>Generate-and-test domain search</h2>
+<div class="columns">
+<div class="column" style="width:45%;">
+<p><img data-src="images/pdi-algorithm.png"></p>
+</div><div class="column medium" style="width:55%;">
+<ul>
+<li><p><span class="math inline">\(\omega_\mathbf{D}^{top}\)</span> → PDDL domain <span class="math inline">\(\mathbf{D}_{top}\)</span>, using the demonstration:</p>
+<ul>
+<li>Precondition of an action: intersection of its pre-images (logical state just before the action) over all its instances</li>
+<li>Effect: intersection of its post-images, keeping only the predicates that changed</li>
+</ul></li>
+<li><p><u>Expansion</u>: add the highest-scored element of <span class="math inline">\(L\)</span> until the domain solves all of <span class="math inline">\(\mathbf{Q}_v\)</span></p></li>
+<li><p><u>Contraction</u>: try removing each element. Keep the removal if <span class="math inline">\(\mathbf{Q}_v\)</span> is still solved</p></li>
+<li><p>Assumes that a subdomain of an incomplete domain is incomplete, and that the optimal domain is contained in any complete domain</p></li>
+<li><p>Each <code>plan</code> call queries the motion planners, which dominates the cost. A good initial guess means few calls</p></li>
+</ul>
+</div></div>
+</section>
+<section id="results-more-objects-and-new-tasks" class="slide level2">
+<h2><span class="medium">Results: more objects and new tasks</span></h2>
+
+<img data-src="images/pdi-success-rates.png" style="width:100.0%" class="r-stretch"><div class="columns">
+<div class="column medium" style="width:45%;">
+<ul>
+<li>One demonstration per task at test time. Test problems have up to 9 objects, training problems at most 4</li>
+<li>Behavioural cloning baselines: graph attention policies that predict the next logical action from logical, continuous or hybrid object states</li>
+<li>Inferred domains stay above 90% success up to 9 objects, while the baselines degrade on complex tasks</li>
+</ul>
+</div><div class="column small-math" style="width:55%;">
+<p>Unseen composed tasks, one demonstration each (success rate % vs.&nbsp;number of objects):</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Task</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cook and plate</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>40</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td>Unpack and cook</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>80</td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td>Label</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+</section>
+<section id="results-search-cost-and-real-robot-experiments" class="slide level2">
+<h2><span class="medium">Results: search cost and real robot experiments</span></h2>
+<p><img data-src="images/pdi-planner-queries.png" style="width:100.0%"></p>
+<p><img data-src="images/pdi-real-robot.png" style="width:60.0%"></p>
+</section>
 <section id="todays-agenda-4" class="slide level2">
 <h2>Today’s agenda</h2>
 <div class="grey-text">
@@ -827,16 +966,127 @@ Continuous action space: 5 joint angles on the robot arm x T timesteps</p>
 <p>• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)</p>
 <p>• Learning to search in Task and Motion Planning (TAMP)</p>
 </div>
-<p>• Generalization through imitation – using hierarchical policies<br>
-<span class="tiny-font">source: <a href="https://www.youtube.com/watch?v=hlvRmLlYHZ0&amp;t=111s&amp;ab_channel=RoboticsScienceandSystems" class="uri">https://www.youtube.com/watch?v=hlvRmLlYHZ0&amp;t=111s&amp;ab_channel=RoboticsScienceandSystems</a></span></p>
-
-<aside><div>
-<p>Acknowledgments<br>
-Today’s slides are based on student presentations from 2019 by: Zeqi Li, Angran Li, Zihan Fu</p>
-</div></aside></section>
-<section id="section-4" class="slide level2">
+<p>• Generalization through imitation – using hierarchical policies</p>
+<p>• Compositional generalization in diffusion planning</p>
+</section>
+<section id="section-3" class="slide level2">
 <h2></h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/hlvRmLlYHZ0?rel=0" width="100%" height="80%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+</section>
+<section id="todays-agenda-5" class="slide level2">
+<h2>Today’s agenda</h2>
+<div class="grey-text">
+<p>• Learning programs based on execution traces (NPI - Neural Programmer Interpreters)</p>
+<p>• Extending NPI for video-based robot imitation (NTP - Neural Task Programming)</p>
+<p>• Inferring sub-task boundaries (TACO - Temporal Alignment for Control)</p>
+<p>• Learning to search in Task and Motion Planning (TAMP)</p>
+<p>• Generalization through imitation – using hierarchical policies</p>
+</div>
+<p>• Compositional generalization in diffusion planning</p>
+</section>
+<section id="what-do-you-need-for-compositional-generalization-in-diffusion-planning" class="slide level2">
+<h2><span class="medium">What do you need for compositional generalization in diffusion planning?</span></h2>
+
+<img data-src="images/cg-overview.png" style="width:100.0%" class="r-stretch"><ul>
+<li>Diffusion planners trained via imitation (generative behavioural cloning), not RL</li>
+<li><span class="red">Compositional generalization</span>: generating new trajectories by stitching together sub-trajectories from different demonstrations</li>
+<li>Which design choices enable it?</li>
+</ul>
+<p><span class="tiny-font">What Do You Need for Compositional Generalization in Diffusion Planning? Quentin Clark and Florian Shkurti. CoRL 2026. <a href="https://arxiv.org/abs/2505.18083" class="uri">https://arxiv.org/abs/2505.18083</a></span></p>
+</section>
+<section id="popular-diffusion-planners-memorize" class="slide level2">
+<h2>Popular diffusion planners memorize</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/cg-memorization-baselines.png" class="quarto-figure quarto-figure-center" height="360"></p>
+</figure>
+</div>
+<div class="medium">
+<ul>
+<li><span class="red">Memorized</span>: every sub-task of the generated trajectory appears together in a single training trajectory. <span class="green">Novel</span>: requires combining parts of two or more training trajectories</li>
+<li>Complete: as many sub-tasks as a training trajectory. Partial: fewer</li>
+</ul>
+</div>
+</section>
+<section id="eq-net-design" class="slide level2">
+<h2>Eq-Net design</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
+<p><img data-src="images/cg-eqnet-arch.png" style="width:100.0%"></p>
+</div><div class="column" style="width:45%;">
+<p><br><br></p>
+<p>A ResNet CNN with:</p>
+<ul>
+<li>Small convolution kernels</li>
+<li>No max-pooling</li>
+<li>No indexed upsampling</li>
+</ul>
+<p><br></p>
+<p>✅ Local receptive fields</p>
+<p>✅ Shift-equivariance</p>
+</div></div>
+</section>
+<section id="eq-net-memorizes-less" class="slide level2">
+<h2>Eq-Net memorizes less</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/cg-memorization.png" class="quarto-figure quarto-figure-center" height="420"></p>
+</figure>
+</div>
+<p>Eq-Net generates many more novel trajectories than U-Net and DiT backbones</p>
+</section>
+<section id="locality-vs-dataset-size" class="slide level2">
+<h2>Locality vs dataset size</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/cg-locality-vs-data.png" class="quarto-figure quarto-figure-center" height="400"></p>
+</figure>
+</div>
+<p>Lower receptive field integral = more local. Models trained on more data are more local, and Eq-Net is local even with little data</p>
+</section>
+<section id="more-data-induces-local-receptive-fields" class="slide level2">
+<h2>More data induces local receptive fields</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><img data-src="images/cg-receptive-fields.png" style="width:100.0%"></p>
+<p><span class="medium">Gradient of the center state w.r.t. the trajectory</span></p>
+</div><div class="column" style="width:40%;">
+<p><br><br></p>
+<p>Low-data regime: large receptive fields</p>
+<p><br><br><br></p>
+<p>High-data regime: small receptive fields</p>
+</div></div>
+</section>
+<section id="compositionality-vs-dataset-size" class="slide level2">
+<h2>Compositionality vs dataset size</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/cg-composition-vs-data.png" class="quarto-figure quarto-figure-center" height="400"></p>
+</figure>
+</div>
+<p>Eq-Net composes with much less data. U-Net and DiT only start composing once the dataset is large enough to make them local</p>
+</section>
+<section id="locality-matters-more-than-equivariance" class="slide level2">
+<h2>Locality matters more than equivariance</h2>
+
+<img data-src="images/cg-locality-vs-equivariance.png" style="width:100.0%" class="r-stretch"><p>Positional encodings remove shift-equivariance from Eq-Net, and data augmentation adds it to U-Net. Locality alone helps more than shift-equivariance alone, and both together work best</p>
+</section>
+<section id="locality-matters-more-than-equivariance-1" class="slide level2">
+<h2>Locality matters more than equivariance</h2>
+
+<img data-src="images/cg-maze-samples.png" style="width:100.0%" class="r-stretch"></section>
+<section id="different-routes-to-compositionality" class="slide level2">
+<h2>Different routes to compositionality</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p><img data-src="images/cg-composition-ways.png" style="width:100.0%"></p>
+</div><div class="column" style="width:40%;">
+<p><br></p>
+<ul>
+<li><p>Eq-Net: through architectural inductive biases (locality and shift-equivariance)</p></li>
+<li><p>Diffusion Policy and CompDiffuser: through action chunking and replanning</p></li>
+</ul>
+</div></div>
 
 
 </section>
