@@ -40,7 +40,7 @@ You need to be comfortable with: introductory machine learning concepts (such as
 |     Item                   |   % of Final Grade                       |   Due Date  |  What to Submit  |  Marking Rubric         |
 |----------------------------|-----------------------------------------------|------------------|------------------|-----------------------------------|
 | Assignment 1            |          15%              |   Sep 28, 2026   |    |        |
-| Assignment 2            |          15%              |   Oct 12, 2026  |    |        |
+| Assignment 2            |          15%              |   Oct 19, 2026  |    |        |
 | Panel Discussions        |          10%              |   every lecture    |    |   [View rubric](rubric-panel-discussion.qmd)    |
 | Project Proposal        |          10%              |   Oct 19, 2026    |   [Guidelines](project-description.qmd)  |   [View rubric](rubric-project-proposal.qmd)            |
 | Final Project Presentation    |          25%              |   Dec 8, 2026  |   [Guidelines](project-description.qmd)  |   [View rubric](rubric-project-presentation.qmd)         |
