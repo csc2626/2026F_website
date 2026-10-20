@@ -110,9 +110,6 @@ Dual LP
 
 ▶ **Definitions:** Action space $\mathcal{A}$ and sample space $\mathcal{S}$. $\Pi$ is the set of all policies. Also assume $P(s'|s,a)$ is the dynamics model. In this paper, $\pi_E$ denotes the expert policy.
 
-▶ **Imitation Learning:** Learning to perform a task from expert demonstrations without querying the expert while training.
-
-▶ **Behavioral cloning:** Its success depends on large amounts of data.
 
 ▶ **Inverse RL:** The paper adopts the maximum causal entropy IRL which fits a cost function $c$ with the following problem.
 
@@ -181,6 +178,44 @@ $$f^*(m) = \sup_x \langle m, x \rangle - f(x)$$
 
 ::: small-math
 There is a nice visualization of convex conjugate at <https://remilepriol.github.io/dualityviz/>
+:::
+
+## Convex Conjugate: examples
+
+:::::: {.columns .conjugate-panel}
+::: {.column width="33%"}
+::: conjugate-formulas
+$f(x) = \tfrac{1}{2}x^2$
+
+$f^*(m) = \tfrac{1}{2}m^2$
+:::
+
+![](images/conjugate-quadratic.svg)
+:::
+
+::: {.column width="33%"}
+::: conjugate-formulas
+$f(x) = |x|$
+
+$f^*(m) = \begin{cases} 0 & |m| \leq 1 \\ +\infty & \text{otherwise} \end{cases}$
+:::
+
+![](images/conjugate-abs.svg)
+:::
+
+::: {.column width="33%"}
+::: conjugate-formulas
+$f(x) = e^x$
+
+$f^*(m) = \begin{cases} m \log m - m & m \geq 0 \\ +\infty & m < 0 \end{cases}$
+:::
+
+![](images/conjugate-exp.svg)
+:::
+::::::
+
+::: small-math
+Each colored line has slope $m$ and is the highest such line that stays below $f$, so it touches $f$ (hollow dot) and crosses the vertical axis at $-f^*(m)$ (filled dot). The dot of the same color in the bottom plot is $f^*(m)$. For $|x|$, no line with $|m| > 1$ stays below $f$, so $f^*(m) = +\infty$.
 :::
 
 ## Derivations
@@ -308,7 +343,6 @@ Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yi
 
 ## InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations {.center}
 
-Presenter: Yin-Hung Chen
 
 # Motivation
 
@@ -392,7 +426,7 @@ Maximizing mutual information 𝐼(𝑐; 𝜏)\
 
 <br>
 
-Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound 𝐿𝐼(𝜋, 𝑄)
+Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound $L_I$(𝜋, 𝑄)
 
 ## Objective Function
 
@@ -552,8 +586,6 @@ Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yi
 ## Model-based Adversarial Imitation Learning {.center}
 
 Nir Baram, Oron Anschel, Shie Mannor
-
-Presented by Yuwen Xiong, Mar 1 st
 
 ## Recap: GAIL algorithm
 
@@ -740,4 +772,128 @@ $$
 ::: aside
 Acknowledgments\
 Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong
+:::
+
+## Multi-Agent Generative Adversarial Imitation Learning {.center}
+
+Jiaming Song, Hongyu Ren, Dorsa Sadigh, Stefano Ermon
+
+NeurIPS 2018
+
+## Motivation and setup
+
+▶ **Markov game** with $N$ agents: states $\mathcal{S}$, action sets $\mathcal{A}_i$, transitions $T(s'|s, \mathbf{a})$, one reward per agent $r_i(s, \mathbf{a})$, joint action $\mathbf{a} = (a_i, a_{-i})$.
+
+▶ Agents act independently given the state: $\boldsymbol{\pi}(\mathbf{a}|s) = \prod_{i=1}^N \pi_i(a_i|s)$
+
+▶ **Data:** demonstrations $\mathcal{D} = \{(s_j, \mathbf{a}_j)\}_{j=1}^M$ of $N$ experts $\boldsymbol{\pi}_E$ interacting in the same environment. The rewards $r_i$ are unknown. Goal: learn one policy per expert.
+
+▶ **Why not just run GAIL for each agent?**
+
+-   **Non-stationarity:** to agent $i$, the other agents are part of the environment, and they keep changing during training.
+-   **Multiple equilibria:** the best policy for agent $i$ depends on $\pi_{-i}$ and vice versa, so "optimal" becomes "Nash equilibrium", and there can be many of them.
+
+## Nash equilibrium as optimization
+
+::: medium
+▶ $\boldsymbol{\pi}$ is a Nash equilibrium if no agent can improve its return by unilaterally changing its policy. Finding one is a constrained program (Filar & Vrieze), analogous to the primal LP from the start of the lecture:
+
+$$\mathrm{MARL}(\mathbf{r}) = \underset{\boldsymbol{\pi}, \mathbf{v}}{\arg\min} \; \underbrace{\sum_{i=1}^N \sum_{s \in \mathcal{S}} \Big( v_i(s) - \mathbb{E}_{a_i \sim \pi_i(\cdot|s)}\, q_i(s, a_i) \Big)}_{f_r(\boldsymbol{\pi}, \mathbf{v})} - H(\boldsymbol{\pi})$$
+
+$$\text{subject to} \quad v_i(s) \geq q_i(s, a_i) \triangleq \mathbb{E}_{\pi_{-i}}\Big[r_i(s, \mathbf{a}) + \gamma \sum_{s'} T(s'|s, \mathbf{a})\, v_i(s')\Big] \quad \forall i, s, a_i$$
+
+▶ Intuition: when the constraints hold, no agent can improve $\pi_i$ with a one-step TD update while the others stay fixed.
+
+▶ **Theorem 3:** the one-step constraints are equivalent to $t$-step (unrolled) constraints, for any $t$.
+
+▶ **Theorem 4:** in the Lagrangian dual of the unrolled problem, set the multiplier $\lambda^\star(\tau_i)$ to the probability of trajectory $\tau_i$ when agent $i$ uses $\pi_i$ and the others use $\pi^\star_{-i}$. As $t \to \infty$ the dual becomes a reward gap, like the margin in single-agent IRL:
+
+$$\sum_{i=1}^N \mathbb{E}_{\pi_i, \pi^\star_{-i}}[r_i] - \sum_{i=1}^N \mathbb{E}_{\pi^\star_i, \pi^\star_{-i}}[r_i]$$
+:::
+
+## Multi-agent IRL and the main result
+
+::: medium
+▶ **Multi-agent IRL**, with $H_i(\pi_i) = \mathbb{E}_{\pi_i, \pi_{E_{-i}}}[-\log \pi_i(a_i|s)]$:
+
+$$\mathrm{MAIRL}_\psi(\boldsymbol{\pi}_E) = \underset{\mathbf{r}}{\arg\max} \; -\psi(\mathbf{r}) + \sum_{i=1}^N \mathbb{E}_{\boldsymbol{\pi}_E}[r_i] - \Big(\max_{\boldsymbol{\pi}} \sum_{i=1}^N \beta H_i(\pi_i) + \mathbb{E}_{\pi_i, \pi_{E_{-i}}}[r_i]\Big)$$
+
+Each $r_i$ should make expert $i$ better than any $\pi_i$ that plays against the *other experts*. For $N = 1$, $\beta = 1$ this is exactly $IRL_\psi$.
+
+▶ **Theorem 6:** if $\psi(\mathbf{r}) = \sum_i \psi_i(r_i)$ and $\mathrm{MARL}$ has a unique solution,
+
+$$\mathrm{MARL} \circ \mathrm{MAIRL}_\psi(\boldsymbol{\pi}_E) = \underset{\boldsymbol{\pi}}{\arg\min} \sum_{i=1}^N -\beta H_i(\pi_i) + \psi_i^*(\rho_{\pi_i, \pi_{E_{-i}}} - \rho_{\boldsymbol{\pi}_E})$$
+
+This is the multi-agent version of $RL \circ IRL_\psi(\pi_E) = \arg\min_\pi -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E})$.
+
+▶ **The catch:** $\rho_{\pi_i, \pi_{E_{-i}}}$ requires rolling out the other *experts*, which we can't do. **Proposition 7:** with $\beta = 0$ and $\psi_i = \psi_{GA}$, matching $\rho_{\boldsymbol{\pi}}$ (all learned agents) instead has the same minimizer:
+
+$$\underset{\boldsymbol{\pi}}{\arg\min} \sum_{i=1}^N \psi_i^*(\rho_{\pi_i, \pi_{E_{-i}}} - \rho_{\boldsymbol{\pi}_E}) = \underset{\boldsymbol{\pi}}{\arg\min} \sum_{i=1}^N \psi_i^*(\rho_{\pi_i, \pi_{-i}} - \rho_{\boldsymbol{\pi}_E}) = \boldsymbol{\pi}_E$$
+:::
+
+## MAGAIL objective and reward priors
+
+▶ One discriminator $D_{\omega_i}$ per agent; the policies of all agents form the generator:
+
+$$\min_\theta \max_\omega \; \mathbb{E}_{\boldsymbol{\pi}_\theta}\Big[\sum_{i=1}^N \log D_{\omega_i}(s, a_i)\Big] + \mathbb{E}_{\boldsymbol{\pi}_E}\Big[\sum_{i=1}^N \log(1 - D_{\omega_i}(s, a_i))\Big]$$
+
+▶ Reward priors: set $\psi = +\infty$ for rewards that violate the prior.
+
+::::::: columns
+::: {.column width="33%"}
+**Centralized** (cooperative)\
+[One shared reward, $r_1 = \ldots = r_N$]{.medium}
+
+![](images/magail-centralized.png){height="160"}
+:::
+
+::: {.column width="33%"}
+**Decentralized** (mixed)\
+[One reward per agent, $r_i(o_i, a_i)$]{.medium}
+
+![](images/magail-decentralized.png){height="160"}
+:::
+
+::: {.column width="33%"}
+**Zero-sum** (competitive)\
+[Two agents, $r_1 = -r_2$]{.medium}
+
+![](images/magail-zerosum.png){height="160"}
+:::
+:::::::
+
+::: small-math
+$D$ gives high reward to the top row (expert), low to the bottom row. Zero-sum uses $v(\pi_{E_1}, \pi_2) \geq v(\pi_{E_1}, \pi_{E_2}) \geq v(\pi_1, \pi_{E_2})$, with $v$ agent 1's return.
+:::
+
+## Policy optimization: MACK
+
+::: medium
+▶ **Multi-agent Actor-Critic with Kronecker factors (MACK):** a multi-agent extension of ACKTR, i.e. natural policy gradient with K-FAC.
+
+▶ **Centralized training, decentralized execution:** each agent's baseline also sees the other agents' actions $a_{-i}$, which reduces variance during training. At execution time $\pi_i$ only uses agent $i$'s own observation.
+
+$$A_i(s_t, \mathbf{a}_t) = \sum_{j=0}^{k-1} \gamma^j r_i(s_{t+j}, \mathbf{a}_{t+j}) + \gamma^k V_{\phi_i}(s_{t+k}, a_{-i,t+k}) - V_{\phi_i}(s_t, a_{-i,t})$$
+
+▶ **Differences from MADDPG:** MACK does not model or infer the other agents' policies (they are black boxes), and it handles discrete actions without Gumbel-softmax.
+
+▶ **MAGAIL loop** (policies initialized with behavior cloning):
+
+1.  Roll out $\boldsymbol{\pi}_\theta$ to get state-action pairs $\chi$; sample expert pairs $\chi_E$ from $\mathcal{D}$.
+2.  For each agent $i$: update $\omega_i$ to increase $\mathbb{E}_{\chi}[\log D_{\omega_i}(s, a_i)] + \mathbb{E}_{\chi_E}[\log(1 - D_{\omega_i}(s, a_i))]$.
+3.  For each agent $i$: fit $V_{\phi_i}(s, a_{-i})$, compute $A_i$ from the discriminator reward, update $\theta_i$.
+:::
+
+## Experiments
+
+![](images/magail-coop-results.png){fig-align="center" width="900"}
+
+::: medium
+▶ **Particle environments** (from MADDPG): cooperative communication, cooperative navigation, keep-away, predator-prey. 100 to 400 expert episodes of 50 steps, with randomized landmarks. Baselines: behavior cloning (BC), and GAIL trained one agent at a time while the others use BC.
+
+▶ **Cooperative tasks (above):** both MAGAIL variants beat BC and GAIL. Centralized MAGAIL reaches expert level on cooperative communication with 200 demonstrations; BC does not get close even with 400.
+
+▶ **Competitive tasks:** evaluated by playing each method against BC opponents. The decentralized and zero-sum variants do best, so the choice of reward prior matters.
+
+▶ **Cooperative control** (multi-walker carrying a plank, demonstrations from a different environment): with 10 demonstrations, centralized MAGAIL fails 26.2% of the time vs 39.8% for BC.
 :::
