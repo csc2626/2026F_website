@@ -113,3 +113,21 @@ font-size: 0.5em;
 .derivation-content.revealed {
     display: block;
 }
+
+.conjugate-panel .column {
+    text-align: center;
+}
+
+.conjugate-panel p {
+    margin: 0 0 0.1em 0;
+    font-size: 0.8em;
+}
+
+/* Same height in every column so the plots below line up. */
+.conjugate-panel .conjugate-formulas {
+    height: 3.6em;
+}
+
+.conjugate-panel img {
+    max-height: 370px;
+}

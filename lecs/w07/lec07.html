@@ -206,8 +206,6 @@ Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yi
 <section id="background" class="slide level2">
 <h2>Background</h2>
 <p>▶ <strong>Definitions:</strong> Action space <span class="math inline">\(\mathcal{A}\)</span> and sample space <span class="math inline">\(\mathcal{S}\)</span>. <span class="math inline">\(\Pi\)</span> is the set of all policies. Also assume <span class="math inline">\(P(s'|s,a)\)</span> is the dynamics model. In this paper, <span class="math inline">\(\pi_E\)</span> denotes the expert policy.</p>
-<p>▶ <strong>Imitation Learning:</strong> Learning to perform a task from expert demonstrations without querying the expert while training.</p>
-<p>▶ <strong>Behavioral cloning:</strong> Its success depends on large amounts of data.</p>
 <p>▶ <strong>Inverse RL:</strong> The paper adopts the maximum causal entropy IRL which fits a cost function <span class="math inline">\(c\)</span> with the following problem.</p>
 <p><span class="math display">\[\pi^* = \arg \min_{\pi \in \Pi} -H(\pi) + \mathbb{E}_\pi[c(s,a)]\]</span></p>
 <p><span class="math display">\[\tilde{c} = \arg \max_{c \in \mathcal{C}} \mathbb{E}_{\pi^*}[c(s,a)] - \mathbb{E}_{\pi_E}[c(s,a)]\]</span></p>
@@ -251,6 +249,32 @@ Let <span class="math inline">\(\tilde{c} \in IRL_\psi(\pi_E)\)</span>. We are i
 <p>▶ Note that <span class="math inline">\(f^{**} = f\)</span>.</p>
 <div class="small-math">
 <p>There is a nice visualization of convex conjugate at <a href="https://remilepriol.github.io/dualityviz/" class="uri">https://remilepriol.github.io/dualityviz/</a></p>
+</div>
+</section>
+<section id="convex-conjugate-examples" class="slide level2">
+<h2>Convex Conjugate: examples</h2>
+<div class="columns conjugate-panel">
+<div class="column" style="width:33%;">
+<div class="conjugate-formulas">
+<p><span class="math inline">\(f(x) = \tfrac{1}{2}x^2\)</span></p>
+<p><span class="math inline">\(f^*(m) = \tfrac{1}{2}m^2\)</span></p>
+</div>
+<p><img data-src="images/conjugate-quadratic.svg"></p>
+</div><div class="column" style="width:33%;">
+<div class="conjugate-formulas">
+<p><span class="math inline">\(f(x) = |x|\)</span></p>
+<p><span class="math inline">\(f^*(m) = \begin{cases} 0 &amp; |m| \leq 1 \\ +\infty &amp; \text{otherwise} \end{cases}\)</span></p>
+</div>
+<p><img data-src="images/conjugate-abs.svg"></p>
+</div><div class="column" style="width:33%;">
+<div class="conjugate-formulas">
+<p><span class="math inline">\(f(x) = e^x\)</span></p>
+<p><span class="math inline">\(f^*(m) = \begin{cases} m \log m - m &amp; m \geq 0 \\ +\infty &amp; m &lt; 0 \end{cases}\)</span></p>
+</div>
+<p><img data-src="images/conjugate-exp.svg"></p>
+</div></div>
+<div class="small-math">
+<p>Each colored line has slope <span class="math inline">\(m\)</span> and is the highest such line that stays below <span class="math inline">\(f\)</span>, so it touches <span class="math inline">\(f\)</span> (hollow dot) and crosses the vertical axis at <span class="math inline">\(-f^*(m)\)</span> (filled dot). The dot of the same color in the bottom plot is <span class="math inline">\(f^*(m)\)</span>. For <span class="math inline">\(|x|\)</span>, no line with <span class="math inline">\(|m| &gt; 1\)</span> stays below <span class="math inline">\(f\)</span>, so <span class="math inline">\(f^*(m) = +\infty\)</span>.</p>
 </div>
 </section>
 <section id="derivations-2" class="slide level2">
@@ -342,7 +366,6 @@ Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yi
 </div></aside></section>
 <section id="infogail-interpretable-imitation-learning-from-visual-demonstrations" class="slide level2 center">
 <h2>InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations</h2>
-<p>Presenter: Yin-Hung Chen</p>
 </section>
 <section>
 <section id="motivation" class="title-slide slide level1 center">
@@ -421,7 +444,7 @@ p(c|\tau) = \frac{p(c)p(\tau)}{p(\tau)}, \quad \frac{p(c|\tau)}{p(c)} = 1, \quad
 → hard to maximize directly as it requires the posterior 𝑃(𝑐|𝜏)<br>
 → using 𝑄(𝑐|𝜏) to estimate 𝑃(𝑐|𝜏)</p>
 <p><br></p>
-<p>Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound 𝐿𝐼(𝜋, 𝑄)</p>
+<p>Maximizing 𝐼(𝑐; 𝜏) through maximize the lower bound <span class="math inline">\(L_I\)</span>(𝜋, 𝑄)</p>
 </section>
 <section id="objective-function-1" class="slide level2">
 <h2>Objective Function</h2>
@@ -558,7 +581,6 @@ Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yi
 <section id="model-based-adversarial-imitation-learning" class="slide level2 center">
 <h2>Model-based Adversarial Imitation Learning</h2>
 <p>Nir Baram, Oron Anschel, Shie Mannor</p>
-<p>Presented by Yuwen Xiong, Mar 1 st</p>
 </section>
 <section id="recap-gail-algorithm" class="slide level2">
 <h2>Recap: GAIL algorithm</h2>
@@ -718,12 +740,101 @@ J_\theta =  \mathbb{E}_{p(a\mid s)}\mathbb{E}_{p(s'\mid s,a)}\mathbb{E}_{p(\xi\m
 </div>
 <p>• Multi-agent imitation learning</p>
 
-
-
 <aside><div>
 <p>Acknowledgments<br>
 Today’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong</p>
-</div></aside></section></section>
+</div></aside></section>
+<section id="multi-agent-generative-adversarial-imitation-learning" class="slide level2 center">
+<h2>Multi-Agent Generative Adversarial Imitation Learning</h2>
+<p>Jiaming Song, Hongyu Ren, Dorsa Sadigh, Stefano Ermon</p>
+<p>NeurIPS 2018</p>
+</section>
+<section id="motivation-and-setup" class="slide level2">
+<h2>Motivation and setup</h2>
+<p>▶ <strong>Markov game</strong> with <span class="math inline">\(N\)</span> agents: states <span class="math inline">\(\mathcal{S}\)</span>, action sets <span class="math inline">\(\mathcal{A}_i\)</span>, transitions <span class="math inline">\(T(s'|s, \mathbf{a})\)</span>, one reward per agent <span class="math inline">\(r_i(s, \mathbf{a})\)</span>, joint action <span class="math inline">\(\mathbf{a} = (a_i, a_{-i})\)</span>.</p>
+<p>▶ Agents act independently given the state: <span class="math inline">\(\boldsymbol{\pi}(\mathbf{a}|s) = \prod_{i=1}^N \pi_i(a_i|s)\)</span></p>
+<p>▶ <strong>Data:</strong> demonstrations <span class="math inline">\(\mathcal{D} = \{(s_j, \mathbf{a}_j)\}_{j=1}^M\)</span> of <span class="math inline">\(N\)</span> experts <span class="math inline">\(\boldsymbol{\pi}_E\)</span> interacting in the same environment. The rewards <span class="math inline">\(r_i\)</span> are unknown. Goal: learn one policy per expert.</p>
+<p>▶ <strong>Why not just run GAIL for each agent?</strong></p>
+<ul>
+<li><strong>Non-stationarity:</strong> to agent <span class="math inline">\(i\)</span>, the other agents are part of the environment, and they keep changing during training.</li>
+<li><strong>Multiple equilibria:</strong> the best policy for agent <span class="math inline">\(i\)</span> depends on <span class="math inline">\(\pi_{-i}\)</span> and vice versa, so “optimal” becomes “Nash equilibrium”, and there can be many of them.</li>
+</ul>
+</section>
+<section id="nash-equilibrium-as-optimization" class="slide level2">
+<h2>Nash equilibrium as optimization</h2>
+<div class="medium">
+<p>▶ <span class="math inline">\(\boldsymbol{\pi}\)</span> is a Nash equilibrium if no agent can improve its return by unilaterally changing its policy. Finding one is a constrained program (Filar &amp; Vrieze), analogous to the primal LP from the start of the lecture:</p>
+<p><span class="math display">\[\mathrm{MARL}(\mathbf{r}) = \underset{\boldsymbol{\pi}, \mathbf{v}}{\arg\min} \; \underbrace{\sum_{i=1}^N \sum_{s \in \mathcal{S}} \Big( v_i(s) - \mathbb{E}_{a_i \sim \pi_i(\cdot|s)}\, q_i(s, a_i) \Big)}_{f_r(\boldsymbol{\pi}, \mathbf{v})} - H(\boldsymbol{\pi})\]</span></p>
+<p><span class="math display">\[\text{subject to} \quad v_i(s) \geq q_i(s, a_i) \triangleq \mathbb{E}_{\pi_{-i}}\Big[r_i(s, \mathbf{a}) + \gamma \sum_{s'} T(s'|s, \mathbf{a})\, v_i(s')\Big] \quad \forall i, s, a_i\]</span></p>
+<p>▶ Intuition: when the constraints hold, no agent can improve <span class="math inline">\(\pi_i\)</span> with a one-step TD update while the others stay fixed.</p>
+<p>▶ <strong>Theorem 3:</strong> the one-step constraints are equivalent to <span class="math inline">\(t\)</span>-step (unrolled) constraints, for any <span class="math inline">\(t\)</span>.</p>
+<p>▶ <strong>Theorem 4:</strong> in the Lagrangian dual of the unrolled problem, set the multiplier <span class="math inline">\(\lambda^\star(\tau_i)\)</span> to the probability of trajectory <span class="math inline">\(\tau_i\)</span> when agent <span class="math inline">\(i\)</span> uses <span class="math inline">\(\pi_i\)</span> and the others use <span class="math inline">\(\pi^\star_{-i}\)</span>. As <span class="math inline">\(t \to \infty\)</span> the dual becomes a reward gap, like the margin in single-agent IRL:</p>
+<p><span class="math display">\[\sum_{i=1}^N \mathbb{E}_{\pi_i, \pi^\star_{-i}}[r_i] - \sum_{i=1}^N \mathbb{E}_{\pi^\star_i, \pi^\star_{-i}}[r_i]\]</span></p>
+</div>
+</section>
+<section id="multi-agent-irl-and-the-main-result" class="slide level2">
+<h2>Multi-agent IRL and the main result</h2>
+<div class="medium">
+<p>▶ <strong>Multi-agent IRL</strong>, with <span class="math inline">\(H_i(\pi_i) = \mathbb{E}_{\pi_i, \pi_{E_{-i}}}[-\log \pi_i(a_i|s)]\)</span>:</p>
+<p><span class="math display">\[\mathrm{MAIRL}_\psi(\boldsymbol{\pi}_E) = \underset{\mathbf{r}}{\arg\max} \; -\psi(\mathbf{r}) + \sum_{i=1}^N \mathbb{E}_{\boldsymbol{\pi}_E}[r_i] - \Big(\max_{\boldsymbol{\pi}} \sum_{i=1}^N \beta H_i(\pi_i) + \mathbb{E}_{\pi_i, \pi_{E_{-i}}}[r_i]\Big)\]</span></p>
+<p>Each <span class="math inline">\(r_i\)</span> should make expert <span class="math inline">\(i\)</span> better than any <span class="math inline">\(\pi_i\)</span> that plays against the <em>other experts</em>. For <span class="math inline">\(N = 1\)</span>, <span class="math inline">\(\beta = 1\)</span> this is exactly <span class="math inline">\(IRL_\psi\)</span>.</p>
+<p>▶ <strong>Theorem 6:</strong> if <span class="math inline">\(\psi(\mathbf{r}) = \sum_i \psi_i(r_i)\)</span> and <span class="math inline">\(\mathrm{MARL}\)</span> has a unique solution,</p>
+<p><span class="math display">\[\mathrm{MARL} \circ \mathrm{MAIRL}_\psi(\boldsymbol{\pi}_E) = \underset{\boldsymbol{\pi}}{\arg\min} \sum_{i=1}^N -\beta H_i(\pi_i) + \psi_i^*(\rho_{\pi_i, \pi_{E_{-i}}} - \rho_{\boldsymbol{\pi}_E})\]</span></p>
+<p>This is the multi-agent version of <span class="math inline">\(RL \circ IRL_\psi(\pi_E) = \arg\min_\pi -H(\pi) + \psi^*(\rho_\pi - \rho_{\pi_E})\)</span>.</p>
+<p>▶ <strong>The catch:</strong> <span class="math inline">\(\rho_{\pi_i, \pi_{E_{-i}}}\)</span> requires rolling out the other <em>experts</em>, which we can’t do. <strong>Proposition 7:</strong> with <span class="math inline">\(\beta = 0\)</span> and <span class="math inline">\(\psi_i = \psi_{GA}\)</span>, matching <span class="math inline">\(\rho_{\boldsymbol{\pi}}\)</span> (all learned agents) instead has the same minimizer:</p>
+<p><span class="math display">\[\underset{\boldsymbol{\pi}}{\arg\min} \sum_{i=1}^N \psi_i^*(\rho_{\pi_i, \pi_{E_{-i}}} - \rho_{\boldsymbol{\pi}_E}) = \underset{\boldsymbol{\pi}}{\arg\min} \sum_{i=1}^N \psi_i^*(\rho_{\pi_i, \pi_{-i}} - \rho_{\boldsymbol{\pi}_E}) = \boldsymbol{\pi}_E\]</span></p>
+</div>
+</section>
+<section id="magail-objective-and-reward-priors" class="slide level2">
+<h2>MAGAIL objective and reward priors</h2>
+<p>▶ One discriminator <span class="math inline">\(D_{\omega_i}\)</span> per agent; the policies of all agents form the generator:</p>
+<p><span class="math display">\[\min_\theta \max_\omega \; \mathbb{E}_{\boldsymbol{\pi}_\theta}\Big[\sum_{i=1}^N \log D_{\omega_i}(s, a_i)\Big] + \mathbb{E}_{\boldsymbol{\pi}_E}\Big[\sum_{i=1}^N \log(1 - D_{\omega_i}(s, a_i))\Big]\]</span></p>
+<p>▶ Reward priors: set <span class="math inline">\(\psi = +\infty\)</span> for rewards that violate the prior.</p>
+<div class="columns">
+<div class="column" style="width:33%;">
+<p><strong>Centralized</strong> (cooperative)<br>
+<span class="medium">One shared reward, <span class="math inline">\(r_1 = \ldots = r_N\)</span></span></p>
+<p><img data-src="images/magail-centralized.png" height="160"></p>
+</div><div class="column" style="width:33%;">
+<p><strong>Decentralized</strong> (mixed)<br>
+<span class="medium">One reward per agent, <span class="math inline">\(r_i(o_i, a_i)\)</span></span></p>
+<p><img data-src="images/magail-decentralized.png" height="160"></p>
+</div><div class="column" style="width:33%;">
+<p><strong>Zero-sum</strong> (competitive)<br>
+<span class="medium">Two agents, <span class="math inline">\(r_1 = -r_2\)</span></span></p>
+<p><img data-src="images/magail-zerosum.png" height="160"></p>
+</div></div>
+<div class="small-math">
+<p><span class="math inline">\(D\)</span> gives high reward to the top row (expert), low to the bottom row. Zero-sum uses <span class="math inline">\(v(\pi_{E_1}, \pi_2) \geq v(\pi_{E_1}, \pi_{E_2}) \geq v(\pi_1, \pi_{E_2})\)</span>, with <span class="math inline">\(v\)</span> agent 1’s return.</p>
+</div>
+</section>
+<section id="policy-optimization-mack" class="slide level2">
+<h2>Policy optimization: MACK</h2>
+<div class="medium">
+<p>▶ <strong>Multi-agent Actor-Critic with Kronecker factors (MACK):</strong> a multi-agent extension of ACKTR, i.e.&nbsp;natural policy gradient with K-FAC.</p>
+<p>▶ <strong>Centralized training, decentralized execution:</strong> each agent’s baseline also sees the other agents’ actions <span class="math inline">\(a_{-i}\)</span>, which reduces variance during training. At execution time <span class="math inline">\(\pi_i\)</span> only uses agent <span class="math inline">\(i\)</span>’s own observation.</p>
+<p><span class="math display">\[A_i(s_t, \mathbf{a}_t) = \sum_{j=0}^{k-1} \gamma^j r_i(s_{t+j}, \mathbf{a}_{t+j}) + \gamma^k V_{\phi_i}(s_{t+k}, a_{-i,t+k}) - V_{\phi_i}(s_t, a_{-i,t})\]</span></p>
+<p>▶ <strong>Differences from MADDPG:</strong> MACK does not model or infer the other agents’ policies (they are black boxes), and it handles discrete actions without Gumbel-softmax.</p>
+<p>▶ <strong>MAGAIL loop</strong> (policies initialized with behavior cloning):</p>
+<ol type="1">
+<li>Roll out <span class="math inline">\(\boldsymbol{\pi}_\theta\)</span> to get state-action pairs <span class="math inline">\(\chi\)</span>; sample expert pairs <span class="math inline">\(\chi_E\)</span> from <span class="math inline">\(\mathcal{D}\)</span>.</li>
+<li>For each agent <span class="math inline">\(i\)</span>: update <span class="math inline">\(\omega_i\)</span> to increase <span class="math inline">\(\mathbb{E}_{\chi}[\log D_{\omega_i}(s, a_i)] + \mathbb{E}_{\chi_E}[\log(1 - D_{\omega_i}(s, a_i))]\)</span>.</li>
+<li>For each agent <span class="math inline">\(i\)</span>: fit <span class="math inline">\(V_{\phi_i}(s, a_{-i})\)</span>, compute <span class="math inline">\(A_i\)</span> from the discriminator reward, update <span class="math inline">\(\theta_i\)</span>.</li>
+</ol>
+</div>
+</section>
+<section id="experiments-2" class="slide level2">
+<h2>Experiments</h2>
+
+<img data-src="images/magail-coop-results.png" class="quarto-figure quarto-figure-center r-stretch" width="900"><div class="medium">
+<p>▶ <strong>Particle environments</strong> (from MADDPG): cooperative communication, cooperative navigation, keep-away, predator-prey. 100 to 400 expert episodes of 50 steps, with randomized landmarks. Baselines: behavior cloning (BC), and GAIL trained one agent at a time while the others use BC.</p>
+<p>▶ <strong>Cooperative tasks (above):</strong> both MAGAIL variants beat BC and GAIL. Centralized MAGAIL reaches expert level on cooperative communication with 200 demonstrations; BC does not get close even with 400.</p>
+<p>▶ <strong>Competitive tasks:</strong> evaluated by playing each method against BC opponents. The decentralized and zero-sum variants do best, so the choice of reward prior matters.</p>
+<p>▶ <strong>Cooperative control</strong> (multi-walker carrying a plank, demonstrations from a different environment): with 10 demonstrations, centralized MAGAIL fails 26.2% of the time vs 39.8% for BC.</p>
+</div>
+
+
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

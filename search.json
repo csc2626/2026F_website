@@ -508,7 +508,7 @@
     "href": "lecs/w07/lec07.html#background",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Background",
-    "text": "Background\n▶ Definitions: Action space \\(\\mathcal{A}\\) and sample space \\(\\mathcal{S}\\). \\(\\Pi\\) is the set of all policies. Also assume \\(P(s'|s,a)\\) is the dynamics model. In this paper, \\(\\pi_E\\) denotes the expert policy.\n▶ Imitation Learning: Learning to perform a task from expert demonstrations without querying the expert while training.\n▶ Behavioral cloning: Its success depends on large amounts of data.\n▶ Inverse RL: The paper adopts the maximum causal entropy IRL which fits a cost function \\(c\\) with the following problem.\n\\[\\pi^* = \\arg \\min_{\\pi \\in \\Pi} -H(\\pi) + \\mathbb{E}_\\pi[c(s,a)]\\]\n\\[\\tilde{c} = \\arg \\max_{c \\in \\mathcal{C}} \\mathbb{E}_{\\pi^*}[c(s,a)] - \\mathbb{E}_{\\pi_E}[c(s,a)]\\]\nwhere \\(H(\\pi) = \\mathbb{E}_\\pi[-\\log \\pi(a|s)]\\) is the entropy of the policy."
+    "text": "Background\n▶ Definitions: Action space \\(\\mathcal{A}\\) and sample space \\(\\mathcal{S}\\). \\(\\Pi\\) is the set of all policies. Also assume \\(P(s'|s,a)\\) is the dynamics model. In this paper, \\(\\pi_E\\) denotes the expert policy.\n▶ Inverse RL: The paper adopts the maximum causal entropy IRL which fits a cost function \\(c\\) with the following problem.\n\\[\\pi^* = \\arg \\min_{\\pi \\in \\Pi} -H(\\pi) + \\mathbb{E}_\\pi[c(s,a)]\\]\n\\[\\tilde{c} = \\arg \\max_{c \\in \\mathcal{C}} \\mathbb{E}_{\\pi^*}[c(s,a)] - \\mathbb{E}_{\\pi_E}[c(s,a)]\\]\nwhere \\(H(\\pi) = \\mathbb{E}_\\pi[-\\log \\pi(a|s)]\\) is the entropy of the policy."
   },
   {
     "objectID": "lecs/w07/lec07.html#formulation",
@@ -537,6 +537,13 @@
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Convex Conjugate",
     "text": "Convex Conjugate\n▶ Given a function \\(f\\), it can be represented by the supremum of all affine functions that are majorized by \\(f\\).\n▶ For any given slope \\(m\\), there may be many different constants \\(b\\) such that the affine function \\(\\langle m, x \\rangle - b\\) is majorized by \\(f\\). We only need the best such constant.\n▶ That’s what the convex conjugate \\(f^*\\) does. Given a slope \\(m\\), \\(f^*\\) returns the best constant \\(b\\) such that \\(\\langle m, x \\rangle - b\\) is majorized by \\(f\\). Thus,\n\\[f^*(m) = \\sup_x \\langle m, x \\rangle - f(x)\\]\n▶ Note that \\(f^{**} = f\\).\n\nThere is a nice visualization of convex conjugate at https://remilepriol.github.io/dualityviz/"
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#convex-conjugate-examples",
+    "href": "lecs/w07/lec07.html#convex-conjugate-examples",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Convex Conjugate: examples",
+    "text": "Convex Conjugate: examples\n\n\n\n\\(f(x) = \\tfrac{1}{2}x^2\\)\n\\(f^*(m) = \\tfrac{1}{2}m^2\\)\n\n\n\n\n\\(f(x) = |x|\\)\n\\(f^*(m) = \\begin{cases} 0 & |m| \\leq 1 \\\\ +\\infty & \\text{otherwise} \\end{cases}\\)\n\n\n\n\n\\(f(x) = e^x\\)\n\\(f^*(m) = \\begin{cases} m \\log m - m & m \\geq 0 \\\\ +\\infty & m &lt; 0 \\end{cases}\\)\n\n\n\n\nEach colored line has slope \\(m\\) and is the highest such line that stays below \\(f\\), so it touches \\(f\\) (hollow dot) and crosses the vertical axis at \\(-f^*(m)\\) (filled dot). The dot of the same color in the bottom plot is \\(f^*(m)\\). For \\(|x|\\), no line with \\(|m| &gt; 1\\) stays below \\(f\\), so \\(f^*(m) = +\\infty\\)."
   },
   {
     "objectID": "lecs/w07/lec07.html#derivations-2",
@@ -606,7 +613,7 @@
     "href": "lecs/w07/lec07.html#infogail-interpretable-imitation-learning-from-visual-demonstrations",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations",
-    "text": "InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations\nPresenter: Yin-Hung Chen"
+    "text": "InfoGAIL: Interpretable Imitation Learning from Visual Demonstrations"
   },
   {
     "objectID": "lecs/w07/lec07.html#gail-3",
@@ -655,7 +662,7 @@
     "href": "lecs/w07/lec07.html#constraints-over-latent-features-2",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Constraints over Latent Features",
-    "text": "Constraints over Latent Features\nThere should be high mutual information between the latent factor c and learner trajectory 𝜏.\n\nMaximizing mutual information 𝐼(𝑐; 𝜏)\n→ hard to maximize directly as it requires the posterior 𝑃(𝑐|𝜏)\n→ using 𝑄(𝑐|𝜏) to estimate 𝑃(𝑐|𝜏)\n\nMaximizing 𝐼(𝑐; 𝜏) through maximize the lower bound 𝐿𝐼(𝜋, 𝑄)"
+    "text": "Constraints over Latent Features\nThere should be high mutual information between the latent factor c and learner trajectory 𝜏.\n\nMaximizing mutual information 𝐼(𝑐; 𝜏)\n→ hard to maximize directly as it requires the posterior 𝑃(𝑐|𝜏)\n→ using 𝑄(𝑐|𝜏) to estimate 𝑃(𝑐|𝜏)\n\nMaximizing 𝐼(𝑐; 𝜏) through maximize the lower bound \\(L_I\\)(𝜋, 𝑄)"
   },
   {
     "objectID": "lecs/w07/lec07.html#objective-function-1",
@@ -746,7 +753,7 @@
     "href": "lecs/w07/lec07.html#model-based-adversarial-imitation-learning",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Model-based Adversarial Imitation Learning",
-    "text": "Model-based Adversarial Imitation Learning\nNir Baram, Oron Anschel, Shie Mannor\nPresented by Yuwen Xiong, Mar 1 st"
+    "text": "Model-based Adversarial Imitation Learning\nNir Baram, Oron Anschel, Shie Mannor"
   },
   {
     "objectID": "lecs/w07/lec07.html#recap-gail-algorithm",
@@ -830,7 +837,56 @@
     "href": "lecs/w07/lec07.html#todays-agenda-3",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n\n• Adversarial optimization for imitation learning (GAIL)\n• Adversarial optimization with multiple inferred behaviors (InfoGAIL)\n• Model based adversarial optimization (MGAIL)\n\n• Multi-agent imitation learning\n\n\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong"
+    "text": "Today’s agenda\n\n• Adversarial optimization for imitation learning (GAIL)\n• Adversarial optimization with multiple inferred behaviors (InfoGAIL)\n• Model based adversarial optimization (MGAIL)\n\n• Multi-agent imitation learning\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Yeming Wen, Yin-Hung Chen , and Yuwen Xiong"
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#multi-agent-generative-adversarial-imitation-learning",
+    "href": "lecs/w07/lec07.html#multi-agent-generative-adversarial-imitation-learning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Multi-Agent Generative Adversarial Imitation Learning",
+    "text": "Multi-Agent Generative Adversarial Imitation Learning\nJiaming Song, Hongyu Ren, Dorsa Sadigh, Stefano Ermon\nNeurIPS 2018"
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#motivation-and-setup",
+    "href": "lecs/w07/lec07.html#motivation-and-setup",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Motivation and setup",
+    "text": "Motivation and setup\n▶ Markov game with \\(N\\) agents: states \\(\\mathcal{S}\\), action sets \\(\\mathcal{A}_i\\), transitions \\(T(s'|s, \\mathbf{a})\\), one reward per agent \\(r_i(s, \\mathbf{a})\\), joint action \\(\\mathbf{a} = (a_i, a_{-i})\\).\n▶ Agents act independently given the state: \\(\\boldsymbol{\\pi}(\\mathbf{a}|s) = \\prod_{i=1}^N \\pi_i(a_i|s)\\)\n▶ Data: demonstrations \\(\\mathcal{D} = \\{(s_j, \\mathbf{a}_j)\\}_{j=1}^M\\) of \\(N\\) experts \\(\\boldsymbol{\\pi}_E\\) interacting in the same environment. The rewards \\(r_i\\) are unknown. Goal: learn one policy per expert.\n▶ Why not just run GAIL for each agent?\n\nNon-stationarity: to agent \\(i\\), the other agents are part of the environment, and they keep changing during training.\nMultiple equilibria: the best policy for agent \\(i\\) depends on \\(\\pi_{-i}\\) and vice versa, so “optimal” becomes “Nash equilibrium”, and there can be many of them."
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#nash-equilibrium-as-optimization",
+    "href": "lecs/w07/lec07.html#nash-equilibrium-as-optimization",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Nash equilibrium as optimization",
+    "text": "Nash equilibrium as optimization\n\n▶ \\(\\boldsymbol{\\pi}\\) is a Nash equilibrium if no agent can improve its return by unilaterally changing its policy. Finding one is a constrained program (Filar & Vrieze), analogous to the primal LP from the start of the lecture:\n\\[\\mathrm{MARL}(\\mathbf{r}) = \\underset{\\boldsymbol{\\pi}, \\mathbf{v}}{\\arg\\min} \\; \\underbrace{\\sum_{i=1}^N \\sum_{s \\in \\mathcal{S}} \\Big( v_i(s) - \\mathbb{E}_{a_i \\sim \\pi_i(\\cdot|s)}\\, q_i(s, a_i) \\Big)}_{f_r(\\boldsymbol{\\pi}, \\mathbf{v})} - H(\\boldsymbol{\\pi})\\]\n\\[\\text{subject to} \\quad v_i(s) \\geq q_i(s, a_i) \\triangleq \\mathbb{E}_{\\pi_{-i}}\\Big[r_i(s, \\mathbf{a}) + \\gamma \\sum_{s'} T(s'|s, \\mathbf{a})\\, v_i(s')\\Big] \\quad \\forall i, s, a_i\\]\n▶ Intuition: when the constraints hold, no agent can improve \\(\\pi_i\\) with a one-step TD update while the others stay fixed.\n▶ Theorem 3: the one-step constraints are equivalent to \\(t\\)-step (unrolled) constraints, for any \\(t\\).\n▶ Theorem 4: in the Lagrangian dual of the unrolled problem, set the multiplier \\(\\lambda^\\star(\\tau_i)\\) to the probability of trajectory \\(\\tau_i\\) when agent \\(i\\) uses \\(\\pi_i\\) and the others use \\(\\pi^\\star_{-i}\\). As \\(t \\to \\infty\\) the dual becomes a reward gap, like the margin in single-agent IRL:\n\\[\\sum_{i=1}^N \\mathbb{E}_{\\pi_i, \\pi^\\star_{-i}}[r_i] - \\sum_{i=1}^N \\mathbb{E}_{\\pi^\\star_i, \\pi^\\star_{-i}}[r_i]\\]"
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#multi-agent-irl-and-the-main-result",
+    "href": "lecs/w07/lec07.html#multi-agent-irl-and-the-main-result",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Multi-agent IRL and the main result",
+    "text": "Multi-agent IRL and the main result\n\n▶ Multi-agent IRL, with \\(H_i(\\pi_i) = \\mathbb{E}_{\\pi_i, \\pi_{E_{-i}}}[-\\log \\pi_i(a_i|s)]\\):\n\\[\\mathrm{MAIRL}_\\psi(\\boldsymbol{\\pi}_E) = \\underset{\\mathbf{r}}{\\arg\\max} \\; -\\psi(\\mathbf{r}) + \\sum_{i=1}^N \\mathbb{E}_{\\boldsymbol{\\pi}_E}[r_i] - \\Big(\\max_{\\boldsymbol{\\pi}} \\sum_{i=1}^N \\beta H_i(\\pi_i) + \\mathbb{E}_{\\pi_i, \\pi_{E_{-i}}}[r_i]\\Big)\\]\nEach \\(r_i\\) should make expert \\(i\\) better than any \\(\\pi_i\\) that plays against the other experts. For \\(N = 1\\), \\(\\beta = 1\\) this is exactly \\(IRL_\\psi\\).\n▶ Theorem 6: if \\(\\psi(\\mathbf{r}) = \\sum_i \\psi_i(r_i)\\) and \\(\\mathrm{MARL}\\) has a unique solution,\n\\[\\mathrm{MARL} \\circ \\mathrm{MAIRL}_\\psi(\\boldsymbol{\\pi}_E) = \\underset{\\boldsymbol{\\pi}}{\\arg\\min} \\sum_{i=1}^N -\\beta H_i(\\pi_i) + \\psi_i^*(\\rho_{\\pi_i, \\pi_{E_{-i}}} - \\rho_{\\boldsymbol{\\pi}_E})\\]\nThis is the multi-agent version of \\(RL \\circ IRL_\\psi(\\pi_E) = \\arg\\min_\\pi -H(\\pi) + \\psi^*(\\rho_\\pi - \\rho_{\\pi_E})\\).\n▶ The catch: \\(\\rho_{\\pi_i, \\pi_{E_{-i}}}\\) requires rolling out the other experts, which we can’t do. Proposition 7: with \\(\\beta = 0\\) and \\(\\psi_i = \\psi_{GA}\\), matching \\(\\rho_{\\boldsymbol{\\pi}}\\) (all learned agents) instead has the same minimizer:\n\\[\\underset{\\boldsymbol{\\pi}}{\\arg\\min} \\sum_{i=1}^N \\psi_i^*(\\rho_{\\pi_i, \\pi_{E_{-i}}} - \\rho_{\\boldsymbol{\\pi}_E}) = \\underset{\\boldsymbol{\\pi}}{\\arg\\min} \\sum_{i=1}^N \\psi_i^*(\\rho_{\\pi_i, \\pi_{-i}} - \\rho_{\\boldsymbol{\\pi}_E}) = \\boldsymbol{\\pi}_E\\]"
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#magail-objective-and-reward-priors",
+    "href": "lecs/w07/lec07.html#magail-objective-and-reward-priors",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "MAGAIL objective and reward priors",
+    "text": "MAGAIL objective and reward priors\n▶ One discriminator \\(D_{\\omega_i}\\) per agent; the policies of all agents form the generator:\n\\[\\min_\\theta \\max_\\omega \\; \\mathbb{E}_{\\boldsymbol{\\pi}_\\theta}\\Big[\\sum_{i=1}^N \\log D_{\\omega_i}(s, a_i)\\Big] + \\mathbb{E}_{\\boldsymbol{\\pi}_E}\\Big[\\sum_{i=1}^N \\log(1 - D_{\\omega_i}(s, a_i))\\Big]\\]\n▶ Reward priors: set \\(\\psi = +\\infty\\) for rewards that violate the prior.\n\n\nCentralized (cooperative)\nOne shared reward, \\(r_1 = \\ldots = r_N\\)\n\n\nDecentralized (mixed)\nOne reward per agent, \\(r_i(o_i, a_i)\\)\n\n\nZero-sum (competitive)\nTwo agents, \\(r_1 = -r_2\\)\n\n\n\n\\(D\\) gives high reward to the top row (expert), low to the bottom row. Zero-sum uses \\(v(\\pi_{E_1}, \\pi_2) \\geq v(\\pi_{E_1}, \\pi_{E_2}) \\geq v(\\pi_1, \\pi_{E_2})\\), with \\(v\\) agent 1’s return."
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#policy-optimization-mack",
+    "href": "lecs/w07/lec07.html#policy-optimization-mack",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Policy optimization: MACK",
+    "text": "Policy optimization: MACK\n\n▶ Multi-agent Actor-Critic with Kronecker factors (MACK): a multi-agent extension of ACKTR, i.e. natural policy gradient with K-FAC.\n▶ Centralized training, decentralized execution: each agent’s baseline also sees the other agents’ actions \\(a_{-i}\\), which reduces variance during training. At execution time \\(\\pi_i\\) only uses agent \\(i\\)’s own observation.\n\\[A_i(s_t, \\mathbf{a}_t) = \\sum_{j=0}^{k-1} \\gamma^j r_i(s_{t+j}, \\mathbf{a}_{t+j}) + \\gamma^k V_{\\phi_i}(s_{t+k}, a_{-i,t+k}) - V_{\\phi_i}(s_t, a_{-i,t})\\]\n▶ Differences from MADDPG: MACK does not model or infer the other agents’ policies (they are black boxes), and it handles discrete actions without Gumbel-softmax.\n▶ MAGAIL loop (policies initialized with behavior cloning):\n\nRoll out \\(\\boldsymbol{\\pi}_\\theta\\) to get state-action pairs \\(\\chi\\); sample expert pairs \\(\\chi_E\\) from \\(\\mathcal{D}\\).\nFor each agent \\(i\\): update \\(\\omega_i\\) to increase \\(\\mathbb{E}_{\\chi}[\\log D_{\\omega_i}(s, a_i)] + \\mathbb{E}_{\\chi_E}[\\log(1 - D_{\\omega_i}(s, a_i))]\\).\nFor each agent \\(i\\): fit \\(V_{\\phi_i}(s, a_{-i})\\), compute \\(A_i\\) from the discriminator reward, update \\(\\theta_i\\)."
+  },
+  {
+    "objectID": "lecs/w07/lec07.html#experiments-2",
+    "href": "lecs/w07/lec07.html#experiments-2",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Experiments",
+    "text": "Experiments\n\n\n▶ Particle environments (from MADDPG): cooperative communication, cooperative navigation, keep-away, predator-prey. 100 to 400 expert episodes of 50 steps, with randomized landmarks. Baselines: behavior cloning (BC), and GAIL trained one agent at a time while the others use BC.\n▶ Cooperative tasks (above): both MAGAIL variants beat BC and GAIL. Centralized MAGAIL reaches expert level on cooperative communication with 200 demonstrations; BC does not get close even with 400.\n▶ Competitive tasks: evaluated by playing each method against BC opponents. The decentralized and zero-sum variants do best, so the choice of reward prior matters.\n▶ Cooperative control (multi-walker carrying a plank, demonstrations from a different environment): with 10 demonstrations, centralized MAGAIL fails 26.2% of the time vs 39.8% for BC."
   },
   {
     "objectID": "lecs/w11/lec11.html#todays-agenda",
