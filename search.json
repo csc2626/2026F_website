@@ -3992,168 +3992,14 @@
     "href": "lecs/w09/lec09.html#todays-agenda",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Today’s agenda",
-    "text": "Today’s agenda\n• Shared autonomy for assistive robotics\n• Shared autonomy with human in the loop in deep RL\n• Hindsight optimization and interactive goal prediction\n• Relaxed inverse kinematics for fluid interaction with robot arms\n\n\nAcknowledgments\nToday’s slides are based on student presentations from 2019 by: Andrei Barsan, Bin Yang, and Tingwu Wang"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#shared-autonomy-via-deep-reinforcement-learning",
-    "href": "lecs/w09/lec09.html#shared-autonomy-via-deep-reinforcement-learning",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Shared Autonomy via Deep Reinforcement Learning",
-    "text": "Shared Autonomy via Deep Reinforcement Learning\nSiddharth Reddy, Anca Dragan, Sergey Levine UC Berkeley\nPresented by Ioan Andrei Bârsan on February 22, 2019\niab@cs.toronto.edu"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#key-question",
-    "href": "lecs/w09/lec09.html#key-question",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Key Question",
-    "text": "Key Question\n\nHow can a robot collaborating with a human infer the human’s goals with as few assumptions as possible?"
+    "text": "Today’s agenda\n• Why teleoperation is hard, and what shared autonomy means\n• Shared autonomy via hindsight optimization (Javdani et al., RSS 2015)\n• Shared autonomy via deep reinforcement learning (Reddy et al., RSS 2018)\n• Controlling assistive robots with learned latent actions (Losey et al., ICRA 2020)\n• RelaxedIK: real-time, feasible robot arm motion (Rakita et al., RSS 2018)\n• Fleet-DAgger: many robots learning from a few remote humans (Hoque et al., CoRL 2022)\n• Synthesis: what does each method assume about the human?\n\n\nAcknowledgments\nParts of today’s slides are based on student presentations from 2019 by: Andrei Barsan, Bin Yang, and Tingwu Wang. Revised in 2026."
   },
   {
     "objectID": "lecs/w09/lec09.html#motivation",
     "href": "lecs/w09/lec09.html#motivation",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Motivation",
-    "text": "Motivation\n\n\n• Hard: Actuating a robot with many DoF and/or unfamiliar dynamics.\n• Hard: Specifying a goal formally (e.g., coordinates).\n• Easy: Demonstrating the goal indirectly.\n• …let the machine figure out what I want!\n\n\n\nImage source: “Multihierarchical Interactive Task Planning. Application to Mobile Robotics” Galindo et al., 2008"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#motivation-unknown-dynamics-are-hard-for-humans",
-    "href": "lecs/w09/lec09.html#motivation-unknown-dynamics-are-hard-for-humans",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Motivation: Unknown Dynamics are Hard for Humans",
-    "text": "Motivation: Unknown Dynamics are Hard for Humans"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#it-can-get-even-worse-than-lunar-lander",
-    "href": "lecs/w09/lec09.html#it-can-get-even-worse-than-lunar-lander",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "It can get even worse than Lunar Lander…",
-    "text": "It can get even worse than Lunar Lander…\n\n\n\n\nhttps://www.foddy.net/Athletics.html or Google “qwop”"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#challenges",
-    "href": "lecs/w09/lec09.html#challenges",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Challenges",
-    "text": "Challenges\n• Recall: Want to demonstrate the goal indirectly with minimal assumptions.\n• → We expect the computer to start helping while it is still learning.\n• Challenge #1: How to actually infer user’s goal?\n• Challenge #2: How can we learn this online with low latency?"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#main-hypothesis",
-    "href": "lecs/w09/lec09.html#main-hypothesis",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Main Hypothesis",
-    "text": "Main Hypothesis\nShared autonomy can improve human performance without any assumptions about:\n\ndynamics,\nthe human’s policy,\nthe nature of the goal."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#formulation-reward",
-    "href": "lecs/w09/lec09.html#formulation-reward",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Formulation: Reward",
-    "text": "Formulation: Reward\n\n\\[\nR(s, a, s') = \\underbrace{R_{\\text{general}}(s, a, s')}_{\\text{known}} + \\underbrace{R_{\\text{feedback}}(s, a, s')}_{\\text{unknown, but observed}}\n\\]\n\n\n\\(\\qquad \\qquad \\quad \\uparrow\\)\nAgent’s reward\n(what we want to maximize)\n\n\n\\(\\qquad \\qquad \\qquad \\uparrow\\)\nHandcrafted “common sense”\nknowledge: do not crash, do\nnot tip, etc.\n\n\n\\(\\uparrow\\)\nStuﬀ inferred from the human\n(Main focus of this paper!)"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#formulation",
-    "href": "lecs/w09/lec09.html#formulation",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Formulation",
-    "text": "Formulation\n\n\\[\n\\underbrace{R_{\\text{feedback}}(s, a, s')}_{\\text{unknown, but observed}}\n\\]\n\n\n\n\n\nNeeds\nvirtual\n“user”!\n\n• The authors introduce three variants of their method:\n\nKnown goal space, known user policy.\nKnown goal space, unknown user policy.\nUnknown goal space, unknown user policy."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#the-method",
-    "href": "lecs/w09/lec09.html#the-method",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "The Method",
-    "text": "The Method\n\nBased on Q-Learning.\nUser input has two roles:\n\nA prior policy we should fine-tune.\nA sensor which can be used to decode the goal.\n\nShort version: Like Q-Learning, but execute closest high-value action to the user’s input, instead of highest-value action."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#the-method-continued",
-    "href": "lecs/w09/lec09.html#the-method-continued",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "The Method (Continued)",
-    "text": "The Method (Continued)"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#the-method-continued-1",
-    "href": "lecs/w09/lec09.html#the-method-continued-1",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "The Method (Continued)",
-    "text": "The Method (Continued)"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#but-where-is-textr_textfeedback",
-    "href": "lecs/w09/lec09.html#but-where-is-textr_textfeedback",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "But where is \\(\\text{R}_{\\text{feedback}}\\)?",
-    "text": "But where is \\(\\text{R}_{\\text{feedback}}\\)?\n\nThe choice of \\(\\text{R}_{\\text{feedback}}\\) determines what kind of input we give to the Q- Learning agent in addition to state!\n\n\nKnown goal space & user policy → exact goal.\nKnown goal space & unknown policy → predicted goal (pretrained LSTM).\nUnknown goal space & policy → the user’s input (main focus)"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#input-to-rl-agent",
-    "href": "lecs/w09/lec09.html#input-to-rl-agent",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Input to RL Agent",
-    "text": "Input to RL Agent"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#experiments",
-    "href": "lecs/w09/lec09.html#experiments",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Experiments",
-    "text": "Experiments\n\n\nVirtual experiments with Lunar Lander in OpenAI gym.\nPhysical experiments with an actual drone."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#real-world-experiments",
-    "href": "lecs/w09/lec09.html#real-world-experiments",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Real-World Experiments",
-    "text": "Real-World Experiments\n\n\n\nGoal: Land drone on pad facing a certain way.\nPilot: Human, knows target orientation.\nCopilot: Our Agent, knows where pad is, but not target orientation."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#real-world-results",
-    "href": "lecs/w09/lec09.html#real-world-results",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Real-World Results",
-    "text": "Real-World Results\n\n\n\n\n\nImportant observation: Only n = 4 humans in drone study."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#experimental-results-assumptions",
-    "href": "lecs/w09/lec09.html#experimental-results-assumptions",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Experimental Results: Assumptions",
-    "text": "Experimental Results: Assumptions\n\n\n\n\n\n\nHigher alpha means we take any action. α = 1.0 means we ignore the pilot.\nExperimented in virtual environment."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#recap-strengths",
-    "href": "lecs/w09/lec09.html#recap-strengths",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Recap: Strengths",
-    "text": "Recap: Strengths\n\nGood results even when making no assumptions about user/goal.\nWriting is very clear!\nPossible applications in many fields, including e.g. prosthetics, wheelchairs.\nSource code released on GitHub!"
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#recap-weaknesses",
-    "href": "lecs/w09/lec09.html#recap-weaknesses",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Recap: Weaknesses",
-    "text": "Recap: Weaknesses\n\nUser studies could have had more participants.\nCould have shown results on more Gym environments.\nSolution does not generalize to sophisticated long-term goals."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#conclusion",
-    "href": "lecs/w09/lec09.html#conclusion",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Conclusion",
-    "text": "Conclusion\n\nCan do shared autonomy with minimal assumptions!\nIdea: Q-Learning & pick high-value action most similar to user’s action.\nWorks well in virtual environments (real humans).\nSeems to work well in real environments, too."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#thanks-for-your-attention",
-    "href": "lecs/w09/lec09.html#thanks-for-your-attention",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Thanks for your attention!",
-    "text": "Thanks for your attention!\nQ&A, if time permits it.\nProject website: https://sites.google.com/view/deep-assist\n\n\n\n\n\nVideo of computer-assisted human piloting the lander."
-  },
-  {
-    "objectID": "lecs/w09/lec09.html#shared-autonomy-via-hindsight-optimization",
-    "href": "lecs/w09/lec09.html#shared-autonomy-via-hindsight-optimization",
-    "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Shared Autonomy via Hindsight Optimization",
-    "text": "Shared Autonomy via Hindsight Optimization"
+    "text": "Motivation"
   },
   {
     "objectID": "lecs/w09/lec09.html#teleoperation",
@@ -4163,53 +4009,81 @@
     "text": "Teleoperation\n  \n  \nNoisy, insuﬃcient degrees of freedom, tedious\n\nImage credit: Javdani RSS2015 talk"
   },
   {
+    "objectID": "lecs/w09/lec09.html#why-is-teleoperation-hard",
+    "href": "lecs/w09/lec09.html#why-is-teleoperation-hard",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Why is teleoperation hard?",
+    "text": "Why is teleoperation hard?\n\n\n• Hard: actuating a robot with many DoF and/or unfamiliar dynamics through a low-DoF interface (joystick, mouse, brain-computer interface).\n• Hard: specifying a goal formally (e.g., coordinates, grasp poses).\n• Easy: demonstrating the goal indirectly, through imperfect inputs.\n• …let the machine figure out what I want, and help me get there!\n\n\n\nImage source: “Multihierarchical Interactive Task Planning. Application to Mobile Robotics” Galindo et al., 2008"
+  },
+  {
     "objectID": "lecs/w09/lec09.html#shared-autonomy",
     "href": "lecs/w09/lec09.html#shared-autonomy",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Shared Autonomy",
-    "text": "Shared Autonomy\n\n\n User Input\n\n\n+\n\n\n Autonomous Assistance\n\n\n=\n\n\n Achieve Goal"
+    "text": "Shared Autonomy\n\n\n User Input\n\n\n+\n\n Autonomous Assistance\n\n\n=\n\n\n Achieve Goal\n\n\nThe catch: the robot usually does not know the user’s goal a priori. It has to infer it from the user’s inputs while it is helping."
   },
   {
-    "objectID": "lecs/w09/lec09.html#shared-autonomy-1",
-    "href": "lecs/w09/lec09.html#shared-autonomy-1",
+    "objectID": "lecs/w09/lec09.html#two-ways-to-assist-under-goal-uncertainty",
+    "href": "lecs/w09/lec09.html#two-ways-to-assist-under-goal-uncertainty",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Shared Autonomy",
-    "text": "Shared Autonomy\n\n\n User Input\n\n\n+\n\n Autonomous Assistance\n\n\n=\n\n\n Achieve Goal"
+    "section": "Two ways to assist under goal uncertainty",
+    "text": "Two ways to assist under goal uncertainty\n\n\nPredict-then-blend\n\nPredict the single most likely goal\nAssist for that goal, blending user input and autonomy based on prediction confidence\n\n\n[Dragan and Srinivasa 13], [Kofman et al. 05], [Kragic et al. 05], [Yu et al. 05], [McMullen et al. 14], …\n\n\n\nAssist for the whole goal distribution\n\nMaintain a distribution over goals\nChoose actions that are good in expectation over that distribution\n\n\n[Hauser 13], [Javdani et al. 15]\n\n\n\nThe second option can help even when no single goal is confidently predicted, e.g., in clutter."
   },
   {
-    "objectID": "lecs/w09/lec09.html#shared-autonomy-2",
-    "href": "lecs/w09/lec09.html#shared-autonomy-2",
+    "objectID": "lecs/w09/lec09.html#single-goal-vs.-goal-distribution",
+    "href": "lecs/w09/lec09.html#single-goal-vs.-goal-distribution",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Shared Autonomy",
-    "text": "Shared Autonomy\n\n\nPredict goal Assist for single goal\n\n[Dragan and Srinivasa 13]\n[Kofman et al. 05]\n[Kragic et al. 05]\n[Yu et al. 05]\n[McMullen et al. 14]\n…\n\n\n\n+\n\n Autonomous Assistance\n\n\n=\n\n\n Achieve Goal"
+    "section": "Single goal vs. goal distribution",
+    "text": "Single goal vs. goal distribution\n\n\n\n\n\n\nImage credit: Javdani RSS2015 talk"
   },
   {
-    "objectID": "lecs/w09/lec09.html#shared-autonomy-3",
-    "href": "lecs/w09/lec09.html#shared-autonomy-3",
+    "objectID": "lecs/w09/lec09.html#key-question-for-today",
+    "href": "lecs/w09/lec09.html#key-question-for-today",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Shared Autonomy",
-    "text": "Shared Autonomy\n\n\nPredict goal Assist for single goal\n\n[Dragan and Srinivasa 13]\n[Kofman et al. 05]\n[Kragic et al. 05]\n[Yu et al. 05]\n[McMullen et al. 14]\n…\n\nPredict goal distribution Assist for distribution\n\n[Hauser 13]\nThis work!\n\n\n\n+\n\n Autonomous Assistance\n\n\n=\n\n\n Achieve Goal"
+    "section": "Key question for today",
+    "text": "Key question for today\n\nHow can a robot collaborating with a human infer the human’s goals, and help achieve them, with as few assumptions as possible?\nWe will move from methods that assume a lot (known dynamics, goals, user model) to methods that assume very little."
   },
   {
-    "objectID": "lecs/w09/lec09.html#method",
-    "href": "lecs/w09/lec09.html#method",
+    "objectID": "lecs/w09/lec09.html#aside-teleoperation-is-also-how-we-collect-demonstrations",
+    "href": "lecs/w09/lec09.html#aside-teleoperation-is-also-how-we-collect-demonstrations",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Method",
-    "text": "Method\n\nSystem dynamics: \\(x’ = T(x, a)\\)"
+    "section": "Aside: teleoperation is also how we collect demonstrations",
+    "text": "Aside: teleoperation is also how we collect demonstrations\n\n\nMandlekar et al., “Human-in-the-Loop Imitation Learning using Remote Teleoperation”. Easier teleoperation means cheaper demonstration and intervention data."
   },
   {
-    "objectID": "lecs/w09/lec09.html#method-1",
-    "href": "lecs/w09/lec09.html#method-1",
+    "objectID": "lecs/w09/lec09.html#shared-autonomy-via-hindsight-optimization",
+    "href": "lecs/w09/lec09.html#shared-autonomy-via-hindsight-optimization",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Method",
-    "text": "Method\n\n\n\nSystem dynamics: \\(x' = T(x, a)\\)\nUser (MDP) as \\((X, U, T, C_g^{\\text{usr}})\\)\n\nUser policy: \\(\\pi_g^{\\text{usr}}(x) = p(u|x, g)\\)\nMaxEnt IOC: \\(C_g^{\\text{usr}} : X \\times U \\to \\mathcal{R}\\)"
+    "section": "Shared Autonomy via Hindsight Optimization",
+    "text": "Shared Autonomy via Hindsight Optimization\nShervin Javdani, Siddhartha S. Srinivasa, J. Andrew Bagnell\nRobotics: Science and Systems (RSS), 2015\nPaper · arXiv"
   },
   {
-    "objectID": "lecs/w09/lec09.html#method-2",
-    "href": "lecs/w09/lec09.html#method-2",
+    "objectID": "lecs/w09/lec09.html#problem-setup",
+    "href": "lecs/w09/lec09.html#problem-setup",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Method",
-    "text": "Method\n\n\n\nSystem dynamics: \\(x' = T(x, a)\\)\nUser (MDP) as \\((X, U, T, C_g^{\\text{usr}})\\)\n\nUser policy: \\(\\pi_g^{\\text{usr}}(x) = p(u|x, g)\\)\nMaxEnt IOC: \\(C_g^{\\text{usr}} : X \\times U \\to \\mathcal{R}\\)\n\nSystem (POMDP) as \\((S, A, T, C^{\\text{rob}}, U, \\Omega)\\)\n\nUncertainty over user’s goal\nSystem state: \\(s = X \\times G\\)\nObservation: user inputs \\(U\\)\nObservation model \\(\\Omega\\)\n\n\\(p(g|\\xi^{0 \\to t}) = \\frac{p(\\xi^{0 \\to t}|g)p(g)}{\\sum_{g'} p(\\xi^{0 \\to t}|g')p(g')}\\)\n\nCost function \\(C^{\\text{rob}} : S \\times A \\times U \\to \\mathcal{R}\\)"
+    "section": "Problem setup",
+    "text": "Problem setup\n\n\n\nRobot state \\(x \\in X\\) (continuous), robot action \\(a \\in A\\) (continuous)\nDeterministic dynamics: \\(x' = T(x, a)\\)\nUser input \\(u \\in U\\) (e.g., joystick), mapped to robot actions by direct teleoperation \\(D: U \\to A\\)\nA discrete set of goals \\(g \\in G\\). The user knows their goal; the robot does not.\nEach goal may have several targets \\(\\kappa\\) (e.g., grasp poses for one object)\n\n\n\n\n\nClip from Javdani’s RSS 2015 talk (1:38–2:16)"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#modeling-the-user-maxent-inverse-optimal-control",
+    "href": "lecs/w09/lec09.html#modeling-the-user-maxent-inverse-optimal-control",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Modeling the user: MaxEnt inverse optimal control",
+    "text": "Modeling the user: MaxEnt inverse optimal control\n\n\n\nUser as a goal-specific MDP \\((X, U, T, C_g^{\\text{usr}})\\): they approximately optimize a cost \\(C_g^{\\text{usr}} : X \\times U \\to \\mathbb{R}\\)\nMaxEnt IOC: \\(p(\\xi \\mid g) \\propto \\exp(-C_g^{\\text{usr}}(\\xi))\\), where \\(\\xi\\) is a sequence of states and inputs\nSoft value iteration computes the normalizer, with \\(\\text{softmin}_u f(u) = -\\log \\int_u \\exp(-f(u))\\, du\\) and \\(x' = T(x, D(u))\\):\n\n\\[\n\\begin{aligned}\nQ^{\\approx}_{g}(x, u) &= C_g^{\\text{usr}}(x, u) + V^{\\approx}_{g}(x') \\\\\nV^{\\approx}_{g}(x) &= \\underset{u}{\\text{softmin}}\\, Q^{\\approx}_{g}(x, u) \\\\\n\\pi_g^{\\text{usr}}(u \\mid x) &= \\exp\\big(V^{\\approx}_g(x) - Q^{\\approx}_g(x, u)\\big) \\quad \\text{(user policy)}\n\\end{aligned}\n\\]"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#goal-prediction-from-user-inputs-only",
+    "href": "lecs/w09/lec09.html#goal-prediction-from-user-inputs-only",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Goal prediction from user inputs only",
+    "text": "Goal prediction from user inputs only\n\n\n\nLikelihood of the history uses only the user’s inputs:\n\n\\[\np(\\xi^{0 \\to t} \\mid g) = \\prod_{\\tau \\le t} \\pi^{\\text{usr}}_g(u_\\tau \\mid x_\\tau)\n\\]\n\nBayes’ rule gives the belief over goals:\n\n\\[\np(g \\mid \\xi^{0 \\to t}) = \\frac{p(\\xi^{0 \\to t} \\mid g)\\, p(g)}{\\sum_{g'} p(\\xi^{0 \\to t} \\mid g')\\, p(g')}\n\\]\n\nWhy not use the robot’s motion as evidence? Assistance moves the robot toward goals it already believes in, which would create a positive feedback loop of overconfidence."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#shared-autonomy-as-a-pomdp",
+    "href": "lecs/w09/lec09.html#shared-autonomy-as-a-pomdp",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Shared autonomy as a POMDP",
+    "text": "Shared autonomy as a POMDP\n\nSystem state \\(s = (x, g) \\in X \\times G\\): the robot state is known, all uncertainty is over the goal\nBelief \\(b(g) = p(g \\mid \\xi^{0 \\to t})\\); observations are user inputs \\(u\\); the observation model \\(\\Omega\\) is the user model + Bayes’ rule\nPOMDP \\((S, A, T, C^{\\text{rob}}, U, \\Omega)\\) with robot cost \\(C^{\\text{rob}} : S \\times A \\times U \\to \\mathbb{R}\\)\nThe cost depends on the user input \\(u\\), which is non-standard. This lets it penalize robot actions that deviate from what the user commanded, because users want to keep control authority. In the experiments:\n\n\\[\nC_\\kappa^{\\text{rob}}(x, a, u) = C_\\kappa^{\\text{usr}}(x, u) + \\big(a - D(u)\\big)^2\n\\]\n\nSolving this POMDP exactly is intractable, so we need an approximation."
   },
   {
     "objectID": "lecs/w09/lec09.html#hindsight-optimization",
@@ -4219,130 +4093,452 @@
     "text": "Hindsight Optimization\n\n\n\nMDP solution:\n\\[V^{\\pi^r}(s) = \\mathbb{E}\\left[\\sum_t C^r(s_t, u_t, a_t) \\mid s_0 = s\\right]\\]\n\\[V^*(s) = \\min_{\\pi^r} V^{\\pi^r}(s)\\]\n\n\n\nPOMDP solution:\n\\[V^{\\pi^r}(b) = \\mathbb{E}\\left[\\sum_t C^r(s_t, u_t, a_t) \\mid b_0 = b\\right]\\]\n\\[V^*(b) = \\min_{\\pi^r} V^{\\pi^r}(b)\\]\n\n\n\n\nHOP approximation:\n\\[V^{\\text{HS}}(b) = \\mathbb{E}_b\\left[\\min_{\\pi^r} V^{\\pi^r}(s)\\right]\\]\n\\[= \\mathbb{E}_g[V_g(x)]\\]\n\n\n\n\n\n\n\n\n\n\nDeterministic\nproblem for\neach future"
   },
   {
+    "objectID": "lecs/w09/lec09.html#hindsight-optimization-qmdp",
+    "href": "lecs/w09/lec09.html#hindsight-optimization-qmdp",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Hindsight optimization = QMDP",
+    "text": "Hindsight optimization = QMDP\n\nAction-value of the belief is the belief-weighted average of the per-goal action-values:\n\n\\[\nQ(b, a, u) = \\sum_{g} b(g)\\, Q_g(x, a, u)\n\\]\n\nIt assumes the goal will be fully revealed after the next step (“in hindsight”). So the robot never takes an action just to gather information.\nContinuous actions: instead of solving \\(\\arg\\min_a Q(b, a, u)\\), take a first-order step along the gradient of \\(Q(b, a, u)\\) with respect to \\(a\\).\nWhy this fits shared autonomy:\n\nthe user provides inputs all the time, so information arrives without deliberate information gathering;\ntreating the user as an oracle to be queried would likely be frustrating;\nit is cheap to compute in continuous spaces, so the system reacts quickly to user input."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#computing-q_g-let-the-robot-take-over",
+    "href": "lecs/w09/lec09.html#computing-q_g-let-the-robot-take-over",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Computing \\(Q_g\\): let the robot take over",
+    "text": "Computing \\(Q_g\\): let the robot take over\nTwo options for the per-goal action-value \\(Q_g(x, a, u)\\):\n\nRobot and user both act: predict future user inputs with \\(\\pi^{\\text{usr}}_g\\) and run Q-learning on \\(C^{\\text{rob}}\\). This is the standard QMDP approach, but it is expensive and depends on the user model.\nRobot takes over (used in the paper): assume the user stops giving inputs and the robot completes the task optimally, \\(C^{\\text{rob}}(s, a, u) \\to C^{\\text{rob}}(s, a, 0)\\) in the future.\n\nFor many costs the value can be computed analytically, e.g., the cost of moving toward the goal at a fixed velocity\nThe assistance values make no assumptions about the user policy, so they are more robust to user-modeling errors"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#goals-with-multiple-targets",
+    "href": "lecs/w09/lec09.html#goals-with-multiple-targets",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Goals with multiple targets",
+    "text": "Goals with multiple targets\nA goal (e.g., “grasp the canteen”) can be achieved through many targets \\(\\kappa \\in K\\) (grasp poses). Both assistance and prediction decompose over targets:\n\nAssistance (Theorem 1, deterministic dynamics):\n\n\\[\nV_g(x) = \\min_\\kappa V_\\kappa(x), \\qquad Q_g(x, a) = C_{\\kappa^*}(x, a) + V_{\\kappa^*}(x'), \\quad \\kappa^* = \\arg\\min_\\kappa V_\\kappa(x')\n\\]\n\nPrediction (Theorem 2, MaxEnt model):\n\n\\[\nV^{\\approx}_g(x) = \\underset{\\kappa}{\\text{softmin}}\\, V^{\\approx}_\\kappa(x), \\qquad Q^{\\approx}_g(x, u) = \\underset{\\kappa}{\\text{softmin}}\\, Q^{\\approx}_\\kappa(x, u)\n\\]\n\nSo we only need value functions for each individual target: hard min to act, soft min to predict."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#emergent-behavior-blending-without-a-blending-rule",
+    "href": "lecs/w09/lec09.html#emergent-behavior-blending-without-a-blending-rule",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Emergent behavior: blending without a blending rule",
+    "text": "Emergent behavior: blending without a blending rule\nConfidence \\(= \\max_g p(g) - \\min_g p(g)\\), with two goals:\n\nThe hand is directly between two goals, so no action helps both. Assistance grows roughly linearly with confidence, which looks like predict-then-blend arbitration.\nMoving forward helps both goals. The policy makes progress even with zero confidence, which predict-then-blend cannot do.\n\nNobody designs the arbitration; it falls out of minimizing expected cost-to-go.\n\nSee Fig. 2 in the paper."
+  },
+  {
     "objectID": "lecs/w09/lec09.html#results-video",
     "href": "lecs/w09/lec09.html#results-video",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Results (video)",
-    "text": "Results (video)"
+    "text": "Results (video)\n\n\n\nClip from Javdani’s RSS 2015 talk (3:00–4:45)"
   },
   {
-    "objectID": "lecs/w09/lec09.html#results",
-    "href": "lecs/w09/lec09.html#results",
+    "objectID": "lecs/w09/lec09.html#results-efficiency",
+    "href": "lecs/w09/lec09.html#results-efficiency",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Results",
-    "text": "Results\n\n\nCompare with method that predicts one goal, the proposed method has:\n\nFaster execution time\nFewer user inputs"
+    "section": "Results: efficiency",
+    "text": "Results: efficiency\n\n\n\n10 users, within-subjects, grasping 3 objects with a joystick-teleoperated arm\npolicy (this paper) vs. blend (predict-then-blend, Dragan & Srinivasa)\npolicy was significantly faster (\\(F(1,9) = 12.98\\), \\(p = 0.006\\))\nand needed significantly less user input (\\(F(1,9) = 7.76\\), \\(p = 0.021\\))\nThe gap grows on trials where blend is slow"
   },
   {
-    "objectID": "lecs/w09/lec09.html#user-study",
-    "href": "lecs/w09/lec09.html#user-study",
+    "objectID": "lecs/w09/lec09.html#results-but-users-did-not-prefer-it",
+    "href": "lecs/w09/lec09.html#results-but-users-did-not-prefer-it",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "User Study",
-    "text": "User Study"
+    "section": "Results: …but users did not prefer it",
+    "text": "Results: …but users did not prefer it\n\n\n\nUsers felt less in control with policy, even though they knew they were faster\nThe “which do you prefer” score trended toward blend (mean 2.9 on a scale where 1 = blend, 7 = policy), although not significantly\n“I was able to do things a little faster. However, I still don’t like feeling it has a mind of its own.”\nKey tension: task efficiency vs. control authority"
   },
   {
     "objectID": "lecs/w09/lec09.html#limitations",
     "href": "lecs/w09/lec09.html#limitations",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Limitations",
-    "text": "Limitations\n\nRequires prior knowledge about the world:\n\na dynamics model that predicts the consequences of taking a given action in a given state of the environment;\nthe set of possible goals for the user;\nthe user’s control policy given their goal.\n\nSuitable in constrained domains where where this knowledge can be directly hard-coded or learned.\nUnsuitable for unstructured environments with ill-defined goals and unpredictable user behavior."
+    "text": "Limitations\n\nNeeds a known, discrete set of goals (and their targets)\nNeeds a dynamics model and hand-designed costs \\(C^{\\text{usr}}\\), \\(C^{\\text{rob}}\\); the study used a very simple distance-based cost\nQMDP never gathers information on purpose, which is fine only when user inputs are informative\nUsers lose some control authority and, in this study, tended to prefer the less efficient method\nSmall study: 10 participants, all with robotics experience\n\nThe next two papers each remove some of these assumptions."
   },
   {
     "objectID": "lecs/w09/lec09.html#references",
     "href": "lecs/w09/lec09.html#references",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "References",
-    "text": "References\n\nJavdani, S., Srinivasa, S. S., & Bagnell, J. A. (2015). Shared autonomy via hindsight optimization. Robotics science and systems: online proceedings, 2015.\nRSS2015 talk: “Shared autonomy via hindsight optimization”\nJavdani, S., Admoni, H., Pellegrinelli, S., Srinivasa, S. S., & Bagnell, J. A. (2018). Shared autonomy via hindsight optimization for teleoperation and teaming. The International Journal of Robotics Research, 37(7), 717-742.\nICAPS 2015 talk: “Hindsight Optimization for Probabilistic Planning with Factored Actions”"
+    "text": "References\n\nJavdani, S., Srinivasa, S. S., & Bagnell, J. A. (2015). Shared autonomy via hindsight optimization. Robotics: Science and Systems.\nRSS2015 talk: “Shared autonomy via hindsight optimization”\nJavdani, S., Admoni, H., Pellegrinelli, S., Srinivasa, S. S., & Bagnell, J. A. (2018). Shared autonomy via hindsight optimization for teleoperation and teaming. The International Journal of Robotics Research, 37(7), 717-742.\nDragan, A. D., & Srinivasa, S. S. (2013). A policy-blending formalism for shared control. The International Journal of Robotics Research, 32(7), 790-805.\nICAPS 2015 talk: “Hindsight Optimization for Probabilistic Planning with Factored Actions”"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#shared-autonomy-via-deep-reinforcement-learning",
+    "href": "lecs/w09/lec09.html#shared-autonomy-via-deep-reinforcement-learning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Shared Autonomy via Deep Reinforcement Learning",
+    "text": "Shared Autonomy via Deep Reinforcement Learning\nSiddharth Reddy, Anca D. Dragan, Sergey Levine\nRobotics: Science and Systems (RSS), 2018\nPaper · Blog post · Project website and code"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#motivation-unknown-dynamics-are-hard-for-humans",
+    "href": "lecs/w09/lec09.html#motivation-unknown-dynamics-are-hard-for-humans",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Motivation: Unknown Dynamics are Hard for Humans",
+    "text": "Motivation: Unknown Dynamics are Hard for Humans\n\n\n\nHuman pilot playing Lunar Lander alone. Video from https://sites.google.com/view/deep-assist"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#it-can-get-even-worse-than-lunar-lander",
+    "href": "lecs/w09/lec09.html#it-can-get-even-worse-than-lunar-lander",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "It can get even worse than Lunar Lander…",
+    "text": "It can get even worse than Lunar Lander…\n\n\n\n\nhttps://www.foddy.net/Athletics.html or Google “qwop”"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#key-idea-drop-the-models",
+    "href": "lecs/w09/lec09.html#key-idea-drop-the-models",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Key idea: drop the models",
+    "text": "Key idea: drop the models\n\nPrior work (e.g., Javdani et al.) assumes:\n\nknown dynamics \\(T\\),\na known goal space \\(\\mathcal{G}\\),\na known user policy \\(\\pi_h(a^h \\mid s, g)\\).\n\nReddy et al.: use model-free deep RL to learn an end-to-end mapping from (observation, user input) to action values, with task reward as the only supervision.\nUser input plays two roles:\n\na prior policy that the agent fine-tunes;\na sensor from which the agent decodes the user’s private information (e.g., the goal)."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#challenges",
+    "href": "lecs/w09/lec09.html#challenges",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Challenges",
+    "text": "Challenges\n\nChallenge #1: follow the user closely enough that they keep getting feedback from their own actions, but deviate when their actions are bad. Consistently ignoring the user degrades the quality of their inputs.\nChallenge #2: learn with few interactions, because a human is in the loop."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#formulation-reward",
+    "href": "lecs/w09/lec09.html#formulation-reward",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Formulation: Reward",
+    "text": "Formulation: Reward\n\n\\[\nR(s, a, s') = \\underbrace{R_{\\text{general}}(s, a, s')}_{\\text{known}} + \\underbrace{R_{\\text{feedback}}(s, a, s')}_{\\text{unknown, but observed}}\n\\]\n\n\n\\(\\qquad \\qquad \\quad \\uparrow\\)\nAgent’s reward\n(what we want to maximize)\n\n\n\\(\\qquad \\qquad \\qquad \\uparrow\\)\nHandcrafted “common sense”\nknowledge: do not crash, do\nnot tip, etc.\n\n\n\\(\\uparrow\\)\nDepends on the user’s private\nintent, e.g., success or crash\nsignaled at the end of an episode"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#three-settings-what-does-the-agent-know",
+    "href": "lecs/w09/lec09.html#three-settings-what-does-the-agent-know",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Three settings: what does the agent know?",
+    "text": "Three settings: what does the agent know?\n\n\n\nKnown user policy: known \\(\\mathcal{G}\\) and \\(\\pi_h\\) \\(\\Rightarrow\\) infer the goal \\(\\hat g_t\\) with Bayesian inference (MaxEnt IRL), as in Javdani et al.\nKnown goal space: known \\(\\mathcal{G}\\), unknown \\(\\pi_h\\) \\(\\Rightarrow\\) predict \\(\\hat g_t\\) with an LSTM trained on the user’s data.\nMinimal assumptions: nothing is known \\(\\Rightarrow\\) feed the user’s raw action \\(a^h_t\\) to the agent (main focus).\n\nIn settings 1-2, \\(R_{\\text{feedback}}\\) is parameterized by the goal (reward when \\(s' = g\\)). In setting 3, it is only observed, typically as a sparse terminal success/failure signal from the user."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#input-to-the-rl-agent",
+    "href": "lecs/w09/lec09.html#input-to-the-rl-agent",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Input to the RL agent",
+    "text": "Input to the RL agent\n\n\nConcatenate the observation with the user information: \\(\\tilde s_t = [s_t;\\, u_t]\\), with \\(u_t = \\hat g_t\\) (settings 1-2) or \\(u_t = a^h_t\\) (setting 3)\nIn setting 3 the agent must decode the user’s intent implicitly from their actions"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#why-q-learning",
+    "href": "lecs/w09/lec09.html#why-q-learning",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Why Q-learning?",
+    "text": "Why Q-learning?\n\nOff-policy: the executed actions do not have to be the agent’s greedy actions, so control can be explicitly traded off between user and agent\nOff-policy Q-learning tends to be more sample-efficient than policy gradients and Monte Carlo methods\nImplementation: neural fitted Q-iteration with experience replay, a target network, and double Q-learning\n\nGradient updates happen only at the end of each episode. Per-step DQN updates would make the interface lag and disrupt human control."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#control-sharing-execute-the-closest-high-value-action",
+    "href": "lecs/w09/lec09.html#control-sharing-execute-the-closest-high-value-action",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Control sharing: execute the closest high-value action",
+    "text": "Control sharing: execute the closest high-value action\n\\[\n\\pi_\\alpha(a \\mid \\tilde s, a^h) = \\delta\\Big(a = \\operatorname*{arg\\,max}_{\\{a \\,:\\, Q'(\\tilde s, a) \\ge (1-\\alpha)\\, Q'(\\tilde s, a^*)\\}} f(a, a^h)\\Big)\n\\]\n\\[\nQ'(\\tilde s, a) = Q(\\tilde s, a) - \\min_{a'} Q(\\tilde s, a')\n\\]\n\nFeasible set: actions not much worse than the optimal action \\(a^*\\); among these, execute the one most similar to the user’s action, where \\(f\\) counts agreeing action dimensions\nSubtracting \\(\\min_{a'} Q\\) keeps the comparison meaningful for negative Q-values, and makes the condition invariant to affine scaling of \\(Q\\)\n\\(\\alpha \\in [0, 1]\\) is the tolerance for suboptimal user actions, i.e., how much the copilot defers to the pilot:\n\n\\(\\alpha = 0\\): only the optimal action is feasible \\(\\Rightarrow\\) fully autonomous copilot\n\\(\\alpha = 1\\): every action is feasible \\(\\Rightarrow\\) the user’s action is executed unchanged"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#the-method",
+    "href": "lecs/w09/lec09.html#the-method",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "The Method",
+    "text": "The Method\n\nLike Q-learning, but execute the closest high-value action to the user’s input instead of the highest-value action."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#effect-of-the-tolerance-alpha",
+    "href": "lecs/w09/lec09.html#effect-of-the-tolerance-alpha",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Effect of the tolerance \\(\\alpha\\)",
+    "text": "Effect of the tolerance \\(\\alpha\\)\n\n\n\n\n\n\nSimulated LaggyPilot on Lunar Lander. At \\(\\alpha = 1\\) the copilot never overrides the pilot, and performance collapses.\nWhen the goal space and user model are known, structured inputs (goal inference or prediction) beat raw actions.\nThe best \\(\\alpha\\) depends on the pilot: \\(\\alpha = 0\\) for SensorPilot, \\(\\alpha \\approx 0.5\\) for LaggyPilot and NoisyPilot."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#experiments",
+    "href": "lecs/w09/lec09.html#experiments",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Experiments",
+    "text": "Experiments\n\nSimulated pilots on Lunar Lander (OpenAI Gym): pilots that are laggy, noisy, or only signal the landing-site direction. The copilot does not observe the landing site.\nHuman pilots on Lunar Lander (\\(n = 12\\)): assistance significantly increased success and reduced crashes.\nPhysical experiments with a real quadrotor (\\(n = 4\\)).\nPractical caveat: pretraining. The copilot is first trained without a pilot, in simulation (an idealized point-mass model for the drone), and then fine-tuned with the human. Learning from scratch with a human in the loop would need too much data.\n\nIn simulation, a copilot trained with no pilot helped LaggyPilot as much as one trained with LaggyPilot."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#real-world-experiments",
+    "href": "lecs/w09/lec09.html#real-world-experiments",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Real-World Experiments",
+    "text": "Real-World Experiments\n\n\n\nGoal: land the drone on a pad with the camera facing a target object.\nPilot: human, knows the target object.\nCopilot: our agent, knows where the pad is, but not the target object."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#real-world-results",
+    "href": "lecs/w09/lec09.html#real-world-results",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Real-World Results",
+    "text": "Real-World Results\n\n\n\n\n\nImportant caveat: only n = 4 humans in the drone study. The evidence is mostly anecdotal."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#lunar-lander-with-an-rl-copilot",
+    "href": "lecs/w09/lec09.html#lunar-lander-with-an-rl-copilot",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Lunar Lander with an RL copilot",
+    "text": "Lunar Lander with an RL copilot\n\n\n\nHuman pilot with the RL copilot. Video from https://sites.google.com/view/deep-assist"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#strengths-and-weaknesses",
+    "href": "lecs/w09/lec09.html#strengths-and-weaknesses",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Strengths and weaknesses",
+    "text": "Strengths and weaknesses\n\n\nStrengths\n\nAssists with no assumptions about dynamics, the user’s policy, or the goal representation\nCan still exploit a goal space or user model when available\nA single knob, \\(\\alpha\\), sets the level of assistance\nClear writing; code released\n\n\nWeaknesses\n\nNeeds a reward signal and a lot of data, so in practice it relies on simulator pretraining\nReactive (memoryless) policy: it cannot integrate evidence about intent over time\nDiscrete, low-dimensional action spaces\nSmall user studies; users found the copilot somewhat inconsistent and too aggressive at stabilizing"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#references-1",
+    "href": "lecs/w09/lec09.html#references-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "References",
+    "text": "References\n\nReddy, S., Dragan, A. D., & Levine, S. (2018). Shared autonomy via deep reinforcement learning. Robotics: Science and Systems.\nBAIR blog post: Shared Autonomy via Deep Reinforcement Learning\nProject website and code: https://sites.google.com/view/deep-assist\nSchwarting, W., Alonso-Mora, J., Pauli, L., Karaman, S., & Rus, D. (2017). Parallel autonomy in automated vehicles: Safe motion generation with minimal intervention. ICRA."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#controlling-assistive-robots-with-learned-latent-actions",
+    "href": "lecs/w09/lec09.html#controlling-assistive-robots-with-learned-latent-actions",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Controlling Assistive Robots with Learned Latent Actions",
+    "text": "Controlling Assistive Robots with Learned Latent Actions\nDylan P. Losey, Krishnan Srinivasan, Ajay Mandlekar, Animesh Garg, Dorsa Sadigh\nIEEE International Conference on Robotics and Automation (ICRA), 2020\nPaper · arXiv"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#problem-low-dof-interfaces-high-dof-arms",
+    "href": "lecs/w09/lec09.html#problem-low-dof-interfaces-high-dof-arms",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Problem: low-DoF interfaces, high-DoF arms",
+    "text": "Problem: low-DoF interfaces, high-DoF arms\n\nWheelchair-mounted assistive arms can help with eating, pouring, cooking, … but they are controlled with low-DoF joysticks\nThe arm has many more DoF (here, 7). Users must switch between modes, such as translation and rotation, which is slow and tiring.\nShared autonomy (Javdani et al.) helps reach one of a discrete, known set of goals, but the mapping from joystick to robot action is still hand-designed\nReddy et al. learn assistance, but the user’s input has the same dimension as the robot’s action\n\nInsight: high-DoF robot actions can often be embedded into intuitive, low-DoF latent actions that the user controls directly."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#formulation",
+    "href": "lecs/w09/lec09.html#formulation",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Formulation",
+    "text": "Formulation\n\nTask MDP \\((\\mathcal{S}, \\mathcal{A}, \\mathcal{T}, R, \\gamma, \\rho_0)\\) with \\(a \\in \\mathbb{R}^m\\), plus a dataset of demonstrations \\(\\mathcal{D} = \\{(s_0, a_0), (s_1, a_1), \\ldots\\}\\)\nLearn a latent action space \\(\\mathcal{Z} \\subset \\mathbb{R}^d\\) with \\(d &lt; m\\), and a decoder\n\n\\[\n\\phi : \\mathcal{Z} \\times \\mathcal{S} \\to \\mathcal{A}\n\\]\n\nAlgorithm:\n\nCollect kinesthetic demonstrations of related tasks (e.g., from a caregiver)\nTrain an autoencoder on \\(\\mathcal{D}\\)\nAlign the learned latent dimensions with the joystick axes (done manually)\nAt run time, treat the joystick input as \\(z_t\\) and execute \\(\\hat a_t = \\phi(z_t, s_t)\\)"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#what-makes-latent-actions-user-friendly",
+    "href": "lecs/w09/lec09.html#what-makes-latent-actions-user-friendly",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "What makes latent actions user-friendly?",
+    "text": "What makes latent actions user-friendly?\n\nControllability: for any two states \\(s_i, s_j\\) in the data, there is a sequence of latent actions that takes the robot from \\(s_i\\) to \\(s_j\\) via \\(s_k = \\mathcal{T}(s_{k-1}, \\phi(z_{k-1}, s_{k-1}))\\)\nConsistency: the same \\(z\\) has a similar effect in nearby states, measured with a task-dependent metric \\(d_M\\):\n\n\\[\nd_M\\big(\\mathcal{T}(s_1, \\phi(z, s_1)),\\, \\mathcal{T}(s_2, \\phi(z, s_2))\\big) &lt; \\epsilon \\quad \\text{whenever } \\|s_1 - s_2\\| &lt; \\delta\n\\]\n\nScaling: larger latent actions cause larger changes in state, \\(\\|s - s'\\| \\to \\infty\\) as \\(\\|z\\| \\to \\infty\\), with \\(s' = \\mathcal{T}(s, \\phi(z, s))\\)"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#models-why-condition-on-the-state",
+    "href": "lecs/w09/lec09.html#models-why-condition-on-the-state",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Models: why condition on the state?",
+    "text": "Models: why condition on the state?\n\nEncoder \\(\\psi(s, a) \\to z\\) and decoder back to \\(\\hat a\\), trained with the reconstruction loss \\(\\|a - \\hat a\\|^2\\)\nVAE regularizer \\(KL(\\mathcal{N}(\\mu, \\sigma) \\,\\|\\, \\mathcal{N}(0, 1))\\): a small joystick tilt should not suddenly pour the whole glass, which helps consistency and scaling\nState conditioning: the meaning of a joystick input depends on what the robot is doing. Pushing down means “pour” when holding a glass, but means nothing when the gripper is empty. So the decoder is \\(\\phi(z, s)\\) rather than \\(\\phi(z)\\).\nCompared models: PCA (prior teleoperation baseline), AE, VAE, and the state-conditioned cAE and cVAE"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#simulation-results",
+    "href": "lecs/w09/lec09.html#simulation-results",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Simulation results",
+    "text": "Simulation results\nPlanar 5-DoF arms with tasks: Sine (1-D latent), Rotate (two arms holding a box), Circle (2-D latent), Reach\n\nReconstruction (Sine): cAE and cVAE reach 1.4% and 3.7% of PCA’s loss; AE and VAE are no better than PCA (98-100%)\nControllability (Sine): cAE and cVAE end up 5.6% and 11.1% as far from the goal as PCA; AE and VAE are worse than PCA\nConsistency/scaling: all models map \\(z\\) to motion roughly linearly (\\(R^2 \\approx 0.94\\) or more)\nDisentanglement (Circle): the angle between the motions caused by \\(z_1\\) and \\(z_2\\) is about 72-74° for cAE/cVAE vs. 27-34° for AE/VAE (ideal: 90°)\n\nOnly state-conditioned models reconstruct actions accurately and give controllable latent spaces."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#user-study-1-discrete-goals-eating",
+    "href": "lecs/w09/lec09.html#user-study-1-discrete-goals-eating",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "User study 1: discrete goals (eating)",
+    "text": "User study 1: discrete goals (eating)\n\nFeeding task from the HARMONIC dataset: guide a fork to one of 3 morsels with a 2-DoF joystick on a 7-DoF arm\nBaselines: no / low / high / full shared-autonomy assistance from the dataset (24 people); 10 new participants used the cVAE\ncVAE: 44 of 50 trials successful, with significantly lower completion time, joystick input, and trajectory length than High Assist\nCaveat: a comparison across studies, since the new participants only used the cVAE"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#user-study-2-continuous-goals-cooking",
+    "href": "lecs/w09/lec09.html#user-study-2-continuous-goals-cooking",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "User study 2: continuous goals (cooking)",
+    "text": "User study 2: continuous goals (cooking)\n\nMake a simplified “apple pie”: pick up and pour eggs and flour, recycle or return containers, add an apple, stir\nShared autonomy with discrete goals does not apply here: the goals are continuous, and the user also controls the style of motion (e.g., pouring vs. upright)\n11 participants, within-subjects: cVAE (one 2-DoF joystick) vs. End-Effector teleoperation (two joysticks plus a translation/rotation mode toggle)\nThe cVAE was trained on under 7 minutes of kinesthetic demonstrations\nWith the cVAE, participants finished faster and used the joystick less. They rated it easier, less effortful, and more natural.\n…but they did not clearly prefer it: they enjoyed the extra freedom of end-effector control"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#limitations-1",
+    "href": "lecs/w09/lec09.html#limitations-1",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Limitations",
+    "text": "Limitations\n\nOutside the demonstration distribution, the latent actions become erratic. One participant rotated the arm upside-down and could not recover.\nNeeds task-relevant demonstrations and a manual alignment of latent axes with the joystick\nPerformance does not equal preference: as with Javdani et al., users value freedom of control\nThe authors propose switching between latent actions and standard teleoperation when latent actions stop helping"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#references-2",
+    "href": "lecs/w09/lec09.html#references-2",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "References",
+    "text": "References\n\nLosey, D. P., Srinivasan, K., Mandlekar, A., Garg, A., & Sadigh, D. (2020). Controlling assistive robots with learned latent actions. ICRA.\nNewman, B. A., Aronson, R. M., Srinivasa, S. S., Kitani, K., & Admoni, H. (2018). HARMONIC: A multimodal dataset of assistive human-robot collaboration. arXiv.\nHerlant, L. V., Holladay, R. M., & Srinivasa, S. S. (2016). Assistive teleoperation of robot arms via automatic time-optimal mode switching. HRI.\nKingma, D. P., & Welling, M. (2014). Auto-encoding variational Bayes. ICLR."
   },
   {
     "objectID": "lecs/w09/lec09.html#relaxedik-real-time-synthesis-of-accurate-and-feasible-robot-arm-motion",
     "href": "lecs/w09/lec09.html#relaxedik-real-time-synthesis-of-accurate-and-feasible-robot-arm-motion",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "RelaxedIK: Real-time Synthesis of Accurate and Feasible Robot Arm Motion",
-    "text": "RelaxedIK: Real-time Synthesis of Accurate and Feasible Robot Arm Motion"
+    "text": "RelaxedIK: Real-time Synthesis of Accurate and Feasible Robot Arm Motion\nDaniel Rakita, Bilge Mutlu, Michael Gleicher\nRobotics: Science and Systems (RSS), 2018\nPaper · Code"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#why-this-paper-in-a-shared-autonomy-lecture",
+    "href": "lecs/w09/lec09.html#why-this-paper-in-a-shared-autonomy-lecture",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Why this paper in a shared autonomy lecture?",
+    "text": "Why this paper in a shared autonomy lecture?\n\nEvery method so far outputs an end-effector command at each time step. Something has to turn it into joint motion, in real time.\nIn teleoperation there is no lookahead: the next pose goal comes from the human, e.g., mimicry-based teleoperation that maps the user’s hand pose to the robot’s end effector (Rakita et al., HRI 2017)\nExample: a robot spoon-feeding a person must track a moving head, keep the spoon level, and move smoothly without self-collisions, all at once\nGoal: match end-effector pose goals as well as possible without sacrificing motion feasibility"
   },
   {
     "objectID": "lecs/w09/lec09.html#recap-forward-kinematics-fk",
     "href": "lecs/w09/lec09.html#recap-forward-kinematics-fk",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Recap: Forward Kinematics (FK)",
-    "text": "Recap: Forward Kinematics (FK)\n\nForward Kinematics\n\nA common robotic skeleton is a tree of rigid bones\nThe relative Euler angles of all the joints determine the end-effector\n\nEnd-effectors? A tool that’s connected to the end of a robot arm\n\n\n\n\n\n\n\n\n\n\n\nmaterials from https://github.com/alecjacobson/computer-graphics-csc418"
+    "text": "Recap: Forward Kinematics (FK)\n\nA common robotic skeleton is a tree (or chain) of rigid links connected by joints\nThe joint angles \\(\\Theta\\) (the robot configuration) determine the end-effector pose through forward kinematics, \\(FK(\\Theta)\\)\nEnd effector: the tool at the end of a robot arm (gripper, spoon, …)\n\n\n\n\n\n\n\n\n\nmaterials from https://github.com/alecjacobson/computer-graphics-csc418"
   },
   {
     "objectID": "lecs/w09/lec09.html#recap-inverse-kinematics-ik",
     "href": "lecs/w09/lec09.html#recap-inverse-kinematics-ik",
     "title": "CSC2626 Imitation Learning for Robotics",
     "section": "Recap: Inverse Kinematics (IK)",
-    "text": "Recap: Inverse Kinematics (IK)\n\nInverse Kinematics\n\nWe formulate the inverse kinematics function as: \\(\\Theta = IK(p)\\) , which can be easily written in an analytic form for a simple tree skeleton.\n\nPose contains velocity?\nHard to find feasible state space?\n\nIn reality, IK is often treated as an optimization problem \\[\n\\chi_p(\\Theta) = \\| p_g - FK(\\Theta) \\|_2\n\\]"
+    "text": "Recap: Inverse Kinematics (IK)\n\nInverse kinematics: find joint angles that achieve a desired end-effector pose, \\(\\Theta = IK(p)\\)\nClosed-form solutions exist only for special kinematic structures. A pose may have many solutions or none.\nIn practice, IK is solved as an optimization problem:\n\n\\[\n\\min_\\Theta \\; \\chi_p(\\Theta) = \\| p_g - FK(\\Theta) \\|_2\n\\]"
   },
   {
-    "objectID": "lecs/w09/lec09.html#imitation-learning",
-    "href": "lecs/w09/lec09.html#imitation-learning",
+    "objectID": "lecs/w09/lec09.html#following-a-stream-of-pose-goals",
+    "href": "lecs/w09/lec09.html#following-a-stream-of-pose-goals",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Imitation Learning",
-    "text": "Imitation Learning\n\nImitation learning using IK\n\nBasic idea: Using IK to bridge between target pose and agent’s angles\nInput: M (consecutive) expert (goal) poses\nOutput: M (consecutive) frames of agent’s euler joints\nConstraints:\n\nIK constraints (goal constraints)\nBetween-frames constraints"
+    "section": "Following a stream of pose goals",
+    "text": "Following a stream of pose goals\n\nInput: a new end-effector goal \\((p_g, q_g)\\) at every update, e.g., from a human teleoperator\nOutput: a joint configuration \\(\\Theta\\) at every update\nRequirements:\n\nmatch each pose goal (per-frame IK)\nfeasibility across frames: no joint-space jumps, no self-collisions, no kinematic singularities"
   },
   {
-    "objectID": "lecs/w09/lec09.html#imitation-learning-1",
-    "href": "lecs/w09/lec09.html#imitation-learning-1",
+    "objectID": "lecs/w09/lec09.html#baselines-and-their-problems",
+    "href": "lecs/w09/lec09.html#baselines-and-their-problems",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Imitation Learning",
-    "text": "Imitation Learning\n\nImitation learning using IK\n\nBasic idea: minimize the difference of target pose and agent pose\n\nDirect point-to-point approach\n\nTRAC-IK (previous state-of-the-art)\nPose2pose / frame2frame imitation learning\n\nIgnore most of the constraints between frames\n\nProblems\n\nSelf-collision\nTime constraints"
+    "section": "Baselines and their problems",
+    "text": "Baselines and their problems\n\nDirect point-to-point: solve IK at every update with a state-of-the-art solver (Trac-IK), seeded with the previous solution\n\nAccurate per frame, but ignores constraints between frames: self-collisions, discontinuities, singularities\n\nReal-time motion planning: predict the future pose, solve IK, plan a feasible path (RRT-Connect / PRM), and execute\n\nFeasible, but the end effector does not follow the goal well along the planned path, and the robot stalls when planning fails"
   },
   {
-    "objectID": "lecs/w09/lec09.html#imitation-learning-2",
-    "href": "lecs/w09/lec09.html#imitation-learning-2",
+    "objectID": "lecs/w09/lec09.html#failure-mode-self-collision",
+    "href": "lecs/w09/lec09.html#failure-mode-self-collision",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Imitation Learning",
-    "text": "Imitation Learning\nSelf-collision"
+    "section": "Failure mode: self-collision",
+    "text": "Failure mode: self-collision"
   },
   {
-    "objectID": "lecs/w09/lec09.html#imitation-learning-3",
-    "href": "lecs/w09/lec09.html#imitation-learning-3",
+    "objectID": "lecs/w09/lec09.html#failure-mode-joint-space-discontinuities",
+    "href": "lecs/w09/lec09.html#failure-mode-joint-space-discontinuities",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Imitation Learning",
-    "text": "Imitation Learning\nDiscontinuities"
+    "section": "Failure mode: joint-space discontinuities",
+    "text": "Failure mode: joint-space discontinuities"
   },
   {
-    "objectID": "lecs/w09/lec09.html#imitation-learning-4",
-    "href": "lecs/w09/lec09.html#imitation-learning-4",
+    "objectID": "lecs/w09/lec09.html#failure-mode-goal-mistracking",
+    "href": "lecs/w09/lec09.html#failure-mode-goal-mistracking",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Imitation Learning",
-    "text": "Imitation Learning\nGoal mistracking"
+    "section": "Failure mode: goal mistracking",
+    "text": "Failure mode: goal mistracking"
   },
   {
-    "objectID": "lecs/w09/lec09.html#imitation-learning-5",
-    "href": "lecs/w09/lec09.html#imitation-learning-5",
+    "objectID": "lecs/w09/lec09.html#failure-mode-unpredictable-behavior",
+    "href": "lecs/w09/lec09.html#failure-mode-unpredictable-behavior",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Imitation Learning",
-    "text": "Imitation Learning\nUnpredictable behaviors"
+    "section": "Failure mode: unpredictable behavior",
+    "text": "Failure mode: unpredictable behavior"
   },
   {
-    "objectID": "lecs/w09/lec09.html#relaxed-ik",
-    "href": "lecs/w09/lec09.html#relaxed-ik",
+    "objectID": "lecs/w09/lec09.html#relaxedik-ik-as-a-weighted-sum-optimization",
+    "href": "lecs/w09/lec09.html#relaxedik-ik-as-a-weighted-sum-optimization",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Relaxed IK",
-    "text": "Relaxed IK\n\nBasic Idea: Using soft (Relaxed) IK loss that considers self-collision and singularity for faster optimization\n\n\\[\nf(\\Theta) = \\sum_{i=1}^{k} w_i f_i(\\Theta, \\Omega_i)\n\\]\n\nLoss functions\n\nEnd-effector position & orientation matching\nMinimize joint velocity, acceleration, jerk\nSelf-collision loss (fast)\nSingularity loss"
+    "section": "RelaxedIK: IK as a weighted-sum optimization",
+    "text": "RelaxedIK: IK as a weighted-sum optimization\n\\[\n\\Theta = \\arg\\min_\\Theta f(\\Theta) \\quad \\text{s.t.} \\quad c_i(\\Theta) \\ge 0, \\; c_e(\\Theta) = 0, \\; l_i \\le \\Theta_i \\le u_i\n\\]\n\\[\nf(\\Theta) = \\sum_{i=1}^{k} w_i \\, h_i(\\Theta, v(t)) \\, f_i(\\Theta, \\Omega_i)\n\\]\n\nStatic weights \\(w_i\\) and optional dynamic weights \\(h_i\\); each \\(f_i\\) encodes one sub-goal\n7 objective terms: end-effector position; end-effector orientation; minimal joint velocity, acceleration, and jerk; minimal end-effector velocity; self-collision avoidance\n2 constraints: joint-velocity limits per update, and singularity avoidance\nPose matching is not a hard constraint: it can be relaxed when it conflicts with more important terms. This works even without redundant joints."
   },
   {
-    "objectID": "lecs/w09/lec09.html#relaxed-ik-1",
-    "href": "lecs/w09/lec09.html#relaxed-ik-1",
+    "objectID": "lecs/w09/lec09.html#key-contribution-normalizing-the-objectives",
+    "href": "lecs/w09/lec09.html#key-contribution-normalizing-the-objectives",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Relaxed IK",
-    "text": "Relaxed IK\nSelf-collision loss\n\nCommon approach: very slow\nRelaxed IK:\n\nApproximate how imminent the robot is to a collision state\nUsing simulated data to train a network to predict the distances between links\n\n\n\n\\[\n\\text{col}(\\Theta) = \\sum_{i,j} b \\cdot \\exp\\left( -\\frac{\\text{dis}(l_i, l_j)^2}{2c^2} \\right)\n\\]"
+    "section": "Key contribution: normalizing the objectives",
+    "text": "Key contribution: normalizing the objectives\n\nTerms live in different units and scales, such as joint velocities vs. Euclidean distances. With plain quadratic losses, the weights do not mean anything.\nEach term’s value \\(\\chi_i(\\Theta)\\) is passed through a parametric normalization function:\n\n\\[\nf_i(\\Theta, \\Omega_i) = (-1)^n \\exp\\!\\left(\\frac{-(\\chi_i(\\Theta) - s)^2}{2c^2}\\right) + r\\,(\\chi_i(\\Theta) - s)^4\n\\]\n\nA narrow Gaussian “groove” around the goal value, plus a gentler polynomial that keeps a consistent gradient pointing toward it\nAll terms share a common range, so weights become interpretable: weight 2 means roughly twice as important as weight 1\nExample: for position matching, \\(\\chi_p(\\Theta) = \\|p_g - FK(\\Theta)\\|_2\\) with \\(n = 1, s = 0, c = 0.2, r = 5\\)"
   },
   {
-    "objectID": "lecs/w09/lec09.html#relaxed-ik-2",
-    "href": "lecs/w09/lec09.html#relaxed-ik-2",
+    "objectID": "lecs/w09/lec09.html#self-collision-term",
+    "href": "lecs/w09/lec09.html#self-collision-term",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Relaxed IK",
-    "text": "Relaxed IK\n\nSingularity loss\n\n\nKinematic singularities are well studied in robotics\nRelaxed IK:\n\nFind a metric that can approximate distance to a singularity\nJacobian’s condition number is used as a proxy distance to singularity\nWhy?\n\n\\[\n\\dot{\\mathbf{x}} = \\mathbf{J}(\\Theta) \\dot{\\Theta}\n\\]\n\nPenalize condition values less than mean - b * std\nEstimate mean, std from simulated data"
+    "section": "Self-collision term",
+    "text": "Self-collision term\n\n\n\nA smooth potential that rises as pairs of links get closer than in a reference collision-free configuration:\n\n\\[\n\\text{col}(\\Theta) = \\sum_{i,j} b \\cdot \\exp\\left( -\\frac{\\text{dis}(l_i, l_j)^2}{2c^2} \\right)\n\\]\n\nAbout 1 ms per evaluation: too slow when the objective is called 100+ times per solve\nAn MLP trained on 1M random configurations approximates \\(\\text{col}(\\Theta)\\) in about \\(10^{-5}\\) s\nThe network only speeds up a hand-defined cost; it does not learn what a collision is"
   },
   {
-    "objectID": "lecs/w09/lec09.html#relaxed-ik-3",
-    "href": "lecs/w09/lec09.html#relaxed-ik-3",
+    "objectID": "lecs/w09/lec09.html#singularity-avoidance-a-hard-constraint",
+    "href": "lecs/w09/lec09.html#singularity-avoidance-a-hard-constraint",
     "title": "CSC2626 Imitation Learning for Robotics",
-    "section": "Relaxed IK",
-    "text": "Relaxed IK\nPros\n\nMuch faster and smoother performance\n\ncombining neural network and traditional robotics\n\nData driven, less human-engineering\n\nnovel singularity metric\n\nEasy to deploy\n\nsim2Real"
+    "section": "Singularity avoidance (a hard constraint)",
+    "text": "Singularity avoidance (a hard constraint)\n\nKinematic singularity: the Jacobian in \\(\\dot{\\mathbf{x}} = \\mathbf{J}(\\Theta)\\, \\dot{\\Theta}\\) loses full column rank. Near it, small end-effector motions require huge joint velocities.\nProxy distance to a singularity: the condition value from the SVD of \\(\\mathbf{J}\\), \\(\\; c = \\sigma_N / \\sigma_1\\) (small means nearly singular)\nWhy not Yoshikawa manipulability? This ratio favors a round manipulability ellipse rather than a large one, which generalizes better across robots.\nPreprocessing: sample 500k configurations and estimate the mean \\(\\mu_c\\) and standard deviation \\(\\text{std}_c\\)\nConstraint: \\(c \\ge \\mu_c - b \\cdot \\text{std}_c\\) with \\(b = 2\\), which avoids roughly the worst 2.5% of configurations"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#results",
+    "href": "lecs/w09/lec09.html#results",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Results",
+    "text": "Results\n\n\n\n7 robots (5 to 8 DoF), 5 tasks (circle and square tracing, isolated rotations, spoon feeding, two-arm cooking), 100 random starts each, about 1.5M solutions in total\nTwo weight settings: (A) emphasizes accuracy and (B) emphasizes smoothness\nSetting (A) had the best end-effector accuracy; setting (B) had the smoothest joint motion\nBoth had zero discontinuities, singularities, and self-collisions. Trac-IK had many of each.\nReal-time motion planning was feasible but tracked pose goals poorly\nAbout 17 ms per solution, vs. about 2 ms for Trac-IK"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#strengths-and-limitations",
+    "href": "lecs/w09/lec09.html#strengths-and-limitations",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Strengths and limitations",
+    "text": "Strengths and limitations\n\n\nStrengths\n\nAccurate and feasible motion in real time\nWorks without redundant joints, even on under-articulated arms\nInterpretable weights thanks to normalization\nNot tied to a particular solver; open source\n\n\nLimitations\n\nLocal non-linear optimization: no convergence guarantees\nWeights and loss parameters are still hand-tuned\nSelf-collision only: no environment obstacles, no dynamics\nSlower than plain IK; per-robot preprocessing takes 20-30 minutes"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#references-3",
+    "href": "lecs/w09/lec09.html#references-3",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "References",
+    "text": "References\n\nRakita, D., Mutlu, B., & Gleicher, M. (2018). RelaxedIK: Real-time synthesis of accurate and feasible robot arm motion. Robotics: Science and Systems.\nRakita, D., Mutlu, B., & Gleicher, M. (2017). A motion retargeting method for effective mimicry-based teleoperation of robot arms. HRI.\nBeeson, P., & Ames, B. (2015). TRAC-IK: An open-source library for improved solving of generic inverse kinematics. Humanoids.\nCode: https://github.com/uwgraphics/relaxed_ik"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#fleet-dagger-interactive-robot-fleet-learning-with-scalable-human-supervision",
+    "href": "lecs/w09/lec09.html#fleet-dagger-interactive-robot-fleet-learning-with-scalable-human-supervision",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Fleet-DAgger: Interactive Robot Fleet Learning with Scalable Human Supervision",
+    "text": "Fleet-DAgger: Interactive Robot Fleet Learning with Scalable Human Supervision\nRyan Hoque, Lawrence Yunliang Chen, Satvik Sharma, Karthik Dharmarajan, Brijen Thananjeyan, Pieter Abbeel, Ken Goldberg\nConference on Robot Learning (CoRL), 2022 (Oral)\narXiv · Code"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#from-one-human-and-one-robot-to-robot-fleets",
+    "href": "lecs/w09/lec09.html#from-one-human-and-one-robot-to-robot-fleets",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "From one human and one robot to robot fleets",
+    "text": "From one human and one robot to robot fleets\n\nAmazon, Nimble, Plus One, Waymo, and Zoox already run robot fleets that call remote human teleoperators when a robot is at risk or stuck\nEach intervention is also training data, which the whole fleet can share for continual learning\nInteractive Fleet Learning (IFL): \\(N\\) robots, \\(M \\ll N\\) humans. The robots ask for help (robot-gated), and an allocation policy \\(\\omega\\) decides who gets it.\n\n\n\nA human assigned to a robot either teleoperates it with \\(\\pi_H\\) or performs a hard reset \\(R\\) (taking \\(t_R\\) steps) after the robot violates a constraint (\\(c(s) = 1\\), e.g., it fell over)"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#objective-return-on-human-effort",
+    "href": "lecs/w09/lec09.html#objective-return-on-human-effort",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Objective: Return on Human Effort",
+    "text": "Objective: Return on Human Effort\n\nAllocation: each human helps at most one robot, and vice versa\n\n\\[\n\\omega : (\\mathbf{s}^t, \\pi_{\\theta_t}, \\boldsymbol{\\alpha}^{t-1}, \\mathbf{x}^t) \\mapsto \\boldsymbol{\\alpha}^t \\in \\{0, 1\\}^{N \\times M}, \\quad \\textstyle\\sum_j \\alpha^t_{ij} \\leq 1, \\ \\sum_i \\alpha^t_{ij} \\leq 1\n\\]\n\nReturn on Human Effort (ROHE) is fleet reward per unit of human time, where \\(\\|\\boldsymbol{\\alpha}^t\\|_F^2\\) counts the humans busy at time \\(t\\):\n\n\\[\n\\max_{\\omega} \\ \\mathbb{E}_{\\tau \\sim p_{\\omega, \\theta_0}} \\left[ \\frac{M}{N} \\cdot \\frac{\\sum_{t=0}^{T} \\bar{r}(\\mathbf{s}^t, \\mathbf{a}^t)}{1 + \\sum_{t=0}^{T} \\|\\boldsymbol{\\alpha}^t\\|_F^2} \\right]\n\\]\n\nDAgger-style learning: aggregate teleoperation data (not resets) and retrain. Unlike execution-time allocation, \\(\\omega\\) also shapes what the policy learns.\n\n\\[\nD^{t+1} \\leftarrow D^t \\cup \\{(s_i^t, \\pi_H(s_i^t)) : \\text{robot } i \\text{ is teleoperated at } t\\}, \\qquad \\pi_{\\theta_{t+1}} \\leftarrow f(\\pi_{\\theta_t}, D^{t+1})\n\\]"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#fleet-dagger-allocation-by-priority",
+    "href": "lecs/w09/lec09.html#fleet-dagger-allocation-by-priority",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Fleet-DAgger: allocation by priority",
+    "text": "Fleet-DAgger: allocation by priority\n\nFleet-DAgger is a family of algorithms. Each one is defined by a priority function \\(\\hat{p}(s, \\pi_{\\theta_t}) \\geq 0\\) plus a minimum teleoperation time \\(t_T\\), which prevents thrashing.\nAt each step: sort the robots by \\(\\hat{p}\\). Humans finish ongoing resets and teleoperation. Free humans go to the highest-priority unassisted robots, and robots with \\(\\hat{p} = 0\\) get no help.\nPriority functions compared (all but Random also prioritize constraint-violating robots):\n\n\n\n\n\n\n\n\n\nAlgorithm\nPriority\n\n\n\n\nC\nOnly hard resets; the policy never improves\n\n\nRandom\nRandom priority with a threshold\n\n\nU.C. (Fleet-EnsembleDAgger)\nUncertainty: ensemble variance\n\n\nU.G.C. (Fleet-ThriftyDAgger)\nUncertainty + Goal critic (probability of task failure)\n\n\nC.U.R. (new)\nConstraint, then Uncertainty, then Risk (safety critic: probability of constraint violation)\n\n\n\n\n\nC.U.R. also ignores hard resets during an initial period. Early on, human time is better spent teleoperating a few robots to improve a bad policy than resetting many of them."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#results-and-limitations",
+    "href": "lecs/w09/lec09.html#results-and-limitations",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Results and limitations",
+    "text": "Results and limitations\n\n\n\n\nIsaac Gym, \\(N = 100\\) robots, \\(M = 10\\) algorithmic (PPO) supervisors, \\(T = 10{,}000\\) steps\n\n\n\nPhysical: 4 ABB YuMi arms pushing blocks, 2 remote humans\n\n\n\n\nAllocation matters: the choice of \\(\\hat{p}\\) changes every metric in every environment\nC.U.R. has the most successes and highest ROHE everywhere. ROHE grows over time: the fleet learns when to stop asking for help.\nOn real robots, C.U.R. wins by a small margin. Real humans are multimodal, so high uncertainty does not mean help is needed.\nLimitations: interchangeable humans, independent robots, instant switching between robots. In simulation, the “humans” are RL policies.\nUnlike shared autonomy, control is all-or-nothing: fully teleoperated or fully autonomous"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#references-4",
+    "href": "lecs/w09/lec09.html#references-4",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "References",
+    "text": "References\n\nHoque, R., Chen, L. Y., Sharma, S., Dharmarajan, K., Thananjeyan, B., Abbeel, P., & Goldberg, K. (2022). Fleet-DAgger: Interactive robot fleet learning with scalable human supervision. CoRL.\nHoque, R., Balakrishna, A., Novoseller, E., Wilcox, A., Brown, D. S., & Goldberg, K. (2021). ThriftyDAgger: Budget-aware novelty and risk gating for interactive imitation learning. CoRL.\nMenda, K., Driggs-Campbell, K., & Kochenderfer, M. J. (2019). EnsembleDAgger: A Bayesian approach to safe imitation learning. IROS.\nSwamy, G., Reddy, S., Levine, S., & Dragan, A. D. (2020). Scaled autonomy: Enabling human operators to control robot fleets. ICRA.\nCode: https://github.com/BerkeleyAutomation/ifl_benchmark"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#synthesis",
+    "href": "lecs/w09/lec09.html#synthesis",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Synthesis",
+    "text": "Synthesis"
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#what-does-each-method-assume",
+    "href": "lecs/w09/lec09.html#what-does-each-method-assume",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "What does each method assume?",
+    "text": "What does each method assume?\n\nJavdani et al. 2015 (hindsight optimization): model-based. Known dynamics, a known discrete goal set, a MaxEnt user model, and hand-designed costs. Assists for the whole distribution over goals.\nReddy et al. 2018 (deep RL): model-free. No dynamics, goal set, or user model. Needs a reward signal and simulator pretraining. The user’s input is an observation and a prior policy.\nLosey et al. 2020 (latent actions): no goal set and no goal inference. Instead it learns the control interface from demonstrations, so the user stays in charge of both the goal and the style of motion.\nRakita et al. 2018 (RelaxedIK): a low-level enabler that turns human-specified end-effector goals into feasible joint motion in real time.\nHoque et al. 2022 (Fleet-DAgger): the robot decides when it needs help, and the human takes full control or resets it. Assumes interchangeable humans and independent robots. Turns that help into imitation data for the whole fleet."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#a-recurring-theme-performance-neq-preference",
+    "href": "lecs/w09/lec09.html#a-recurring-theme-performance-neq-preference",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "A recurring theme: performance \\(\\neq\\) preference",
+    "text": "A recurring theme: performance \\(\\neq\\) preference\n\nJavdani et al.: users were faster with the policy, but felt less in control and leaned toward predict-then-blend\nReddy et al.: users found the copilot helpful but somewhat inconsistent and overly aggressive\nLosey et al.: users found latent actions easier, but enjoyed the freedom of end-effector control\n\nThe amount of control authority the user keeps is a design variable in its own right, not just a side effect of the assistance algorithm."
+  },
+  {
+    "objectID": "lecs/w09/lec09.html#discussion-questions",
+    "href": "lecs/w09/lec09.html#discussion-questions",
+    "title": "CSC2626 Imitation Learning for Robotics",
+    "section": "Discussion questions",
+    "text": "Discussion questions\n\nHow should a system trade off task efficiency against the user’s sense of control? Should the user choose (e.g., \\(\\alpha\\) in Reddy et al.)?\nWhich assumptions are acceptable in assistive settings: a known goal set, a user model, a simulator, task demonstrations?\nHow do we evaluate these systems convincingly with small user studies (\\(n = 4\\) to \\(12\\)), and users who adapt to the robot over time?"
   },
   {
     "objectID": "lecs/w06/lec06.html#todays-agenda",
