@@ -156,6 +156,8 @@ Florian Shkurti
 <li><p>Representation Learning for Imitation</p>
 <ul>
 <li>Is it better to separate representation learning from policy learning?</li>
+<li>Pretraining representations for data-efficient RL</li>
+<li>Does representation learning make multitask RL scale?</li>
 </ul></li>
 <li><p>Provable generalization</p>
 <ul>
@@ -167,27 +169,1012 @@ Florian Shkurti
 </ul></li>
 </ul>
 </section>
+<section id="why-separate-representation-learning-from-policy-learning" class="slide level2">
+<h2>Why separate representation learning from policy learning?</h2>
+<div class="small-math arrow-bullets">
+<p>▶ End-to-end behavioral cloning from pixels learns the visual features <em>and</em> the mapping to actions at the same time, from the same few demonstrations. The image encoder can easily overfit to nuisance factors: lighting, background, distractors, the particular object instance.</p>
+<p>▶ Alternative: factor the policy as <span class="math inline">\(\pi = g \circ \phi\)</span></p>
+<ul>
+<li><span class="math inline">\(\phi\)</span>: maps observations to a compact representation. Trained on cheap data <strong>without action labels</strong> (multi-view images, offline video, data from other tasks).</li>
+<li><span class="math inline">\(g\)</span>: a small policy head, trained by behavioral cloning on the demonstrations.</li>
+</ul>
+<div class="fragment">
+<p>▶ Why it can help: <span class="math inline">\(g\)</span> comes from a much smaller hypothesis class than the full image-to-action network, so it needs fewer demonstrations. The same <span class="math inline">\(\phi\)</span> can be reused across tasks.</p>
+<p>▶ There’s a risk that frozen <span class="math inline">\(\phi\)</span> trained on a different objective may discard information the task needs (precise pose, contact state, small objects).</p>
+</div>
+</div>
+</section>
+<section id="representation-learning-for-control-dynamics-centric-families" class="slide level2">
+<h2>Representation learning for control: dynamics-centric families</h2>
+<div class="rep-table">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Family</th>
+<th>Data needed</th>
+<th>Advantages</th>
+<th>Disadvantages</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Predictive state representations</strong> (PSRs), observable operator models<br><span class="grey-text">Littman, Sutton, Singh 2002; spectral PSRs, Boots et al.&nbsp;2011</span></td>
+<td>Action-observation sequences, no rewards</td>
+<td>State = predictions of future observable events, so no hidden state to identify. Spectral learning is consistent.</td>
+<td>Hard to scale to pixels. Assumes low-rank, linear-operator structure.</td>
+</tr>
+<tr class="even">
+<td><strong>Koopman operators</strong>, linear latent dynamics<br><span class="grey-text">Embed to Control, Watter et al.&nbsp;2015; Deep Koopman, Lusch et al.&nbsp;2018</span></td>
+<td>State or observation trajectories with actions</td>
+<td>Dynamics are linear in the lifted space, so LQR, MPC and spectral analysis become easy.</td>
+<td>A finite-dimensional lift is only approximate. Control inputs and contact break linearity. Choosing the lift is hard.</td>
+</tr>
+<tr class="odd">
+<td><strong>Reconstruction-based</strong>: autoencoders, VAEs, world models<br><span class="grey-text">Deep spatial autoencoders, Finn et al.&nbsp;2016; World Models, Ha &amp; Schmidhuber 2018; PlaNet, Dreamer</span></td>
+<td>Unlabeled images. World models also need actions, and rewards for planning.</td>
+<td>No labels, dense learning signal. Enables planning in latent space.</td>
+<td>Capacity goes to task-irrelevant pixels (background, texture). Small but crucial objects get ignored. Decoders are expensive.</td>
+</tr>
+<tr class="even">
+<td><strong>Control-aware objectives</strong>: inverse dynamics, bisimulation, latent self-prediction<br><span class="grey-text">Agrawal et al.&nbsp;2016; ICM, Pathak et al.&nbsp;2017; DBC, Zhang et al.&nbsp;2021; SPR, SGI, MR.Q</span></td>
+<td>Trajectories with actions. Rewards for bisimulation and value-based objectives.</td>
+<td>Keeps what matters for control, ignores the rest.</td>
+<td>Needs action or reward labels, can be task-specific. Latent prediction can collapse without a target network.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">State Representation Learning for Control: An Overview.</span> Lesort, Díaz-Rodríguez, Goudou, Filliat. Neural Networks 2018</p>
+</div>
+</section>
+<section id="representation-learning-for-control-self-supervised-visual-families" class="slide level2">
+<h2>Representation learning for control: self-supervised visual families</h2>
+<div class="rep-table">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Family</th>
+<th>Data needed</th>
+<th>Advantages</th>
+<th>Disadvantages</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Contrastive</strong><br><span class="grey-text">CPC; TCN; CURL; R3M</span></td>
+<td>Unlabeled images or video, plus augmentations or temporal pairs</td>
+<td>No decoder, scales well.</td>
+<td>Needs negatives or large batches. Augmentations may remove control-relevant detail.</td>
+</tr>
+<tr class="even">
+<td><strong>Non-contrastive, invariance-based</strong><br><span class="grey-text">BYOL; SimSiam; DINO; VICReg</span></td>
+<td>Unlabeled images, plus hand-crafted augmentations</td>
+<td>No negatives, no decoder. Two augmented views must share an embedding.</td>
+<td>Needs anti-collapse tricks (EMA, stop-gradient). Inherits augmentation biases, e.g.&nbsp;invariance to position.</td>
+</tr>
+<tr class="odd">
+<td><strong>Non-contrastive, predictive (JEPA)</strong><br><span class="grey-text">I-JEPA; V-JEPA; V-JEPA 2</span></td>
+<td>Unlabeled images or video, masked instead of augmented</td>
+<td>Predicts masked or future embeddings, keeping spatial and temporal structure. V-JEPA 2 plans in this latent space.</td>
+<td>Needs anti-collapse tricks (EMA). Sensitive to masking design. Expensive pretraining.</td>
+</tr>
+<tr class="even">
+<td><strong>Dense correspondence, keypoints</strong><br><span class="grey-text">Dense Object Nets; Transporter nets</span></td>
+<td>Multi-view RGB-D with camera poses, or video</td>
+<td>Geometric, object-centric. Generalizes across object instances.</td>
+<td>Needs 3D reconstruction or calibration. Often per object class. Struggles with deformables.</td>
+</tr>
+<tr class="odd">
+<td><strong>Pretrained visual foundation models</strong><br><span class="grey-text">MVP; R3M; VIP; VC-1; DINOv2</span></td>
+<td>Internet-scale images or egocentric video, sometimes language</td>
+<td>Off-the-shelf, broad coverage. Data-efficient downstream BC.</td>
+<td>Domain gap to robot views. May miss fine control detail. Gains don’t always transfer to real robots.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">State Representation Learning for Control: An Overview.</span> Lesort, Díaz-Rodríguez, Goudou, Filliat. Neural Networks 2018</p>
+</div>
+</section>
 <section id="learning-dense-representations-for-manipulation" class="slide level2">
 <h2>Learning dense representations for manipulation</h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/L5UW1VapKNE?rel=0" width="80%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<div class="small-math">
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
 <p><span class="red">Dense Object Nets: Learning Dense Visual Object Descriptors By and For Robotic Manipulation.</span> Florence, Manuelli, Tedrake. 2018</p>
 </div>
 </section>
-<section id="learning-policies-on-top-of-pretrained-representations" class="slide level2">
-<h2>Learning policies on top of pretrained representations</h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/RBvaazKSOAc?rel=0" width="80%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<div class="small-math">
-<p><span class="red">Self-Supervised Correspondence in Visuomotor Policy Learning.</span> Florence, Manuelli, Tedrake. 2020</p>
+<section id="how-dense-object-nets-are-trained" class="slide level2">
+<h2>How Dense Object Nets are trained</h2>
+<div class="small-math arrow-bullets">
+<p>▶ A fully convolutional network maps an RGB image <span class="math inline">\(I \in \mathbb{R}^{W \times H \times 3}\)</span> to a descriptor image <span class="math inline">\(f(I) \in \mathbb{R}^{W \times H \times D}\)</span>: every pixel gets a <span class="math inline">\(D\)</span>-dimensional descriptor (<span class="math inline">\(D\)</span> is small, e.g.&nbsp;3).</p>
+<p>▶ <strong>Labels for free:</strong> a wrist-mounted RGB-D camera scans a static scene. 3D reconstruction plus the known camera poses (from the arm’s forward kinematics) tell us, for a pixel <span class="math inline">\(u_a\)</span> in image <span class="math inline">\(I_a\)</span>, which pixel <span class="math inline">\(u_b\)</span> in image <span class="math inline">\(I_b\)</span> sees the same 3D point. No human annotation.</p>
+<p>▶ <strong>Pixelwise contrastive loss</strong>, with descriptor distance <span class="math inline">\(D(I_a, u_a, I_b, u_b) = \|f(I_a)(u_a) - f(I_b)(u_b)\|_2\)</span>:</p>
+<p><span class="math display">\[
+\mathcal{L}_{\text{matches}} = \frac{1}{N_{\text{matches}}} \sum_{\text{matches}} D^2,
+\qquad
+\mathcal{L}_{\text{non-matches}} = \frac{1}{N_{\text{hard-negatives}}} \sum_{\text{non-matches}} \max(0,\, M - D)^2
+\]</span></p>
+<p>Pull corresponding pixels together, push non-corresponding ones at least a margin <span class="math inline">\(M\)</span> apart. Normalizing by the number of <em>hard</em> negatives (those with <span class="math inline">\(M - D &gt; 0\)</span>) keeps the gradient from vanishing once most non-matches are easy.</p>
+<p>▶ <strong>What a manipulator gets:</strong> click a point on a reference image (“the mug handle”), find the pixel with the nearest descriptor in a new image, and grasp the same semantic point under new poses, deformations and, with class-level training, new object instances.</p>
+</div>
+</section>
+<section id="from-dense-descriptors-to-keypoints" class="slide level2">
+<h2>From dense descriptors to keypoints</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/correspondence-policy.png" class="quarto-figure quarto-figure-center" style="width:72.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ Pretrain the dense descriptor network <span class="math inline">\(f^{\text{dense}}_{\theta_v}\)</span> with the self-supervised correspondence loss on the task’s objects.</p>
+<p>▶ Choose a set of <span class="math inline">\(P\)</span> reference descriptors <span class="math inline">\(\{d_i\}_{i=1}^P\)</span>, e.g.&nbsp;sampled from a masked reference image. A correspondence function <span class="math inline">\(f^C\)</span> finds where each <span class="math inline">\(d_i\)</span> appears in the current image:</p>
+<p><span class="math display">\[
+z = f^C\big(f^{\text{dense}}_{\theta_v}(o_{\text{image}}),\, \{d_i\}_{i=1}^P\big) \in \mathbb{R}^{P \times K}
+\]</span></p>
+<p>▶ <span class="math inline">\(z\)</span> holds the pixel coordinates (<span class="math inline">\(K = 2\)</span>) or 3D positions (<span class="math inline">\(K = 3\)</span>) of the <span class="math inline">\(P\)</span> tracked points: a learned, object-centric keypoint representation.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Self-Supervised Correspondence in Visuomotor Policy Learning.</span> Florence, Manuelli, Tedrake. RA-L 2020</p>
+</div>
+</section>
+<section id="from-keypoints-to-a-visuomotor-policy" class="slide level2">
+<h2>From keypoints to a visuomotor policy</h2>
+<div class="small-math arrow-bullets">
+<p>▶ The keypoints <span class="math inline">\(z\)</span> are concatenated with the robot state <span class="math inline">\(o_{\text{robot}}\)</span> and fed to a small policy network:</p>
+<p><span class="math display">\[
+a = \pi_{\theta_p}(z,\, o_{\text{robot}})
+\]</span></p>
+<p>▶ What gets trained by behavioral cloning:</p>
+<ul>
+<li><strong>Fixed descriptor set:</strong> only the policy <span class="math inline">\(\theta_p\)</span>.</li>
+<li><strong>Descriptor set optimization:</strong> <span class="math inline">\(\theta_p\)</span> and <span class="math inline">\(\{d_i\}\)</span>, i.e.&nbsp;the policy also chooses <em>which</em> points to track.</li>
+<li><strong>End-to-end:</strong> also <span class="math inline">\(\theta_v\)</span>. In the paper this gave no advantage over keeping the descriptor network fixed.</li>
+</ul>
+<p>▶ Result: real-robot policies from as few as 50 demonstrations that generalize across object instances, handle deformable and textureless objects, and in simulation are more sample efficient than autoencoder or end-to-end visual training.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Self-Supervised Correspondence in Visuomotor Policy Learning.</span> Florence, Manuelli, Tedrake. RA-L 2020</p>
 </div>
 </section>
 <section id="another-example-of-policy-learning-on-pretrained-representations" class="slide level2">
 <h2>Another example of policy learning on pretrained representations</h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/bIzWADZjdoA?rel=0" width="80%" height="70%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<iframe data-external="1" src="https://www.youtube.com/embed/bIzWADZjdoA?rel=0" width="80%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">The Surprising Effectiveness of Representation Learning for Visual Imitation.</span> Pari, Shafiullah, Arunachalam, Pinto. RSS 2022</p>
+</div>
+</section>
+<section id="byol-bootstrap-your-own-latent" class="slide level2">
+<h2>BYOL: Bootstrap Your Own Latent</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/byol-architecture.png" class="quarto-figure quarto-figure-center" width="560"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ Two random augmentations (crop, color jitter, blur, …) of an image <span class="math inline">\(x\)</span> give views <span class="math inline">\(v\)</span> and <span class="math inline">\(v'\)</span>. The <strong>online</strong> network <span class="math inline">\(\theta\)</span> has an encoder <span class="math inline">\(f_\theta\)</span>, a projector <span class="math inline">\(g_\theta\)</span> and a predictor <span class="math inline">\(q_\theta\)</span>. The <strong>target</strong> network <span class="math inline">\(\xi\)</span> has the same encoder and projector, but no predictor.</p>
+<p>▶ The online network predicts the target’s projection of the <em>other</em> view, with both vectors <span class="math inline">\(\ell_2\)</span>-normalized (bars). The loss is symmetrized by swapping <span class="math inline">\(v\)</span> and <span class="math inline">\(v'\)</span>:</p>
+<p><span class="math display">\[
+\mathcal{L}_{\theta, \xi} = \big\| \bar q_\theta(z_\theta) - \bar z'_\xi \big\|_2^2,
+\qquad
+\xi \leftarrow \tau \xi + (1 - \tau)\, \theta
+\]</span></p>
+<p>▶ Gradients only update <span class="math inline">\(\theta\)</span> (stop-gradient “sg”). The target is an exponential moving average of the online network.</p>
+<p>▶ <strong>No negative pairs</strong>, unlike contrastive methods such as SimCLR. A constant representation would minimize the loss, but empirically the predictor and the slowly moving target prevent this collapse. After training, only <span class="math inline">\(f_\theta\)</span> is kept: <span class="math inline">\(y_\theta\)</span> is VINN’s <span class="math inline">\(\phi\)</span>.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning.</span> Grill et al.&nbsp;NeurIPS 2020</p>
+</div>
+</section>
+<section id="vinn-a-self-supervised-encoder-plus-nearest-neighbors" class="slide level2">
+<h2>VINN: a self-supervised encoder plus nearest neighbors</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>VINN</strong> = <strong>V</strong>isual <strong>I</strong>mitation through <strong>N</strong>earest <strong>N</strong>eighbors.</p>
+<p>▶ <strong>Stage 1, representation:</strong> train an encoder <span class="math inline">\(e = \phi(o)\)</span> on all offline frames with BYOL. Two random augmentations of the same image must map to the same embedding. No actions and no negative pairs are needed.</p>
+<p>▶ <strong>Stage 2, behavior:</strong> no policy network at all. Store the embedded demonstrations <span class="math inline">\(\{(e^{(i)}, a^{(i)})\}\)</span>. At test time, embed the current observation, find its <span class="math inline">\(k\)</span> nearest neighbors, and average their actions, weighted by a softmin over distances (locally weighted regression):</p>
+<p><span class="math display">\[
+\hat a = \frac{\sum_{i=1}^{k} \exp\big(-\|e - e^{(i)}\|_2\big)\, a^{(i)}}{\sum_{i=1}^{k} \exp\big(-\|e - e^{(i)}\|_2\big)}
+\]</span></p>
+<p>▶ Assumption: observations that are close in the learned embedding call for similar actions.</p>
+<p>▶ This simple decoupling matches or beats parametric behavioral cloning on offline datasets and real-robot door opening.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">The Surprising Effectiveness of Representation Learning for Visual Imitation.</span> Pari, Shafiullah, Arunachalam, Pinto. RSS 2022</p>
+</div>
+</section>
+<section id="vinn-results-offline-datasets" class="slide level2">
+<h2>VINN results: offline datasets</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/vinn-offline-mse.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ Test MSE of predicted actions vs.&nbsp;number of training demonstrations, on Pushing, Stacking and Door Opening (left to right). The models are trained on subsets of the original dataset.</p>
+<p>▶ <strong>With few demonstrations (fewer than about 20), VINN (blue) is best</strong> on Stacking and Door Opening. Behavioral cloning trained end-to-end (red) only catches up, or wins on Pushing, once it has many demonstrations.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">The Surprising Effectiveness of Representation Learning for Visual Imitation.</span> Pari, Shafiullah, Arunachalam, Pinto. RSS 2022</p>
+</div>
+</section>
+<section id="vinn-results-real-robot-door-opening" class="slide level2">
+<h2>VINN results: real-robot door opening</h2>
+<div class="columns">
+<div class="column" style="width:38%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/vinn-door-opening.png" class="quarto-figure quarto-figure-center" height="460"></p>
+</figure>
+</div>
+</div><div class="column small-math arrow-bullets" style="width:62%;">
+<p>▶ Hello-Robot Stretch opening cabinet doors, 30 trials on three cabinets, from randomized start positions:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Handle grasped</th>
+<th>Door opened</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BC (end-to-end)</td>
+<td>0%</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>BC on BYOL representations</td>
+<td>56.7%</td>
+<td>53.3%</td>
+</tr>
+<tr class="odd">
+<td>ImageNet features + NN</td>
+<td>20%</td>
+<td>0%</td>
+</tr>
+<tr class="even">
+<td>VINN (BYOL + NN)</td>
+<td><strong>80%</strong></td>
+<td><strong>80%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>▶ Generalization to occlusions (10 trials, one cabinet, door-opening success):</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Modification</th>
+<th>BC-rep</th>
+<th>VINN</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>None</td>
+<td><strong>90%</strong></td>
+<td>80%</td>
+</tr>
+<tr class="even">
+<td>Signs and handle covered</td>
+<td>10%</td>
+<td><strong>70%</strong></td>
+</tr>
+<tr class="odd">
+<td>… and one bin covered</td>
+<td>0%</td>
+<td><strong>50%</strong></td>
+</tr>
+<tr class="even">
+<td>… and both bins covered</td>
+<td>0%</td>
+<td>0%</td>
+</tr>
+</tbody>
+</table>
+<p>▶ A good offline MSE is not sufficient: ImageNet + NN is close on MSE, but never opens the door.</p>
+<div class="fragment">
+<p>▶ So empirically, decoupling helps. <span class="red">Can we show <em>when</em> and <em>why</em> it helps?</span></p>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">The Surprising Effectiveness of Representation Learning for Visual Imitation.</span> Pari, Shafiullah, Arunachalam, Pinto. RSS 2022</p>
+</div>
 </section>
 <section id="can-we-show-theoretically-that-representation-learning-helps" class="slide level2">
 <h2>Can we show theoretically that representation learning helps?</h2>
-<p>[switch to notes]</p>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Tasks</strong> <span class="math inline">\(\mu\)</span>: MDPs that share states, actions (<span class="math inline">\(K\)</span> of them) and horizon <span class="math inline">\(H\)</span>, but differ in cost and initial state. Each task has an expert <span class="math inline">\(\pi^*_\mu\)</span>. We get <span class="math inline">\(n\)</span> expert state-action samples from each of <span class="math inline">\(T\)</span> training tasks.</p>
+<p>▶ <strong>Policy class</strong>:</p>
+<ul>
+<li>Shared representation <span class="math inline">\(\phi \in \Phi\)</span> with <span class="math inline">\(\phi : \mathcal{S} \to \mathbb{R}^d\)</span>, <span class="math inline">\(\|\phi(s)\|_2 \le R\)</span>. Could be a deep network.</li>
+<li>Task-specific <strong>linear</strong> head: <span class="math inline">\(\pi_{\phi, W}(a \mid s) = \mathrm{softmax}(W \phi(s))_a\)</span>, with <span class="math inline">\(W \in \mathbb{R}^{K \times d}\)</span>, <span class="math inline">\(\|W\|_F \le 1\)</span>.</li>
+</ul>
+<p>▶ <strong>Bi-level optimization</strong>: the outer problem picks the shared representation, the inner problem is ordinary single-task behavioral cloning with <span class="math inline">\(\phi\)</span> frozen:</p>
+<p><span class="math display">\[
+\hat\phi = \arg\min_{\phi \in \Phi} \; \frac{1}{T} \sum_{t=1}^{T} \; \min_{\pi \in \Pi_\phi} \; \frac{1}{n} \sum_{j=1}^{n} -\log \pi\big(a^t_j \mid s^t_j\big)
+\]</span></p>
+<p>▶ Since each head appears in only one task’s loss, this is the same as jointly training <span class="math inline">\(\phi\)</span> with <span class="math inline">\(T\)</span> separate heads. The bi-level form is what makes the analysis easier.</p>
+<p>▶ <strong>New task (test time):</strong> freeze <span class="math inline">\(\hat\phi\)</span> and solve the same problem as the inner one, i.e.&nbsp;fit only a linear head <span class="math inline">\(\pi_{\hat\phi, x}\)</span>, on a dataset <span class="math inline">\(x = \{(s_j, a_j)\}_{j=1}^n\)</span> of expert demonstrations from a new task <span class="math inline">\(\mu\)</span>.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Provable Representation Learning for Imitation Learning via Bi-level Optimization.</span> Arora, Du, Kakade, Luo, Saunshi. ICML 2020</p>
+</div>
+</section>
+<section id="representation-learning-for-behavioral-cloning-the-guarantee" class="slide level2">
+<h2>Representation learning for behavioral cloning: the guarantee</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Assumptions:</strong> experts are deterministic. <em>Realizability:</em> there is a <span class="math inline">\(\phi^* \in \Phi\)</span> such that every expert <span class="math inline">\(\pi^*_\mu\)</span> is matched with probability at least <span class="math inline">\(1 - \gamma\)</span> by some linear head on top of <span class="math inline">\(\phi^*\)</span> (with <span class="math inline">\(\gamma &lt; 1/2\)</span>).</p>
+<p>▶ <strong>Theorem.</strong> With probability <span class="math inline">\(1 - \delta\)</span> over the training data, the expected cost <span class="math inline">\(J_\mu\)</span> on a new task satisfies</p>
+<p><span class="math display">\[
+\mathbb{E}_{\mu}\, \mathbb{E}_{x}\, J_\mu(\pi_{\hat\phi, x}) - \mathbb{E}_{\mu}\, J_\mu(\pi^*_\mu) \;\le\; H^2 \big(2\gamma + \epsilon_{\text{gen}}\big),
+\qquad
+\epsilon_{\text{gen}} = c\,\frac{G(\Phi(\mathcal{S}))}{T \sqrt{n}} + c'\,\frac{R\sqrt{K}}{\sqrt{n}} + c''\sqrt{\frac{\ln(4/\delta)}{T}}
+\]</span></p>
+<p>where <span class="math inline">\(G(\Phi(\mathcal{S}))\)</span> is the Gaussian complexity (how “rich” a function class is) of the representation class on all <span class="math inline">\(nT\)</span> training states.</p>
+<div class="fragment">
+<p>▶ To get error <span class="math inline">\(H^2 \gamma + \epsilon\)</span> it is enough to have</p>
+<p><span class="math display">\[
+T = O\!\left(\frac{H^4 R^2 \log|\Phi|}{\epsilon^2}\right) \text{ tasks, and } \;
+n = O\!\left(\frac{H^4 R^2 K}{\epsilon^2}\right) \text{ samples per task.}
+\]</span></p>
+<p>Learning from scratch on the new task alone needs <span class="math inline">\(n = O\big(H^4 R^2 \max\{\log|\Phi|,\, K\} / \epsilon^2\big)\)</span>.</p>
+</div>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Provable Representation Learning for Imitation Learning via Bi-level Optimization.</span> Arora, Du, Kakade, Luo, Saunshi. ICML 2020</p>
+</div>
+</section>
+<section id="takeaways-from-the-theory" class="slide level2">
+<h2>Takeaways from the theory</h2>
+<div class="small-math arrow-bullets">
+<p>▶ The cost of learning a rich representation (<span class="math inline">\(\log|\Phi|\)</span>, or its Gaussian complexity) is paid <strong>once, shared across the <span class="math inline">\(T\)</span> tasks</strong>. Each new task only pays for its linear head, i.e.&nbsp;for the number of actions <span class="math inline">\(K\)</span>. Representation learning helps when <span class="math inline">\(\log|\Phi| \gg K\)</span>.</p>
+<p>▶ The <span class="math inline">\(H^2\)</span> factor is the usual compounding-error penalty of behavioral cloning (Ross et al.&nbsp;2011), the same as in the single-task analysis.</p>
+<p>▶ The paper proves a similar result for the <strong>observation-alone</strong> setting (no expert actions; match state-visitation distributions instead), which is harder.</p>
+<p>▶ <strong>Caveats:</strong></p>
+<ul>
+<li>It needs a single <span class="math inline">\(\phi^*\)</span> that is good for <em>all</em> tasks (<span class="math inline">\(\gamma\)</span> small), and new tasks drawn from the same distribution as the training tasks.</li>
+<li><span class="math inline">\(\phi\)</span> is learned from the imitation losses of related tasks. The result does not directly certify representations pretrained on unrelated self-supervised objectives (correspondence for Dense Object Nets, BYOL for VINN). For those, the empirical evidence is still ahead of the theory.</li>
+</ul>
+</div>
+</section>
+<section id="curl-contrastive-learning-as-an-auxiliary-task-for-rl-from-pixels" class="slide level2">
+<h2>CURL: contrastive learning as an auxiliary task for RL from pixels</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Problem:</strong> model-free RL from pixels (e.g.&nbsp;SAC on images) is far less sample efficient than the same algorithm on the true low-dimensional state. Previous fixes add a reconstruction loss (SAC+AE) or learn a latent world model (PlaNet, Dreamer, SLAC).</p>
+<p>▶ <strong>CURL’s idea:</strong> keep the model-free RL algorithm, and add a <strong>contrastive (InfoNCE) loss on the shared convolutional encoder</strong>, trained jointly with the RL loss on the same replay batches. SAC is used on DeepMind Control, data-efficient Rainbow on Atari. The two losses have equal weight, with no extra tuning.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/curl-architecture.png" class="quarto-figure quarto-figure-center" width="620"></p>
+</figure>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">CURL: Contrastive Unsupervised Representations for Reinforcement Learning.</span> Srinivas, Laskin, Abbeel. ICML 2020</p>
+</div>
+</section>
+<section id="the-curl-objective" class="slide level2">
+<h2>The CURL objective</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:60%;">
+<p>▶ <strong>Positive pair:</strong> two random <span class="math inline">\(84\times 84\)</span> crops <span class="math inline">\(o_q, o_k\)</span> of the same <span class="math inline">\(100\times 100\)</span> frame stack. The same crop is applied to every frame of the stack, so the jitter is consistent over time and motion is preserved.</p>
+<p>▶ <strong>Momentum key encoder</strong> (as in MoCo): <span class="math inline">\(\theta_k \leftarrow m\,\theta_k + (1-m)\,\theta_q\)</span>, with a stop-gradient on <span class="math inline">\(k = f_{\theta_k}(o_k)\)</span>.</p>
+<p>▶ <strong>Bilinear similarity</strong> <span class="math inline">\(q^\top W k\)</span> with learned <span class="math inline">\(W\)</span>, and the InfoNCE loss <span class="math display">\[
+\mathcal{L}_q = -\log \frac{\exp(q^\top W k_+)}{\exp(q^\top W k_+) + \sum_{i} \exp(q^\top W k_i)}
+\]</span></p>
+<p>▶ The negatives <span class="math inline">\(k_i\)</span> are the keys of the <em>other</em> observations in the minibatch, so the loss is a cross-entropy over a <span class="math inline">\(B \times B\)</span> matrix of logits. There is no memory bank.</p>
+<p>▶ This is the <em>contrastive</em> family from the taxonomy: random crop decides which invariance is learned.</p>
+</div><div class="column" style="width:40%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/curl-overview.png" class="nostretch quarto-figure quarto-figure-center" style="width:90.0%"></p>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/curl-crop.png" class="nostretch quarto-figure quarto-figure-center" style="width:60.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">CURL: Contrastive Unsupervised Representations for Reinforcement Learning.</span> Srinivas, Laskin, Abbeel. ICML 2020</p>
+</div>
+</section>
+<section id="curl-results-deepmind-control-and-atari-100k" class="slide level2">
+<h2>CURL results: DeepMind Control and Atari 100k</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/curl-median-scores.png" class="quarto-figure quarto-figure-center" width="560"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>DeepMind Control (6 tasks):</strong> at 100k steps, CURL’s median score is 1.9x Dreamer’s, and Dreamer needs 4.5x more steps to reach it. At 500k steps, CURL matches the median score of SAC trained on the true state.</p>
+<p>▶ <strong>Atari 100k (26 games):</strong> median human-normalized score of 17.5%, against 16.1% for data-efficient Rainbow and 14.4% for SimPLe (model-based). CURL improves on Rainbow in 19 of 26 games, but its <em>mean</em> score is below SimPLe’s (38.1% vs.&nbsp;44.3%).</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">CURL: Contrastive Unsupervised Representations for Reinforcement Learning.</span> Srinivas, Laskin, Abbeel. ICML 2020</p>
+</div>
+</section>
+<section id="what-matters-in-curl-the-ablations" class="slide level2">
+<h2>What matters in CURL: the ablations</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Frame stacks, not single frames:</strong> contrasting whole stacks (spatial <em>and</em> temporal) beats contrasting single frames, except on reacher and ball-in-cup, where a single image is enough to solve the task.</p>
+<p>▶ <strong>Reward-free features:</strong> if critic gradients are stopped before the CNN, so that the encoder is trained <em>only</em> by the contrastive loss, learning is still near optimal on most tasks. The exception is cheetah.</p>
+<p>▶ <strong>The contrastive loss alone helps:</strong> augmenting only the contrastive branch, and feeding un-augmented images to SAC, still improves pixel SAC by about 2x (mean). Augmenting SAC’s inputs too helps further.</p>
+<p>▶ <strong>Design choices:</strong> a momentum key encoder beats sharing the query encoder, and bilinear similarity beats cosine similarity.</p>
+<p>▶ <strong>The remaining gap to state SAC</strong> tracks how well the true state can be regressed from a stack of 3 frames. When the pixels don’t contain the state, no representation can fix it.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">CURL: Contrastive Unsupervised Representations for Reinforcement Learning.</span> Srinivas, Laskin, Abbeel. ICML 2020</p>
+</div>
+</section>
+<section id="curl-in-hindsight-augmentation-vs.-contrastive-loss" class="slide level2">
+<h2>CURL in hindsight: augmentation vs.&nbsp;contrastive loss</h2>
+<div class="small-math arrow-bullets">
+<p>▶ A few weeks later, <strong>RAD</strong> (Laskin et al.&nbsp;2020) and <strong>DrQ</strong> (Kostrikov et al.&nbsp;2020) fed the random crops <em>directly</em> to the RL losses, with no contrastive term, and beat CURL on both DeepMind Control and Atari. Much of CURL’s gain came from the augmentation itself.</p>
+<p>▶ <strong>The authors’ response:</strong> with a dense reward, optimizing the RL objective on augmented data directly is better. Without rewards, or to learn one task-agnostic representation for many tasks, you need a reward-free objective like CURL’s.</p>
+<p>▶ <strong>Links to today’s lecture:</strong></p>
+<ul>
+<li>Like the Arora et al.&nbsp;analysis, the payoff of a reward-free representation is largest when it is <em>shared</em> across tasks.</li>
+<li>The crop-based invariance is exactly the “augmentation bias” listed in the taxonomy table.</li>
+</ul>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">CURL: Contrastive Unsupervised Representations for Reinforcement Learning.</span> Srinivas, Laskin, Abbeel. ICML 2020</p>
+</div>
+</section>
+<section id="spr-self-predictive-representations" class="slide level2">
+<h2>SPR: Self-Predictive Representations</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Idea:</strong> make the representation <em>temporally predictive</em>. From <span class="math inline">\(z_t = f_o(s_t)\)</span> and the actions actually taken, predict the agent’s <strong>own future latent states</strong> <span class="math inline">\(K\)</span> steps ahead. Everything happens in latent space: no pixel reconstruction, and no negative pairs.</p>
+<p>▶ <strong>Setting:</strong> an auxiliary loss on top of data-efficient Rainbow, trained online on Atari 100k, as for CURL. CURL asks for invariance <em>within</em> one frame stack. SPR asks for predictability <em>across time</em>, given the actions.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/spr-architecture.png" class="quarto-figure quarto-figure-center" width="720"></p>
+</figure>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Data-Efficient Reinforcement Learning with Self-Predictive Representations.</span> Schwarzer, Anand, Goel, Hjelm, Courville, Bachman. ICLR 2021</p>
+</div>
+</section>
+<section id="the-spr-objective" class="slide level2">
+<h2>The SPR objective</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Transition model:</strong> <span class="math inline">\(\hat z_{t+k+1} = h(\hat z_{t+k}, a_{t+k})\)</span> for <span class="math inline">\(k = 0, \dots, K-1\)</span>, starting from <span class="math inline">\(\hat z_t = z_t\)</span>. <span class="math inline">\(h\)</span> is a small convolutional network on the <span class="math inline">\(64\times 7\times 7\)</span> feature map, with the action appended as a one-hot input, rolled out for <span class="math inline">\(K = 5\)</span> steps.</p>
+<p>▶ <strong>Targets:</strong> <span class="math inline">\(\tilde z_{t+k} = f_m(s_{t+k})\)</span>, from a target encoder whose weights are an exponential moving average (EMA) of the online ones, <span class="math inline">\(\theta_m \leftarrow \tau\,\theta_m + (1-\tau)\,\theta_o\)</span>. No gradients flow into it.</p>
+<p>▶ <strong>Projections, as in BYOL:</strong> <span class="math inline">\(\hat y_{t+k} = q\big(g_o(\hat z_{t+k})\big)\)</span> and <span class="math inline">\(\tilde y_{t+k} = g_m(\tilde z_{t+k})\)</span>. The loss is a negative cosine similarity, added to the Q-learning loss: <span class="math display">\[
+\mathcal L^{\text{SPR}} = -\sum_{k=1}^{K} \frac{\tilde y_{t+k}^\top\, \hat y_{t+k}}{\|\tilde y_{t+k}\|_2\, \|\hat y_{t+k}\|_2},
+\qquad
+\mathcal L = \mathcal L^{\text{RL}} + \lambda\, \mathcal L^{\text{SPR}}, \quad \lambda = 2
+\]</span></p>
+<p>▶ <strong>Augmentation</strong> (DrQ-style random shifts and color jitter) is applied independently to every observation, so SPR also enforces consistency across views.</p>
+<p>▶ With <span class="math inline">\(K = 0\)</span> (no dynamics), SPR reduces to BYOL used as an auxiliary loss.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Data-Efficient Reinforcement Learning with Self-Predictive Representations.</span> Schwarzer, Anand, Goel, Hjelm, Courville, Bachman. ICLR 2021</p>
+</div>
+</section>
+<section id="spr-results-on-atari-100k" class="slide level2">
+<h2>SPR results on Atari 100k</h2>
+<div class="columns">
+<div class="column small-math win-rows" style="width:48%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Mean HNS</th>
+<th>Median HNS</th>
+<th>Superhuman games</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SimPLe</td>
+<td>0.443</td>
+<td>0.144</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>DER</td>
+<td>0.285</td>
+<td>0.161</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>CURL</td>
+<td>0.381</td>
+<td>0.175</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>DrQ</td>
+<td>0.357</td>
+<td>0.268</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>SPR (no aug.)</td>
+<td>0.463</td>
+<td>0.307</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td>SPR</td>
+<td><strong>0.704</strong></td>
+<td><strong>0.415</strong></td>
+<td><strong>7</strong></td>
+</tr>
+</tbody>
+</table>
+</div><div class="column small-math arrow-bullets" style="width:52%;">
+<p>▶ Human-normalized score: <span class="math inline">\(\text{HNS} = \frac{\text{agent} - \text{random}}{\text{human} - \text{random}}\)</span>, averaged over 26 games with 100k interaction steps each, about 2 hours of play.</p>
+<p>▶ The median is <strong>55% above the previous best</strong> (DrQ), and SPR beats DrQ on 23 of 26 games. Even without augmentation, SPR beats every prior method.</p>
+<p>▶ <strong>Evaluation caveat:</strong> the median HNS depends on a handful of games. The authors also report DQN-normalized scores, and evaluate over 100 episodes and 10 seeds.</p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Data-Efficient Reinforcement Learning with Self-Predictive Representations.</span> Schwarzer, Anand, Goel, Hjelm, Courville, Bachman. ICLR 2021</p>
+</div>
+</section>
+<section id="what-matters-in-spr-the-ablations" class="slide level2">
+<h2>What matters in SPR: the ablations</h2>
+<div class="columns">
+<div class="column small-math win-rows" style="width:42%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Variant (all with aug.)</th>
+<th>Median HNS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SPR</td>
+<td><strong>0.415</strong></td>
+</tr>
+<tr class="even">
+<td>1-step SPR</td>
+<td>0.301</td>
+</tr>
+<tr class="odd">
+<td>Non-temporal SPR (BYOL-like)</td>
+<td>0.271</td>
+</tr>
+<tr class="even">
+<td>SPR without projections</td>
+<td>0.171</td>
+</tr>
+<tr class="odd">
+<td>Quadratic (unnormalized L2) loss</td>
+<td>0.040</td>
+</tr>
+<tr class="even">
+<td>Rainbow (controlled)</td>
+<td>0.346</td>
+</tr>
+</tbody>
+</table>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/spr-prediction-depth.png" class="quarto-figure quarto-figure-center" style="width:78.0%"></p>
+</figure>
+</div>
+</div><div class="column small-math arrow-bullets" style="width:58%;">
+<p>▶ <strong>Dynamics modeling is key:</strong> performance grows with the prediction depth <span class="math inline">\(K\)</span> up to about 5 (plot, normalized to SPR’s score).</p>
+<p>▶ <strong>Avoiding collapse:</strong> with an unnormalized L2 loss the representation collapses, as in DeepMDP. Using the online encoder as target, without a stop-gradient, drops the median to 0.278. The authors hypothesize that the RL loss also counters collapse, which would explain why <span class="math inline">\(\tau = 0\)</span> works here but not in BYOL.</p>
+<p>▶ <strong>Projections matter:</strong> they let the loss shape most of the network, not just the 80k-parameter conv encoder.</p>
+<p>▶ SPR beats both temporal and non-temporal contrastive variants, including CURL.</p>
+<div class="fragment">
+<p>▶ <strong>Future work in the paper:</strong> apply SPR to unlabeled data from many MDPs. That’s what SGI does next.</p>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Data-Efficient Reinforcement Learning with Self-Predictive Representations.</span> Schwarzer, Anand, Goel, Hjelm, Courville, Bachman. ICLR 2021</p>
+</div>
+</section>
+<section id="pretraining-representations-for-data-efficient-rl" class="slide level2">
+<h2>Pretraining representations for data-efficient RL</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>From CURL and SPR:</strong> both add reward-free losses <em>during</em> RL, but the encoder still starts <strong>tabula rasa</strong> on every task. It overfits, and it is far less sample efficient than humans, who bring visual and dynamics priors. Can the same kind of objectives <strong>pretrain</strong> the encoder instead?</p>
+<p>▶ One fix is unsupervised <em>exploration</em> pretraining (APT, VISR, CPT), but it needs 250M to 4B environment steps, i.e.&nbsp;months to years of real-time experience.</p>
+<p>▶ <strong>SGI’s idea:</strong> pretrain the encoder <strong>offline and without rewards</strong>, on a small dataset of arbitrary quality (random, exploratory, or logs from earlier agents), and then fine-tune it with RL on the task.</p>
+<p>▶ <strong>Benchmark:</strong> the same as for CURL and SPR, Atari 100k with the median human-normalized score.</p>
+<p>▶ <strong>Questions a good representation should answer</strong>, none of which involve reward or a particular policy:</p>
+<ul>
+<li>If I take action <span class="math inline">\(a\)</span> in state <span class="math inline">\(s\)</span>, which state <span class="math inline">\(s'\)</span> comes next? (forward dynamics: <strong>S</strong>, i.e.&nbsp;SPR)</li>
+<li>If I went from <span class="math inline">\(s\)</span> to <span class="math inline">\(s'\)</span>, which action <span class="math inline">\(a\)</span> did I take? (inverse dynamics: <strong>I</strong>)</li>
+<li>Which action takes me from <span class="math inline">\(s\)</span> to another state <span class="math inline">\(s'\)</span> as soon as possible? (goal-conditioned RL: <strong>G</strong>)</li>
+</ul>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Pretraining Representations for Data-Efficient Reinforcement Learning.</span> Schwarzer, Rajkumar, Noukhovitch, Anand, Charlin, Hjelm, Bachman, Courville. NeurIPS 2021</p>
+</div>
+</section>
+<section id="sgi-spr-goal-conditioned-rl-inverse-dynamics" class="slide level2">
+<h2>SGI = SPR + Goal-conditioned RL + Inverse dynamics</h2>
+<div class="small-math arrow-bullets">
+<p>▶ All three objectives share one convolutional encoder, <span class="math inline">\(z_t = f_o(s_t)\)</span>.</p>
+<p>▶ <strong>S: the SPR loss from the previous slides</strong>, i.e.&nbsp;<span class="math inline">\(K\)</span>-step latent prediction <span class="math inline">\(\hat z_{t+k+1} = h(\hat z_{t+k}, a_{t+k})\)</span> against an EMA target encoder, with a cosine loss. It is now applied to the offline dataset, with no RL loss alongside it.</p>
+<p>▶ <strong>G: goal-conditioned RL.</strong> Learn <span class="math inline">\(Q(s_t, a, g)\)</span> from synthetic rewards for reaching goal <span class="math inline">\(g\)</span>. Goals are sampled in hindsight, from future states or other trajectories, plus noise. Structurally this is the same kind of problem as the downstream task: learning to control the environment.</p>
+<p>▶ <strong>I: inverse dynamics.</strong> Predict <span class="math inline">\(p(a_{t+k} \mid \hat y_{t+k}, \tilde y_{t+k+1})\)</span> with a two-layer MLP and cross-entropy, reusing SPR’s online and target projections. As a classification task, it cannot collapse to a constant representation.</p>
+<p>▶ <strong>Pretraining</strong> sums the three losses. <strong>Fine-tuning <em>is</em> the SPR agent</strong> (Rainbow plus the SPR loss), initialized from the pretrained weights, with the learning rates of the pretrained encoder and dynamics model reduced by 100x.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Pretraining Representations for Data-Efficient Reinforcement Learning.</span> Schwarzer, Rajkumar, Noukhovitch, Anand, Charlin, Hjelm, Bachman, Courville. NeurIPS 2021</p>
+</div>
+</section>
+<section id="sgi-results-on-atari-100k" class="slide level2">
+<h2>SGI results on Atari 100k</h2>
+<div class="columns">
+<div class="column small-math win-rows" style="width:45%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Median HNS</th>
+<th>Pretraining data</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><em>No pretraining</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>SPR (no pretraining)</td>
+<td>0.415</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>SGI-None</td>
+<td>0.343</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td><em>Exploration data</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>APT</td>
+<td>0.475</td>
+<td>250M</td>
+</tr>
+<tr class="even">
+<td>SGI-E</td>
+<td>0.456</td>
+<td>6M</td>
+</tr>
+<tr class="odd">
+<td><em>Offline data (mixed DQN)</em></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>ATC-M</td>
+<td>0.204</td>
+<td>3M</td>
+</tr>
+<tr class="odd">
+<td>BC-M</td>
+<td>0.548</td>
+<td>3M</td>
+</tr>
+<tr class="even">
+<td>SGI-M</td>
+<td>0.679</td>
+<td>3M</td>
+</tr>
+<tr class="odd">
+<td>SGI-M/L</td>
+<td><strong>0.753</strong></td>
+<td>6M</td>
+</tr>
+</tbody>
+</table>
+</div><div class="column small-math arrow-bullets" style="width:55%;">
+<p>▶ <strong>Versus SPR alone (0.415):</strong> offline pretraining on 3M steps of mixed data lifts the median to 0.679. SGI-None (0.343) is SGI’s setup without pretraining, so the gain comes from pretraining. SGI-M/L (a large ResNet, 6M steps) approaches human-level data efficiency.</p>
+<p>▶ SGI matches exploration-based pretraining with roughly 40x less data, and beats the contrastive pretraining baseline ATC on the same data.</p>
+<p>▶ <strong>Data quality matters, but expert data is not required.</strong> Gains grow from random, to exploratory, to weak, to mixed DQN data, with diminishing returns. This is unlike imitation, where data quality is everything.</p>
+<p>▶ <strong>Pretraining unlocks bigger networks.</strong> The small Nature CNN barely benefits from pretraining. Large ResNets struggle when trained from scratch, but shine once pretrained.</p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Pretraining Representations for Data-Efficient Reinforcement Learning.</span> Schwarzer, Rajkumar, Noukhovitch, Anand, Charlin, Hjelm, Bachman, Courville. NeurIPS 2021</p>
+</div>
+</section>
+<section id="what-matters-in-sgi-the-ablations" class="slide level2">
+<h2>What matters in SGI: the ablations</h2>
+<div class="columns">
+<div class="column small-math win-rows" style="width:40%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Pretraining objectives</th>
+<th>Median HNS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>None</td>
+<td>0.343</td>
+</tr>
+<tr class="even">
+<td>S</td>
+<td>0.009</td>
+</tr>
+<tr class="odd">
+<td>G</td>
+<td>0.060</td>
+</tr>
+<tr class="even">
+<td>I</td>
+<td>0.411</td>
+</tr>
+<tr class="odd">
+<td>S+G</td>
+<td>0.029</td>
+</tr>
+<tr class="even">
+<td>G+I</td>
+<td>0.512</td>
+</tr>
+<tr class="odd">
+<td>S+I</td>
+<td>0.629</td>
+</tr>
+<tr class="even">
+<td>S+G+I</td>
+<td><strong>0.679</strong></td>
+</tr>
+</tbody>
+</table>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Fine-tuning scheme</th>
+<th>Median HNS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Naive (free weights)</td>
+<td>0.429</td>
+</tr>
+<tr class="even">
+<td>Frozen encoder</td>
+<td>0.499</td>
+</tr>
+<tr class="odd">
+<td>Reduced LRs</td>
+<td><strong>0.679</strong></td>
+</tr>
+</tbody>
+</table>
+</div><div class="column small-math arrow-bullets" style="width:60%;">
+<p>▶ <strong>Combining objectives helps:</strong> performance increases as objectives are added. No single objective covers the MDP.</p>
+<p>▶ <strong>Inverse dynamics is critical.</strong> Without it (S, G, S+G), the representations <em>collapse</em>: the cosine similarity between representations of different states approaches 1. S alone collapses offline (0.009), although SPR did not collapse online. The SPR paper credits the RL loss partly for that, and offline there is no RL loss, so inverse dynamics, a classification task, has to play that role. Curiously, adding SPR still pulls representations towards collapse, yet improves fine-tuning. Why is an open question.</p>
+<p>▶ <strong>Fine-tuning must be gentle.</strong> Letting the pretrained weights change freely is better than no pretraining, but worse than freezing them. Early RL gradients overwrite the pretrained features, similar to catastrophic forgetting. Small learning rates on the pretrained parts work best.</p>
+<p>▶ <strong>Auxiliary losses during fine-tuning:</strong> keeping SPR raises the median from 0.452 to 0.679, consistent with SPR’s own online gains. Using all three losses during fine-tuning gives no further benefit.</p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Pretraining Representations for Data-Efficient Reinforcement Learning.</span> Schwarzer, Rajkumar, Noukhovitch, Anand, Charlin, Hjelm, Bachman, Courville. NeurIPS 2021</p>
+</div>
+</section>
+<section id="sgi-takeaways-and-links-to-todays-lecture" class="slide level2">
+<h2>SGI: takeaways and links to today’s lecture</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>CURL, then SPR, then SGI:</strong> first augmentation-invariant contrastive learning, then latent temporal prediction without negatives, then the same predictive objectives used for offline, reward-free pretraining.</p>
+<p>▶ <strong>The same recipe as VINN and Florence et al.:</strong> a reward-free representation learned from cheap data, followed by a small amount of task-specific learning. Here the second stage is RL, not behavioral cloning.</p>
+<p>▶ <strong>Versus imitation:</strong> behavioral cloning pretraining on the same mixed data (BC-M, then fine-tuned) is a strong baseline, but loses to SGI. Reward-free dynamics objectives extract more from non-expert data than copying its actions does.</p>
+<p>▶ <strong>Versus MR.Q (next):</strong> in both, predictive dynamics objectives shape the encoder. SGI pretrains <em>offline</em> and fine-tunes <em>per task</em>. MR.Q trains <em>online and jointly</em> across hundreds of tasks.</p>
+<p>▶ <strong>Caveats:</strong></p>
+<ul>
+<li>Discrete-action Atari only.</li>
+<li>Fine-tuning hyperparameters are delicate: with naive fine-tuning, most of the gain disappears.</li>
+<li>The relationship between representation collapse, diversity and downstream performance is not understood. ATC’s representations are more diverse than SGI’s, but perform worse.</li>
+</ul>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Pretraining Representations for Data-Efficient Reinforcement Learning.</span> Schwarzer, Rajkumar, Noukhovitch, Anand, Charlin, Hjelm, Bachman, Courville. NeurIPS 2021</p>
+</div>
+</section>
+<section id="multitask-rl-is-it-the-world-model-or-the-representation" class="slide level2">
+<h2>Multitask RL: is it the world model or the representation?</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Multitask RL:</strong> tasks <span class="math inline">\(\tau \sim p(\tau)\)</span> share the action space (and typically the state space), but differ in dynamics <span class="math inline">\(T_\tau\)</span> and rewards <span class="math inline">\(R_\tau\)</span>. A <em>single</em> policy <span class="math inline">\(\pi(a \mid s, \tau)\)</span>, conditioned on a language embedding <span class="math inline">\(e(\tau)\)</span> of the task, maximizes <span class="math inline">\(\mathbb{E}_{\tau \sim p(\tau)}\, \mathbb{E}_\pi \big[\sum_t \gamma^t r_t\big]\)</span>.</p>
+<p>▶ <strong>Why it is hard:</strong> the data mixture is non-stationary, tasks interfere through the shared parameters, and gradients from different tasks may conflict. On top of that, RL has bootstrapped targets, which lead to representation collapse and loss of plasticity.</p>
+<p>▶ The strongest multitask agents are <strong>world-model</strong> methods (Dreamer, TD-MPC2, Newt). They bundle two things:</p>
+<ul>
+<li><em>predictive latent learning</em>: predict future latents, rewards and values,</li>
+<li><em>planning</em>: optimize actions over imagined rollouts.</li>
+</ul>
+<p>Which of the two produces the gains?</p>
+<div class="fragment">
+<p>▶ <strong>Hypothesis:</strong> mostly the representation that the predictive objectives induce, not the planning.</p>
+<p>▶ <strong>Pilot evidence (single task):</strong> making plain PPO bigger does not help on HalfCheetah or Humanoid, and can even hurt. PPO with model-based representations is better at every network size: predictive supervision lets larger networks use their capacity.</p>
+</div>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="pilot-scaling-ppo-with-and-without-predictive-representations" class="slide level2">
+<h2>Pilot: scaling PPO with and without predictive representations</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mrq-ppo-scaling.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ Plain PPO (red, dashed) gets <em>worse</em> as the network grows from Small to X-Large. PPO with model-based representations (blue) is better at every size, and on Humanoid the gap widens with scale.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="mr.q-predictive-objectives-without-planning" class="slide level2">
+<h2>MR.Q: predictive objectives without planning</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Model-free actor-critic in a learned latent space</strong> (TD3-style):</p>
+<p><span class="math display">\[
+z_t = \phi_\xi(s_t, \tau), \qquad \text{actor } \pi_\psi(a \mid z_t), \qquad \text{twin critics } Q_{\theta_1}(z_t, a),\; Q_{\theta_2}(z_t, a)
+\]</span></p>
+<p>The critics are trained by temporal-difference learning against slowly updated target networks, and the actor maximizes the critics’ estimates.</p>
+<p>▶ <strong>Auxiliary predictive heads</strong> predict the next latent, the reward and the termination flag from <span class="math inline">\((z_t, a_t)\)</span>:</p>
+<p><span class="math display">\[
+(z_t, a_t) \mapsto (\hat z_{t+1},\, \hat r_t,\, \hat d_t),
+\qquad
+\mathcal{L}_{\text{MR.Q}} = \mathcal{L}_{\text{TD}} + \lambda\, \mathcal{L}_{\text{predictive}}
+\]</span></p>
+<p>Their gradients flow back into the encoder <span class="math inline">\(\phi_\xi\)</span>. That is the <em>only</em> use of the model.</p>
+<p>▶ <strong>Contrast with TD-MPC2 and Newt:</strong> similar latent prediction losses, but the model is also used for MPC over imagined trajectories at decision time, <span class="math inline">\(\max_{a_{t:t+H}} \sum_{k=0}^{H} \gamma^k \hat r_{t+k} + \gamma^{H+1} \hat V_{t+H+1}\)</span>.</p>
+<p>▶ MR.Q (Fujimoto et al.&nbsp;2025) was designed for single tasks. This paper evaluates it, unchanged, in the multitask regime.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="mr.q-vs.-a-world-model-on-mmbench" class="slide level2">
+<h2>MR.Q vs.&nbsp;a world model on MMBench</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Benchmark:</strong> the language-conditioned MMBench protocol from Newt, spanning 10 domains (DMControl, MetaWorld, ManiSkill, MuJoCo, RoboDesk, OGBench, Box2D, Atari, …). The main evaluation is at <strong>10M environment steps</strong>, not the usual 100M, so that sample efficiency is visible.</p>
+<p>▶ <strong>Across all 10 domains</strong>, MR.Q matches or beats Newt, in both sample efficiency and final score.</p>
+<p>▶ <strong>Longer training:</strong> the advantage persists up to 50M steps (DMControl Ext, MetaWorld).</p>
+<p>▶ <strong>From pixels</strong> (a frozen DINOv2 encoder feeding the agent): MR.Q still wins in all 5 domains tested. Even with strong pretrained features, the shared embedding must still be adapted across tasks.</p>
+<p>▶ <strong>200 tasks in one agent:</strong> normalized score 0.11 vs 0.08 at 2M steps (+37%), and a consistent lead during training. Both converge to similar final scores.</p>
+<p>▶ <strong>Scaling:</strong> MR.Q improves smoothly with model size, data, and update-to-data ratio. Newt is more sensitive to small models, less data, and gains less from more gradient updates per step.</p>
+<p>▶ <strong>Wall-clock:</strong> no imagined rollouts, so MR.Q reaches higher scores much earlier in training time.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="mr.q-vs.-newt-learning-curves" class="slide level2">
+<h2>MR.Q vs.&nbsp;Newt: learning curves</h2>
+<div class="small-math">
+<p><strong>Per environment step</strong> (all 10 MMBench domains, state-based, 10M steps):</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mrq-mmbench-curves.png" class="nostretch quarto-figure quarto-figure-center" style="width:76.0%"></p>
+</figure>
+</div>
+<p><strong>Per hour of wall-clock training time</strong> (5 domains, same 10M-step budget):</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mrq-wallclock.png" class="nostretch quarto-figure quarto-figure-center" style="width:76.0%"></p>
+</figure>
+</div>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="why-it-works-ablating-the-predictive-representation" class="slide level2">
+<h2>Why it works: ablating the predictive representation</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Ablation:</strong> remove the encoder and its predictive losses entirely. This leaves plain TD3 on the raw state concatenated with the 512-dimensional language embedding.</p>
+<p>▶ <strong>A surprise:</strong> a well-tuned encoder-free TD3 already matches or beats Newt in all 4 domains tested. Explicit world modeling is not a prerequisite for multitask RL. MR.Q beats TD3 in 3 of the 4 domains and matches it in the fourth.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mrq-vs-td3.png" class="quarto-figure quarto-figure-center" style="width:95.0%"></p>
+</figure>
+</div>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="without-predictive-losses-representation-geometry" class="slide level2">
+<h2>Without predictive losses: representation geometry</h2>
+<div class="small-math arrow-bullets">
+<p>▶ PCA of the features at the end of training, colored by task. “95%-d” is the number of principal components needed to explain 95% of the variance.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mrq-pca.png" class="quarto-figure quarto-figure-center" style="width:95.0%"></p>
+</figure>
+</div>
+<p>▶ With the predictive losses, tasks are well separated in the latent space. Without them, the features collapse onto a few directions, and the effective rank (SRank) is much lower.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="without-predictive-losses-training-dynamics" class="slide level2">
+<h2>Without predictive losses: training dynamics</h2>
+<div class="small-math arrow-bullets">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mrq-dynamics.png" class="quarto-figure quarto-figure-center" style="width:95.0%"></p>
+</figure>
+</div>
+<p>▶ <strong>Optimization:</strong> without the predictive losses, SRank collapses, the value loss is higher, and many more actor and critic neurons become <strong>dormant</strong> (never active). The capacity is wasted and plasticity is lost, which is especially harmful when the task mixture keeps shifting.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
+</section>
+<section id="transfer-takeaways-and-links-to-todays-lecture" class="slide level2">
+<h2>Transfer, takeaways, and links to today’s lecture</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Few-shot transfer:</strong> pretrain on 200 tasks for 10M steps, then fine-tune individually with online RL on 28 held-out tasks.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>zero-shot</th>
+<th>100k steps</th>
+<th>200k steps</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>MR.Q</td>
+<td>0.13</td>
+<td>0.55</td>
+<td>0.62</td>
+</tr>
+<tr class="even">
+<td>Newt</td>
+<td>0.09</td>
+<td>0.48</td>
+<td>0.55</td>
+</tr>
+</tbody>
+</table>
+<p>MR.Q is better on 17 of the 28 tasks at the end of fine-tuning.</p>
+</div>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:50%;">
+<p>▶ <strong>Links to today:</strong></p>
+<ul>
+<li>The <strong>amortization</strong> argument from Arora et al.: one representation is shared across many tasks, and each task only learns what sits on top of it.</li>
+<li><strong>Predicting dynamics as a self-supervised signal</strong>, playing the role of correspondence for Dense Object Nets and of BYOL for VINN.</li>
+</ul>
+</div><div class="column small-math arrow-bullets" style="width:50%;">
+<p>▶ <strong>Caveats:</strong></p>
+<ul>
+<li>An RL preprint, not imitation learning.</li>
+<li>Purely empirical: the authors state that the mechanism is not yet understood.</li>
+<li>Continuous-control and arcade benchmarks only; long-horizon tasks are untested.</li>
+<li>Absolute normalized scores on the 200-task benchmark are still low.</li>
+</ul>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Representation Learning Enables Scalable Multitask Deep Reinforcement Learning.</span> Obando-Ceron, Li, Fujimoto, Bacon, Courville, Castro. arXiv 2026</p>
+</div>
 </section>
 <section id="todays-agenda-1" class="slide level2">
 <h2>Today’s Agenda</h2>
@@ -196,6 +1183,8 @@ Florian Shkurti
 <li><p>Representation Learning for Imitation</p>
 <ul>
 <li>Is it better to separate representation learning from policy learning?</li>
+<li>Pretraining representations for data-efficient RL</li>
+<li>Does representation learning make multitask RL scale?</li>
 </ul></li>
 </ul>
 </div>
@@ -210,31 +1199,165 @@ Florian Shkurti
 </ul></li>
 </ul>
 </section>
+<section id="why-generalization-bounds" class="slide level2">
+<h2>Why generalization bounds?</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Data <span class="math inline">\(z \sim \mathcal{D}\)</span> from an <strong>unknown</strong> distribution, training set <span class="math inline">\(S = \{z_i\}_{i=1}^N \sim \mathcal{D}^N\)</span>, loss <span class="math inline">\(l(h; z) \in [0, 1]\)</span> of hypothesis <span class="math inline">\(h\)</span>:</p>
+<p><span class="math display">\[
+\underbrace{l_{\mathcal{D}}(h) = \mathbb{E}_{z \sim \mathcal{D}}\, l(h; z)}_{\text{true expected loss}}
+\qquad\qquad
+\underbrace{l_S(h) = \frac{1}{N} \sum_{i=1}^N l(h; z_i)}_{\text{training loss}}
+\]</span></p>
+<p>▶ We minimize <span class="math inline">\(l_S\)</span>, but we care about <span class="math inline">\(l_{\mathcal{D}}\)</span>. A <strong>generalization bound</strong> has the form <span class="math inline">\(l_{\mathcal{D}}(h) \le l_S(h) + \epsilon(N, \delta, \text{complexity})\)</span>.</p>
+<p>▶ <strong>PAC = Probably Approximately Correct.</strong> “Approximately”: the gap is at most <span class="math inline">\(\epsilon\)</span>. “Probably”: the bound holds with probability at least <span class="math inline">\(1 - \delta\)</span> over the random draw of <span class="math inline">\(S\)</span>, since an unrepresentative training set can always happen.</p>
+<p>▶ Classical bounds (VC dimension, Rademacher complexity, uniform convergence over the whole class) grow with the size of the hypothesis class. For networks with millions of parameters they are <strong>vacuous</strong>: the bound exceeds 1.</p>
+<p>▶ <strong>PAC-Bayes</strong> instead measures how far the learned solution moved away from a <em>prior</em>. This gives non-vacuous bounds even for neural networks (Dziugaite &amp; Roy 2017).</p>
+<p>▶ For robotics: certify, before deployment, that a policy will succeed on new environments with high probability.</p>
+</div>
+</section>
+<section id="pac-bayes-ingredients" class="slide level2">
+<h2>PAC-Bayes ingredients</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Prior</strong> <span class="math inline">\(P_0\)</span> over parameters <span class="math inline">\(w\)</span>, chosen <em>before</em> seeing <span class="math inline">\(S\)</span>. It can encode domain knowledge, and does not need to be “true” in any Bayesian sense.</p>
+<p>▶ <strong>Posterior</strong> <span class="math inline">\(P\)</span>: any distribution chosen <em>after</em> seeing <span class="math inline">\(S\)</span>. It does not need to be the Bayesian posterior.</p>
+<p>▶ <strong>Stochastic hypothesis:</strong> at test time, sample <span class="math inline">\(w \sim P\)</span> and use <span class="math inline">\(h_w\)</span>. Losses are averaged over <span class="math inline">\(P\)</span>:</p>
+<p><span class="math display">\[
+l_S(P) = \frac{1}{N} \sum_{z \in S} \mathbb{E}_{w \sim P}\big[l(h_w; z)\big],
+\qquad
+l_{\mathcal{D}}(P) = \mathbb{E}_{z \sim \mathcal{D}}\, \mathbb{E}_{w \sim P}\big[l(h_w; z)\big]
+\]</span></p>
+<p>▶ <strong>Complexity</strong> = KL divergence from the prior: <span class="math inline">\(\mathbb{D}(P \| P_0) = \mathbb{E}_{w \sim P}\left[\log \frac{P(w)}{P_0(w)}\right] \ge 0\)</span>.</p>
+<p>▶ In practice both are diagonal Gaussians, <span class="math inline">\(P = \mathcal{N}(\mu, \mathrm{diag}(\sigma^2))\)</span> and <span class="math inline">\(P_0 = \mathcal{N}(\mu_0, \mathrm{diag}(\sigma_0^2))\)</span>, with the closed form</p>
+<p><span class="math display">\[
+\mathbb{D}(P \| P_0) = \frac{1}{2} \sum_{j=1}^{d} \left( \frac{\sigma_j^2}{\sigma_{0,j}^2} + \frac{(\mu_j - \mu_{0,j})^2}{\sigma_{0,j}^2} - 1 + \log \frac{\sigma_{0,j}^2}{\sigma_j^2} \right)
+\]</span></p>
+<p>This is differentiable in <span class="math inline">\((\mu, \sigma)\)</span>, so the bound can be optimized by gradient descent with the reparameterization trick <span class="math inline">\(w = \mu + \sigma \odot \varepsilon\)</span>, <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, I)\)</span>.</p>
+</div>
+</section>
 <section id="pac-bayes-generalization-bounds" class="slide level2">
 <h2>PAC-Bayes generalization bounds</h2>
 
-<img data-src="images/pac-bayes.png" class="quarto-figure quarto-figure-center r-stretch"><div class="small-math">
-<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.</span> Majumdar et al.&nbsp;2020</p>
+<img data-src="images/pac-bayes.png" class="quarto-figure quarto-figure-center r-stretch"><div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to Novel Environments.</span> Majumdar, Farid, Sonar. IJRR 2021</p>
+</div>
+</section>
+<section id="reading-the-pac-bayes-bound" class="slide level2">
+<h2>Reading the PAC-Bayes bound</h2>
+<div class="small-math arrow-bullets">
+<p>▶ The bound holds <strong>simultaneously for every posterior</strong> <span class="math inline">\(P\)</span>. So we can choose <span class="math inline">\(P\)</span> by minimizing the right-hand side, and the guarantee still holds for the minimizer.</p>
+<p>▶ <strong>Training = minimizing the bound:</strong> fit the training data, but pay for moving away from the prior. With Gaussians, the <span class="math inline">\((\mu - \mu_0)^2 / \sigma_0^2\)</span> term is weight decay towards <span class="math inline">\(\mu_0\)</span>.</p>
+<p>▶ For a fixed KL, the gap shrinks roughly as <span class="math inline">\(1/\sqrt{N}\)</span>.</p>
+<p>▶ The KL term is small when the <strong>prior is already good</strong> (e.g.&nbsp;trained on separate data) or when the <strong>posterior can be wide</strong>, i.e.&nbsp;the training loss is insensitive to noise in <span class="math inline">\(w\)</span> (flat minima).</p>
+<p>▶ <strong>No test set is needed:</strong> everything on the right-hand side is computable from <span class="math inline">\(S\)</span>, <span class="math inline">\(P\)</span> and <span class="math inline">\(P_0\)</span>.</p>
+<p>▶ The guarantee is for the <em>stochastic</em> hypothesis: an average over <span class="math inline">\(w \sim P\)</span> as well as over <span class="math inline">\(z \sim \mathcal{D}\)</span>.</p>
+<p>▶ It requires losses in <span class="math inline">\([0, 1]\)</span> and <span class="math inline">\(N \ge 8\)</span>. This form follows, via Pinsker’s inequality, from the tighter statement <span class="math inline">\(\mathbb{D}\big(l_S(P) \,\|\, l_{\mathcal{D}}(P)\big) \le \frac{1}{N}\big(\mathbb{D}(P \| P_0) + \log \frac{2\sqrt{N}}{\delta}\big)\)</span>, a KL between Bernoulli distributions (Maurer 2004).</p>
 </div>
 </section>
 <section id="pac-bayes-bound-applied-to-control" class="slide level2">
 <h2>PAC-Bayes Bound Applied to Control</h2>
 
-<img data-src="images/pac-bayes2.png" class="quarto-figure quarto-figure-center r-stretch"><div class="small-math">
-<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.</span> Majumdar et al.&nbsp;2020</p>
+<img data-src="images/pac-bayes2.png" class="quarto-figure quarto-figure-center r-stretch"><div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to Novel Environments.</span> Majumdar, Farid, Sonar. IJRR 2021</p>
+</div>
+</section>
+<section id="pac-bayes-control-what-is-guaranteed-and-under-which-assumptions" class="slide level2">
+<h2>PAC-Bayes control: what is guaranteed, and under which assumptions</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Environments</strong> <span class="math inline">\(E\)</span> (obstacle layout, object geometry, initial conditions) are drawn i.i.d. from an unknown distribution <span class="math inline">\(\mathcal{D}\)</span>. The training set is <span class="math inline">\(S = \{E_i\}_{i=1}^N\)</span>, and policies can be rolled out on each of them (in simulation).</p>
+<p>▶ <strong>Cost</strong> <span class="math inline">\(C(r_\pi; E) \in [0, 1]\)</span>. For example, cost 1 on collision within the horizon and 0 otherwise, so that <span class="math inline">\(C_{\mathcal{D}}(P)\)</span> is the <em>probability of failure</em> on a new environment.</p>
+<p>▶ <strong>Theorem (PAC-Bayes control).</strong> With probability at least <span class="math inline">\(1 - \delta\)</span> over <span class="math inline">\(S \sim \mathcal{D}^N\)</span>, for every <span class="math inline">\(P\)</span>:</p>
+<p><span class="math display">\[
+\underbrace{C_{\mathcal{D}}(P)}_{\text{true expected cost}} \;\le\; \underbrace{C_S(P)}_{\text{training cost}} + \sqrt{\frac{\mathbb{D}(P \| P_0) + \log \frac{2\sqrt{N}}{\delta}}{2N}}
+\]</span></p>
+<p>Given the reduction, the proof is one line: it is the supervised bound with environments as data.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to Novel Environments.</span> Majumdar, Farid, Sonar. IJRR 2021</p>
+</div>
+</section>
+<section id="pac-bayes-control-what-the-bound-does-not-say" class="slide level2">
+<h2>PAC-Bayes control: what the bound does not say</h2>
+<div class="small-math arrow-bullets">
+<ul>
+<li>The guarantee is on the <em>expected</em> cost over new environments, not a per-environment guarantee. A particular environment can still fail.</li>
+<li>The prior must not depend on <span class="math inline">\(S\)</span>: either designed by hand, or trained on separate data (other environments, demonstrations).</li>
+<li>If test environments come from a different distribution <span class="math inline">\(\mathcal{D}' \neq \mathcal{D}\)</span>, the bound does not apply. The paper has a distributionally robust extension for a KL ball around <span class="math inline">\(\mathcal{D}\)</span>.</li>
+<li><span class="math inline">\(C_S(P)\)</span> is an expectation over <span class="math inline">\(w \sim P\)</span>. In practice it is estimated by sampling many policies, which adds a sample-convergence term to the final bound.</li>
+</ul>
 </div>
 </section>
 <section id="pac-bayes-example" class="slide level2">
 <h2>PAC-Bayes Example</h2>
-
-<img data-src="images/pac-bayes-ex.png" class="quarto-figure quarto-figure-center r-stretch"><div class="small-math">
-<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to New Environments.</span> Majumdar et al.&nbsp;2020</p>
+<div class="columns">
+<div class="column" style="width:55%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pac-bayes-ex.png" class="quarto-figure quarto-figure-center"></p>
+</figure>
+</div>
+<div class="small-math">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th><span class="math inline">\(N\)</span> (training envs)</th>
+<th>100</th>
+<th>500</th>
+<th>1000</th>
+<th>10000</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PAC-Bayes bound</td>
+<td>0.178</td>
+<td>0.135</td>
+<td>0.121</td>
+<td>0.096</td>
+</tr>
+<tr class="even">
+<td>True cost (estimate)</td>
+<td>0.087</td>
+<td>0.084</td>
+<td>0.088</td>
+<td>0.083</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div><div class="column small-math arrow-bullets" style="width:45%;">
+<p>▶ Differential-drive robot at a fixed speed of 2.5 m/s, with 20 depth rays over <span class="math inline">\(\pm 60°\)</span> and 5 m range.</p>
+<p>▶ Environments: 20 to 40 cylinders with random positions and radii, inside three walls.</p>
+<p>▶ Reactive policy <span class="math inline">\(u_{\text{diff}} = K \cdot \hat y\)</span>, where <span class="math inline">\(\hat y\)</span> holds the inverse ray distances: turn away from obstacles that are close.</p>
+<p>▶ Policy space: 50 hand-designed gain vectors <span class="math inline">\(K\)</span> with a uniform prior, or continuous <span class="math inline">\(K\)</span> with a Gaussian prior.</p>
+<p>▶ Cost 1 if the robot collides within 100 steps.</p>
+<p>▶ With only <span class="math inline">\(N = 100\)</span> environments, the policy is guaranteed (with probability 0.99) an expected success rate of at least 82.2%. The true rate is about 91.3%.</p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">PAC-Bayes Control: Learning Policies that Provably Generalize to Novel Environments.</span> Majumdar, Farid, Sonar. IJRR 2021</p>
+</div>
+</section>
+<section id="generalization-guarantees-for-imitation-learning" class="slide level2">
+<h2>Generalization guarantees for imitation learning</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Stage 1, prior from demonstrations:</strong> a conditional VAE with encoder <span class="math inline">\(q(z \mid o, a)\)</span> and decoder policy <span class="math inline">\(\pi_{\theta, z}(a \mid o)\)</span>. After training, freeze the decoder weights <span class="math inline">\(\theta^*\)</span>. Each latent <span class="math inline">\(z\)</span> now indexes a policy, and <span class="math inline">\(P_0 = p(z) = \mathcal{N}(0, I)\)</span> is a prior over policies that captures the multi-modal expert behavior.</p>
+<p>▶ <strong>Stage 2, PAC-Bayes fine-tuning</strong> on a <em>fresh</em> set of <span class="math inline">\(N\)</span> environments: a posterior <span class="math inline">\(P = \mathcal{N}(\mu, \mathrm{diag}(\sigma^2))\)</span> over <span class="math inline">\(z\)</span>, chosen by minimizing the PAC-Bayes bound. Rollouts go through a black-box physics simulator, so gradients are estimated with Natural Evolution Strategies.</p>
+<p>▶ <strong>Final certificate</strong> with the tighter KL-inverse bound, where <span class="math inline">\(\mathbb{D}\)</span> is the KL between Bernoulli distributions:</p>
+<p><span class="math display">\[
+C_{\mathcal{D}}(P) \le \mathbb{D}^{-1}\!\left(\bar C_S(P) \,\Big\|\, \frac{\mathbb{D}(P \| P_0) + \log \frac{2\sqrt{N}}{\delta}}{N}\right),
+\qquad
+\mathbb{D}^{-1}(p \| c) = \sup\{q \in [0, 1] : \mathbb{D}(p \| q) \le c\}
+\]</span></p>
+<p>▶ <strong>Why the prior matters:</strong> a prior learned by imitation is already close to good policies, so the posterior only needs to move a little. The KL term stays small, and the bound is tight.</p>
+<p>▶ Mug grasping: the prior succeeds 83.3% of the time. With <span class="math inline">\(N = 500\)</span> environments, the posterior is guaranteed (with probability 0.99) at least 93.0% expected success, and achieves 98.4% in simulation.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Generalization Guarantees for Imitation Learning.</span> Ren, Veer, Majumdar. CoRL 2020.</p>
 </div>
 </section>
 <section id="pac-bayes-control-for-visuomotor-policies" class="slide level2">
 <h2><span class="medium">PAC-Bayes Control for Visuomotor Policies</span></h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/nabtvOWoIlo?rel=0" width="100%" height="70%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<div class="small-math">
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
 <p><span class="red">Generalization Guarantees for Imitation Learning.</span> Ren, Veer, Majumdar. CoRL 2020.</p>
 </div>
 </section>
@@ -245,6 +1368,8 @@ Florian Shkurti
 <li><p>Representation Learning for Imitation</p>
 <ul>
 <li>Is it better to separate representation learning from policy learning?</li>
+<li>Pretraining representations for data-efficient RL</li>
+<li>Does representation learning make multitask RL scale?</li>
 </ul></li>
 <li><p>Provable generalization</p>
 <ul>
@@ -259,17 +1384,57 @@ Florian Shkurti
 </ul></li>
 </ul>
 </section>
+<section id="background-closed-loop-dynamics-and-stability" class="slide level2">
+<h2>Background: closed-loop dynamics and stability</h2>
+<div class="small-math arrow-bullets">
+<p>▶ A policy turns a controlled system into an <strong>autonomous</strong> one: <span class="math inline">\(\dot x = f(x, \pi(x)) =: f_{cl}(x)\)</span>, or <span class="math inline">\(x_{t+1} = f_{cl}(x_t)\)</span> in discrete time.</p>
+<p>▶ An <strong>equilibrium</strong> <span class="math inline">\(x^*\)</span> satisfies <span class="math inline">\(f_{cl}(x^*) = 0\)</span>. Typically it is the goal state.</p>
+<p>▶ <strong>Stable</strong> (in the sense of Lyapunov): start close, stay close. For every <span class="math inline">\(\epsilon &gt; 0\)</span> there is a <span class="math inline">\(\delta &gt; 0\)</span> such that <span class="math inline">\(\|x(0) - x^*\| &lt; \delta \Rightarrow \|x(t) - x^*\| &lt; \epsilon\)</span> for all <span class="math inline">\(t \ge 0\)</span>.</p>
+<p>▶ <strong>Asymptotically stable:</strong> stable, and <span class="math inline">\(x(t) \to x^*\)</span> for every start close enough to <span class="math inline">\(x^*\)</span>.</p>
+<p>▶ <strong>Exponentially stable:</strong> <span class="math inline">\(\|x(t) - x^*\| \le c\, e^{-\lambda t}\, \|x(0) - x^*\|\)</span> for some <span class="math inline">\(c, \lambda &gt; 0\)</span>.</p>
+<p>▶ <strong>Region of attraction:</strong> the set of initial states from which <span class="math inline">\(x(t) \to x^*\)</span>. <em>Global</em> stability means the region of attraction is the whole state space.</p>
+<div class="fragment">
+<p>▶ <strong>Why imitation learning cares:</strong> a behavioral cloning policy has no reason to return to the demonstrations after a perturbation, so errors compound. Encoding demonstrations as a <em>stable dynamical system</em> whose attractor is the goal (like the DMPs from week 4) guarantees recovery from perturbations by construction.</p>
+</div>
+</div>
+</section>
+<section id="stability-definitions-illustrated" class="slide level2">
+<h2>Stability definitions, illustrated</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/stability-definitions.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div><div class="column small-math arrow-bullets" style="width:45%;">
+<p>▶ <strong>Stable, not asymptotically:</strong> the undamped oscillator <span class="math inline">\(\ddot x = -x\)</span>. Starting in the <span class="math inline">\(\delta\)</span>-ball, it stays in the <span class="math inline">\(\epsilon\)</span>-ball, but circles forever and never settles.</p>
+<p>▶ <strong>Asymptotically stable:</strong> with damping, every trajectory spirals into <span class="math inline">\(x^*\)</span>: <span class="math inline">\(\ddot x = -x - 0.5\,\dot x\)</span>.</p>
+<p>▶ <strong>Exponential vs.&nbsp;only asymptotic:</strong> <span class="math inline">\(\dot x = -x\)</span> stays below an envelope <span class="math inline">\(c\,e^{-\lambda t}\)</span>, while <span class="math inline">\(\dot x = -x^3\)</span> converges like <span class="math inline">\(1/\sqrt{t}\)</span>, slower than any exponential.</p>
+<p>▶ <strong>Region of attraction:</strong> for Van der Pol in reverse time, <span class="math inline">\(x^*\)</span> is stable only locally. Trajectories starting inside the unstable limit cycle converge; those outside escape.</p>
+</div></div>
+</section>
 <section id="what-does-it-mean-for-a-policy-to-be-robust" class="slide level2">
 <h2>What does it mean for a policy to be robust?</h2>
 <p>• The system (policy, dynamics) must be such that the policy will achieve its goal point, even if a family of disturbances/noise affect it</p>
+<div class="columns">
+<div class="column" style="width:40%;">
 <div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="images/robust-policies.png" class="quarto-figure quarto-figure-center" height="350"></p>
 </figure>
 </div>
-<div class="small-math absolute" style="bottom: 30%; right: 10px; ">
+</div><div class="column small-math arrow-bullets" style="width:60%;">
+<p><br></p>
+<p>▶ Each <strong>funnel</strong> is a region of attraction around a nominal trajectory, stabilized by a time-varying LQR controller and certified by a Lyapunov function (verified with sums-of-squares optimization).</p>
+<p>▶ Any state inside a funnel’s inlet is guaranteed to exit through its outlet, despite bounded disturbances.</p>
+<p>▶ <strong>Composition:</strong> chain the funnels so that each outlet fits inside the next inlet. A tree of funnels grown backwards from the goal covers the reachable states, which gives a feedback policy with a certificate.</p>
+<div class="small-math">
 <p>Composition of robust policies</p>
-<p><span class="red">LQR Trees.</span> Tedrake, RSS 2005.</p>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">LQR-Trees: Feedback Motion Planning on Sparse Randomized Trees.</span> Tedrake, RSS 2009.</p>
 </div>
 </section>
 <section id="robustness-as-stability-of-dynamical-systems" class="slide level2">
@@ -287,18 +1452,155 @@ Florian Shkurti
 </ul></li>
 </ul>
 </section>
+<section id="lyapunovs-theorem" class="slide level2">
+<h2>Lyapunov’s theorem</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Let <span class="math inline">\(x^* = 0\)</span> be an equilibrium of <span class="math inline">\(\dot x = f(x)\)</span>. Suppose there is a continuously differentiable function <span class="math inline">\(V\)</span> with:</p>
+<ul>
+<li><span class="math inline">\(V(0) = 0\)</span> and <span class="math inline">\(V(x) &gt; 0\)</span> for <span class="math inline">\(x \neq 0\)</span>: <span class="math inline">\(V\)</span> is positive definite, an “energy”.</li>
+<li><span class="math inline">\(\dot V(x) = \nabla V(x)^\top f(x) &lt; 0\)</span> for <span class="math inline">\(x \neq 0\)</span>: the energy strictly decreases along every trajectory.</li>
+</ul>
+<p>Then <span class="math inline">\(x^* = 0\)</span> is <strong>asymptotically stable</strong>. If in addition <span class="math inline">\(V\)</span> is <strong>radially unbounded</strong>, i.e.&nbsp;<span class="math inline">\(V(x) \to \infty\)</span> as <span class="math inline">\(\|x\| \to \infty\)</span>, it is <strong>globally</strong> asymptotically stable.</p>
+<p>▶ Variants:</p>
+<ul>
+<li><span class="math inline">\(\dot V \le 0\)</span> only: stable (in the sense of Lyapunov), but not necessarily convergent.</li>
+<li><span class="math inline">\(\dot V \le -\alpha V\)</span> with <span class="math inline">\(\alpha &gt; 0\)</span>: exponentially stable, since <span class="math inline">\(V(x(t)) \le e^{-\alpha t} V(x(0))\)</span>.</li>
+</ul>
+<p>▶ <strong>Key point:</strong> no need to solve the ODE. The condition is checked pointwise on <span class="math inline">\(V\)</span> and <span class="math inline">\(f\)</span>.</p>
+<p>▶ Sublevel sets <span class="math inline">\(\{x : V(x) \le c\}\)</span> on which <span class="math inline">\(\dot V &lt; 0\)</span> are invariant: trajectories never leave them. These give inner estimates of the region of attraction, i.e.&nbsp;the funnels.</p>
+<p>▶ Converse theorems say that if <span class="math inline">\(x^*\)</span> is asymptotically stable, such a <span class="math inline">\(V\)</span> exists. <em>Finding</em> it is the hard part, which motivates learning it.</p>
+</div>
+</section>
 <section id="examples-of-lyapunov-functions" class="slide level2">
 <h2>Examples of Lyapunov functions</h2>
-<p>[switches to notes]</p>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:50%;">
+<p><u>Linear systems</u></p>
+<p>▶ <span class="math inline">\(\dot x = A x\)</span>, and try <span class="math inline">\(V(x) = x^\top P x\)</span> with <span class="math inline">\(P \succ 0\)</span>:</p>
+<p><span class="math display">\[
+\dot V = \dot x^\top P x + x^\top P \dot x = x^\top (A^\top P + P A)\, x
+\]</span></p>
+<p>▶ Pick any <span class="math inline">\(Q \succ 0\)</span> and solve the <strong>Lyapunov equation</strong></p>
+<p><span class="math display">\[
+A^\top P + P A = -Q
+\]</span></p>
+<p>A solution <span class="math inline">\(P \succ 0\)</span> exists iff <span class="math inline">\(A\)</span> is Hurwitz (all eigenvalues have negative real part). Then <span class="math inline">\(\dot V = -x^\top Q x &lt; 0\)</span>: globally exponentially stable.</p>
+<p>▶ The LQR cost-to-go <span class="math inline">\(x^\top P x\)</span> is a Lyapunov function for the LQR closed loop.</p>
+</div><div class="column small-math arrow-bullets" style="width:50%;">
+<p><u>Damped pendulum</u></p>
+<p>▶ <span class="math inline">\(m l^2 \ddot\theta = -m g l \sin\theta - b \dot\theta\)</span>, with friction <span class="math inline">\(b &gt; 0\)</span>.</p>
+<p>▶ Total energy as <span class="math inline">\(V\)</span>:</p>
+<p><span class="math display">\[
+V = \tfrac{1}{2} m l^2 \dot\theta^2 + m g l (1 - \cos\theta)
+\]</span></p>
+<p><span class="math display">\[
+\dot V = m l^2 \dot\theta \ddot\theta + m g l \sin\theta\, \dot\theta = -b\, \dot\theta^2 \le 0
+\]</span></p>
+<p>▶ Only <span class="math inline">\(\dot V \le 0\)</span>: the energy stops decreasing whenever <span class="math inline">\(\dot\theta = 0\)</span>. <strong>LaSalle’s invariance principle</strong> completes the argument: trajectories converge to the largest invariant set inside <span class="math inline">\(\{\dot\theta = 0\}\)</span>, which only contains the equilibria. So the pendulum settles at the bottom, from every state except those converging to the upright equilibrium.</p>
+</div></div>
+</section>
+<section id="example-stable-dynamical-systems-learned-from-demonstrations" class="slide level2">
+<h2>Example: stable dynamical systems learned from demonstrations</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>SEDS</strong> (Stable Estimator of Dynamical Systems): model the demonstrated motion as <span class="math inline">\(\dot x = f_\theta(x)\)</span>, a Gaussian mixture regression</p>
+<p><span class="math display">\[
+f_\theta(x) = \sum_{k=1}^{K} h_k(x)\, (A_k x + b_k), \qquad h_k(x) \ge 0, \quad \textstyle\sum_k h_k(x) = 1
+\]</span></p>
+<p>▶ Use the quadratic Lyapunov function <span class="math inline">\(V(x) = (x - x^*)^\top (x - x^*)\)</span>. Fit the mixture by maximum likelihood on the demonstrations, <strong>subject to</strong> the constraints</p>
+<p><span class="math display">\[
+b_k = -A_k x^*, \qquad A_k + A_k^\top \prec 0 \quad \text{for all } k
+\]</span></p>
+<p>which guarantee <span class="math inline">\(\dot V &lt; 0\)</span> everywhere except at <span class="math inline">\(x^*\)</span>. Every rollout reaches the goal, from any start, even after perturbations.</p>
+<p>▶ <strong>Limitation:</strong> a quadratic <span class="math inline">\(V\)</span> means the distance to the goal must decrease monotonically. Demonstrations that temporarily move away from the goal (e.g.&nbsp;going around an obstacle) cannot be fit accurately.</p>
+<p>▶ <strong>Fix:</strong> learn a richer <span class="math inline">\(V\)</span> together with <span class="math inline">\(f\)</span>. This is what the next two papers do.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Learning Stable Nonlinear Dynamical Systems With Gaussian Mixture Models.</span> Khansari-Zadeh, Billard. T-RO 2011</p>
+</div>
 </section>
 <section id="two-examples-of-learning-lyapunov-functions" class="slide level2">
 <h2><span class="medium">Two examples of learning Lyapunov functions</span></h2>
 <p><img data-src="images/lyapunov-func.png" height="300"></p>
 <p><img data-src="images/imitation-flow.png"></p>
 </section>
+<section id="learning-stable-deep-dynamics-models" class="slide level2">
+<h2>Learning stable deep dynamics models</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Learn a nominal dynamics model <span class="math inline">\(\hat f(x)\)</span> (any neural network) <strong>and</strong> a Lyapunov function <span class="math inline">\(V(x)\)</span> jointly. Stability holds <em>by construction</em>, not through a penalty.</p>
+<p>▶ <strong><span class="math inline">\(V\)</span> is positive definite by construction:</strong> <span class="math inline">\(V(x) = \sigma\big(g(x) - g(0)\big) + \epsilon \|x\|^2\)</span>, where <span class="math inline">\(g\)</span> is an input-convex neural network (ICNN) and <span class="math inline">\(\sigma\)</span> a smoothed ReLU. Since <span class="math inline">\(g\)</span> is convex, <span class="math inline">\(V\)</span> has no spurious local minima.</p>
+<p>▶ <strong>Project</strong> <span class="math inline">\(\hat f\)</span> onto the set of dynamics that decrease <span class="math inline">\(V\)</span> at rate <span class="math inline">\(\alpha\)</span>, i.e.&nbsp;that satisfy <span class="math inline">\(\nabla V^\top f \le -\alpha V\)</span>:</p>
+<p><span class="math display">\[
+f(x) = \hat f(x) - \nabla V(x)\, \frac{\mathrm{ReLU}\big(\nabla V(x)^\top \hat f(x) + \alpha V(x)\big)}{\|\nabla V(x)\|_2^2}
+\]</span></p>
+<p>▶ If <span class="math inline">\(\hat f\)</span> already decreases <span class="math inline">\(V\)</span> fast enough, it is left unchanged. Otherwise, only the component along <span class="math inline">\(\nabla V\)</span> that violates the condition is removed. Check: <span class="math inline">\(\nabla V^\top f = \nabla V^\top \hat f - \mathrm{ReLU}(\nabla V^\top \hat f + \alpha V) \le -\alpha V\)</span>.</p>
+<p>▶ Everything is differentiable, so <span class="math inline">\(\hat f\)</span> and <span class="math inline">\(V\)</span> are trained end-to-end by regression on observed <span class="math inline">\((x, \dot x)\)</span> pairs. The learned system is <strong>globally exponentially stable for any parameter values</strong>.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Learning Stable Deep Dynamics Models.</span> Manek, Kolter. NeurIPS 2019</p>
+</div>
+</section>
+<section id="imitationflow-stability-through-a-learned-diffeomorphism" class="slide level2">
+<h2>ImitationFlow: stability through a learned diffeomorphism</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Idea:</strong> stability is easy to guarantee in a simple space. Choose latent dynamics with a known stable attractor, e.g.&nbsp;a linear stochastic system</p>
+<p><span class="math display">\[
+dz = -K z\, dt + \Sigma\, dW, \qquad K \succ 0
+\]</span></p>
+<p>whose deterministic part converges to <span class="math inline">\(z = 0\)</span>.</p>
+<p>▶ <strong>Learn a diffeomorphism</strong> <span class="math inline">\(x = \Psi_\theta(z)\)</span> with a normalizing flow: a smooth, invertible network with a tractable Jacobian determinant. The goal is then <span class="math inline">\(x^* = \Psi_\theta(0)\)</span>.</p>
+<p>▶ <strong>Stability transfers:</strong> trajectories in <span class="math inline">\(x\)</span> are the images of convergent latent trajectories. If <span class="math inline">\(V(z)\)</span> is a Lyapunov function in latent space, then <span class="math inline">\(V\big(\Psi_\theta^{-1}(x)\big)\)</span> is one in robot space.</p>
+<p>▶ <strong>Training:</strong> maximize the likelihood of demonstrated trajectories. The change-of-variables formula gives exact log-likelihoods through the flow.</p>
+<p>▶ <strong>Result:</strong> stochastic, stable motion policies that reproduce complex demonstration shapes, including motions a quadratic <span class="math inline">\(V\)</span> could not represent.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">ImitationFlow: Learning Deep Stable Stochastic Dynamic Systems by Normalizing Flows.</span> Urain, Ginesi, Tateo, Peters. IROS 2020</p>
+</div>
+</section>
+<section id="contraction-theory-basics" class="slide level2">
+<h2>Contraction theory basics</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Lyapunov:</strong> convergence to a <em>known point</em> <span class="math inline">\(x^*\)</span>. <strong>Contraction:</strong> all trajectories converge <em>to each other</em>, exponentially fast. The system forgets its initial conditions. This suits tracking time-varying trajectories, where there is no fixed equilibrium.</p>
+<p>▶ <strong>Differential dynamics:</strong> for a virtual displacement <span class="math inline">\(\delta x\)</span> between two infinitesimally close trajectories of <span class="math inline">\(\dot x = f(x, t)\)</span>,</p>
+<p><span class="math display">\[
+\dot{\delta x} = \frac{\partial f}{\partial x}(x, t)\, \delta x
+\]</span></p>
+<p>▶ <strong>Contraction metric</strong> <span class="math inline">\(M(x, t) \succ 0\)</span>: a differential Lyapunov function <span class="math inline">\(\delta x^\top M\, \delta x\)</span>. If, for all <span class="math inline">\(x\)</span> and <span class="math inline">\(t\)</span>,</p>
+<p><span class="math display">\[
+\dot M + \frac{\partial f}{\partial x}^{\!\top} M + M\, \frac{\partial f}{\partial x} \preceq -2\lambda M
+\]</span></p>
+<p>then <span class="math inline">\(\|\delta x\|_M\)</span> shrinks as <span class="math inline">\(e^{-\lambda t}\)</span>, so any two trajectories converge to each other exponentially (Lohmiller &amp; Slotine 1998).</p>
+<p>▶ <strong>For control:</strong> a <em>control contraction metric</em> certifies that some feedback controller makes the closed loop contracting. The system is then <em>stabilizable</em>: any feasible trajectory can be tracked.</p>
+<p>▶ <strong>Singh et al.:</strong> when learning a dynamics model from data, constrain it to be stabilizable, i.e.&nbsp;to admit a contraction metric. This regularizer yields better-conditioned models that are better for trajectory generation and tracking, especially with little data.</p>
+</div>
+</section>
 <section id="stability-via-contraction-theory" class="slide level2">
 <h2>Stability via Contraction Theory</h2>
 <iframe data-external="1" src="https://www.youtube.com/embed/kmmJ6naGOfE?rel=0" width="100%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Learning Stabilizable Nonlinear Dynamics with Contraction-Based Regularization.</span> Singh, Richards, Sindhwani, Slotine, Pavone. IJRR 2020</p>
+</div>
+</section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Representation learning:</strong></p>
+<ul>
+<li>Separating the representation from the policy lets cheap data without action labels do most of the work: correspondence (Dense Object Nets), BYOL (VINN), and dynamics objectives (SGI, MR.Q).</li>
+<li>Theory (Arora et al.): a representation shared across <span class="math inline">\(T\)</span> tasks amortizes its complexity, so each new task only pays for a small head.</li>
+<li>In RL, predictive objectives prevent representation collapse and let larger networks and multitask agents use their capacity.</li>
+</ul>
+<p>▶ <strong>Provable generalization:</strong></p>
+<ul>
+<li>PAC-Bayes bounds certify the expected cost on <em>new environments</em> from training environments alone.</li>
+<li>Minimizing the bound is the training algorithm. A good prior, e.g.&nbsp;one learned from demonstrations, makes the bound tight.</li>
+</ul>
+<p>▶ <strong>Robustness as stability:</strong></p>
+<ul>
+<li>Lyapunov functions certify convergence to a goal, and funnels certify regions of attraction that can be composed.</li>
+<li>Stability can be built into learned dynamical systems by construction: constrained mixtures (SEDS), projection onto a learned <span class="math inline">\(V\)</span> (Manek &amp; Kolter), or a learned diffeomorphism (ImitationFlow).</li>
+<li>Contraction certifies convergence between trajectories, which suits tracking and learning stabilizable models.</li>
+</ul>
+</div>
 
 
 </section>

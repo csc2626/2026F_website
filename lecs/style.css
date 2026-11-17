@@ -91,6 +91,26 @@ font-size: 0.5em;
     text-indent: 0;
 }
 
+/* Sub-lists under a "▶" paragraph are indented past the marker. */
+.reveal .arrow-bullets ul {
+    margin-left: 2em;
+}
+
+.reveal .rep-table table {
+    font-size: 0.55em;
+}
+
+.reveal .rep-table table th,
+.reveal .rep-table table td {
+    padding: 0.3em 0.5em;
+    vertical-align: top;
+}
+
+/* Highlights the winning row of a results table: the row whose cells are bold. */
+.reveal .win-rows tr:has(td strong) td {
+    background-color: #fff3b0;
+}
+
 .proof-toggle {
     text-decoration: underline;
     cursor: pointer;
