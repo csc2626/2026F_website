@@ -94,7 +94,9 @@ This page contains an outline of the topics, content, and assignments for the se
 |  |  | Causal confusion in imitation learning | [📖](#w10-causal-confusion-in-imitation-learning){.no-style aria-label="Required reading: Causal confusion in imitation learning"} |  |  | 📋 |  |  |
 | [11](#week-11) | Tue, Nov 17 | Representation learning for imitation | [📖](#w11-representation-learning-for-imitation){.no-style aria-label="Required reading: Representation learning for imitation"} | [🖥️](/lecs/w11/lec11.html){.no-style target="_blank" aria-label="Lec 11 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
 |  |  | Generalization and safety guarantees for imitation | [📖](#w11-generalization-and-safety-guarantees-for-imitation){.no-style aria-label="Required reading: Generalization and safety guarantees for imitation"} |  |  | 📋 |  |  |
-| [12](#week-12) | Tue, Nov 24 | TBA |  |  |  |  |  |  |
+| [12](#week-12) | Tue, Nov 24 | Vision-language-action models, flat and hierarchical | [📖](#w12-vision-language-action-models-flat-and-hierarchical){.no-style aria-label="Required reading: Vision-language-action models, flat and hierarchical"} | [🖥️](/lecs/w12/lec12.html){.no-style target="_blank" aria-label="Lec 12 slides"} | [🎥](https://q.utoronto.ca/courses/440859){.no-style target="_blank" aria-label="Lecture recording"} | 📋 |  |  |
+|  |  | Code as policies and agentic robot control | [📖](#w12-code-as-policies-and-agentic-robot-control){.no-style aria-label="Required reading: Code as policies and agentic robot control"} |  |  | 📋 |  |  |
+|  |  | World models, world-action models, and video planning | [📖](#w12-world-models-world-action-models-and-video-planning){.no-style aria-label="Required reading: World models, world-action models, and video planning"} |  |  | 📋 |  |  |
 | [13](#week-13) | Tue, Dec 1 | In-class project presentations. Final reports due. |  |  |  |  |  | 📂 📂 |
 :::
 
@@ -463,7 +465,53 @@ Fall reading week. No lecture.
 
 ### Week 12 {#week-12}
 
-TBA
+[**Vision-language-action models, flat and hierarchical**]{#w12-vision-language-action-models-flat-and-hierarchical}\
+[Do As I Can, Not As I Say: Grounding Language in Robotic Affordances (SayCan)](https://arxiv.org/abs/2204.01691)\
+[MolmoAct2: Action Reasoning Models for Real-World Deployment](https://arxiv.org/abs/2605.02881)
+
+[**Code as policies and agentic robot control**]{#w12-code-as-policies-and-agentic-robot-control}\
+[Code as Policies: Language Model Programs for Embodied Control](https://arxiv.org/abs/2209.07753)
+
+[**World models, world-action models, and video planning**]{#w12-world-models-world-action-models-and-video-planning}\
+[V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning](https://arxiv.org/abs/2506.09985)\
+[Fast-WAM: Do World Action Models Need Test-time Future Imagination?](https://arxiv.org/abs/2603.16666)\
+[Learning Universal Policies via Text-Guided Video Generation (UniPi)](https://arxiv.org/abs/2302.00111)
+
+<details>
+
+<summary>Optional reading</summary>
+
+From RT-1 to MolmoAct 2: A brief history of VLAs ([@starlitmatcha](https://x.com/starlitmatcha), blog post)\
+[RT-1: Robotics Transformer for Real-World Control at Scale](https://arxiv.org/abs/2212.06817)\
+[PaLM-E: An Embodied Multimodal Language Model](https://arxiv.org/abs/2303.03378)\
+[RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control](https://arxiv.org/abs/2307.15818)\
+[Open X-Embodiment: Robotic Learning Datasets and RT-X Models](https://arxiv.org/abs/2310.08864)\
+[OpenVLA: An Open-Source Vision-Language-Action Model](https://arxiv.org/abs/2406.09246)\
+[Octo: An Open-Source Generalist Robot Policy](https://arxiv.org/abs/2405.12213)\
+[A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation](https://arxiv.org/abs/2507.05331)\
+[ManiFlow: A General Robot Manipulation Policy via Consistency Flow Training](https://arxiv.org/abs/2509.01819)\
+[π0: A Vision-Language-Action Flow Model for General Robot Control](https://arxiv.org/abs/2410.24164)\
+[FAST: Efficient Action Tokenization for Vision-Language-Action Models](https://arxiv.org/abs/2501.09747)\
+[Real-Time Execution of Action Chunking Flow Policies](https://arxiv.org/abs/2506.07339)\
+[Training-Time Action Conditioning for Efficient Real-Time Chunking](https://arxiv.org/abs/2512.05964)\
+[π0.5: a Vision-Language-Action Model with Open-World Generalization](https://arxiv.org/abs/2504.16054)\
+[MEM: Multi-Scale Embodied Memory for Vision Language Action Models](https://arxiv.org/abs/2603.03596)\
+[π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities](https://arxiv.org/abs/2604.15483)\
+[MolmoAct: Action Reasoning Models that can Reason in Space](https://arxiv.org/abs/2508.07917)\
+[Rho: A Foundation for Efficiently Adaptable VLA Models](https://arxiv.org/abs/2609.38164)\
+[Isaac GR00T N1.7](https://github.com/NVIDIA/Isaac-GR00T)\
+[Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models](https://arxiv.org/abs/2502.19417)\
+[RT-H: Action Hierarchies Using Language](https://arxiv.org/abs/2403.01823)\
+[MOKA: Open-World Robotic Manipulation through Mark-Based Visual Prompting](https://arxiv.org/abs/2403.03174)\
+[ReKep: Spatio-Temporal Reasoning of Relational Keypoint Constraints for Robotic Manipulation](https://arxiv.org/abs/2409.01652)\
+[GR-1: Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation](https://arxiv.org/abs/2312.13139)\
+[World Action Models are Zero-shot Policies (DreamZero)](https://arxiv.org/abs/2602.15922)\
+[GR00T 2: Scaling Robot Foundation Models for Generalization, Dexterity, and Adaptation (white paper)](https://research.nvidia.com/labs/gear/gr00t-2/)\
+[Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning](https://arxiv.org/abs/2601.16163)\
+[Flex-π: A Multi-Stream World-Action Model with Compute Flexibility](https://arxiv.org/abs/2608.10860)\
+Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models ([Dyna Robotics](https://www.dyna.co/dyna-2), blog post)
+
+</details>
 
 ### Week 13 {#week-13}
 
