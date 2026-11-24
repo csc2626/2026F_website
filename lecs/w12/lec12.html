@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.42">
+
+  <meta name="author" content="Florian Shkurti">
+  <title>CSC2626 - Fall 2026 – CSC2626 Imitation Learning for Robotics</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2f366650f320edcfcf53d73c80250a32.css">
+  <link rel="stylesheet" href="../style.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+<meta property="og:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2026">
+<meta property="og:description" content="Week 12: Families of Robot Foundation Models">
+<meta property="og:image" content="https://csc2626.github.io/2026F_website/lecs/w12/images/DrawingHands.jpg">
+<meta property="og:site_name" content="CSC2626 - Fall 2026">
+<meta name="twitter:title" content="CSC2626 Imitation Learning for Robotics – CSC2626 - Fall 2026">
+<meta name="twitter:description" content="Week 12: Families of Robot Foundation Models">
+<meta name="twitter:image" content="https://csc2626.github.io/2026F_website/lecs/w12/images/DrawingHands.jpg">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">CSC2626 Imitation Learning for Robotics</h1>
+  <p class="subtitle">Week 12: Families of Robot Foundation Models</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Florian Shkurti 
+</div>
+</div>
+</div>
+
+</section>
+<section id="todays-agenda" class="slide level2">
+<h2>Today’s Agenda</h2>
+<ul>
+<li><p>Six ways to put a foundation model in the control loop</p></li>
+<li><p>Vision-language-action models (VLAs)</p>
+<ul>
+<li>Discrete tokens, diffusion chunks, flow matching</li>
+<li>What changed in 2025–2026</li>
+</ul></li>
+<li><p>Hierarchical VLAs</p></li>
+<li><p>Code as policies and agentic robot control</p></li>
+<li><p>World-model planning</p></li>
+<li><p>World-action models</p></li>
+<li><p>Video planning with inverse dynamics models</p></li>
+</ul>
+</section>
+<section id="six-ways-to-put-a-foundation-model-in-the-loop" class="slide level2">
+<h2>Six ways to put a foundation model in the loop</h2>
+
+<img data-src="images/foundation-model-families.png" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"><div class="small-math arrow-bullets">
+<p>▶ Every column has the same environment (RGB-D cameras, proprioception) and the same goal (actions on the robot). They differ in <strong>where the foundation model sits</strong> and <strong>what crosses the interface</strong> below it.</p>
+</div>
+</section>
+<section id="reading-the-figure" class="slide level2">
+<h2>Reading the figure</h2>
+<div class="small-math arrow-bullets">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Family</th>
+<th>The foundation model…</th>
+<th>What it sends down</th>
+<th>What executes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Hierarchical VLA</strong></td>
+<td>plans subgoals for a learned low-level policy</td>
+<td>a language subgoal, every ~1&nbsp;s</td>
+<td>that policy (often a VLA) at 10–50 Hz; possibly the same model, decoding twice</td>
+</tr>
+<tr class="even">
+<td><strong>Code as Policies</strong></td>
+<td>writes a program, revises it on errors</td>
+<td>code</td>
+<td>the program, calling perception and motion APIs</td>
+</tr>
+<tr class="odd">
+<td><strong>Agentic control</strong></td>
+<td>is the policy</td>
+<td>targets: points, poses, constraints</td>
+<td>a classical controller</td>
+</tr>
+<tr class="even">
+<td><strong>World-model planning</strong></td>
+<td>predicts futures for candidate actions</td>
+<td>predicted futures and scores</td>
+<td>a sampling-based planner (MPC)</td>
+</tr>
+<tr class="odd">
+<td><strong>World-action model</strong></td>
+<td>is the world model <em>and</em> the policy</td>
+<td>actions, predicted jointly with the future</td>
+<td>the robot directly</td>
+</tr>
+<tr class="even">
+<td><strong>Inverse dynamics</strong></td>
+<td>generates a video plan</td>
+<td>future frames</td>
+<td>an inverse dynamics model, <span class="math inline">\(a_t = \mathrm{idm}(I_t, I_{t+1})\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>▶ Recurring questions for each family: what data does it need, how fast does it run?</p>
+</div>
+</section>
+<section>
+<section id="vision-language-action-models" class="title-slide slide level1 center">
+<h1>Vision-language-action models</h1>
+
+</section>
+<section id="why-vlas" class="slide level2">
+<h2>Why VLAs?</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Vision-language models</strong> (GPT-4V, Gemini, LLaVA, PaliGemma) can look at a cluttered desk and say where the cup is. They have no body: no output reaches the motors.</p>
+<p>▶ <strong>The VLA idea:</strong> take a pretrained vision-language model and give it one more output modality, <em>actions</em>. Train end-to-end on robot demonstrations.</p>
+<p>▶ <strong>The hope:</strong> the model’s understanding of scenes and instructions, learned from the web, carries over to physical tasks that were never demonstrated.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+
+</div>
+</section>
+<section id="the-shared-loop" class="slide level2">
+<h2>The shared loop</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Inputs:</strong> camera images through a vision encoder, the instruction (“pick up the red cup”) as text tokens, optionally the robot state through a small projection.</p>
+<p>▶ <strong>Backbone:</strong> a transformer, usually initialized from a pretrained VLM, grounds the instruction in the scene: which object is the red cup?</p>
+<p>▶ <strong>Action head:</strong> outputs a <strong>chunk</strong> of <span class="math inline">\(H\)</span> future actions. A controller tracks them, new images arrive, repeat.</p>
+<p>▶ <strong>Training:</strong> behavioral cloning on demonstrations <span class="math inline">\((o_t, \ell, q_t, a_{t:t+H})\)</span>:</p>
+<p><span class="math display">\[
+\max_\theta \; \mathbb{E}_{\mathcal{D}} \left[ \log \pi_\theta\left(a_{t:t+H} \mid o_t, \ell, q_t\right) \right]
+\]</span></p>
+<p>▶ VLAs differ in the backbone, <strong>how actions are represented</strong>, the data mix, and how much of each chunk runs before replanning.</p>
+</div>
+</section>
+<section id="four-ways-to-output-actions" class="slide level2">
+<h2>Four ways to output actions</h2>
+<div class="rep-table">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Action head</th>
+<th>Advantages</th>
+<th>Disadvantages</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Discrete tokens</strong>: each action dimension binned (e.g.&nbsp;256 bins), predicted as a token<br><span class="grey-text">RT-1, RT-2, OpenVLA, MolmoAct</span></td>
+<td>Reuses the language model’s output layer and cross-entropy loss. Autoregression captures correlations between dimensions.</td>
+<td>Resolution limited by the bins. One forward pass per token, so slow. Low control rate.</td>
+</tr>
+<tr class="even">
+<td><strong>Compressed tokens (FAST)</strong>: DCT + Byte-Pair Encoding over a whole chunk<br><span class="grey-text">π0-FAST, MolmoAct 2 pretraining</span></td>
+<td>Keeps the language-model loss. About 30 tokens per arm per 1-second chunk, so high-frequency data trains well.</td>
+<td>Still autoregressive decoding through the full VLM: slower inference than an action expert.</td>
+</tr>
+<tr class="odd">
+<td><strong>Diffusion chunks</strong>: a small head denoises a sequence of continuous actions<br><span class="grey-text">Octo; Diffusion Policy from Week 1</span></td>
+<td>Continuous, multi-modal, produces whole chunks.</td>
+<td>Many denoising steps. The head is usually small and trained from scratch.</td>
+</tr>
+<tr class="even">
+<td><strong>Flow-matching action expert</strong>: a separate transformer, attending to the VLM, integrates a velocity field from noise to an action chunk<br><span class="grey-text">π0, π0.5, π0.7, MolmoAct 2, Rho</span></td>
+<td>Continuous, multi-modal, high frequency (up to 50 Hz). The expert can be much smaller than the VLM.</td>
+<td>A second network to train. Still several integration steps per chunk.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="small-math arrow-bullets">
+
+</div>
+</section>
+<section id="the-precursor-rt-1" class="slide level2">
+<h2>The precursor: RT-1</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:64%;">
+<p>▶ <strong>Data:</strong> 130k successful teleoperated episodes, 700+ tasks, 13 robots, 17 months. Behavioral cloning.</p>
+<p>▶ <strong>Architecture (35M parameters, no LLM):</strong></p>
+<ul>
+<li>Instruction: a fixed Universal Sentence Encoder vector, no reasoning.</li>
+<li>Six 300×300 images through an ImageNet EfficientNet-B3, 81 tokens each.</li>
+<li><strong>FiLM:</strong> the instruction rescales visual features per channel, <span class="math inline">\(\tilde F = \gamma \odot F + \beta\)</span>: “open the drawer” emphasizes the handle.</li>
+<li><strong>TokenLearner</strong> compresses 81 tokens to 8 learned summaries, <span class="math inline">\(z_k = \sum_i \alpha_{ki} F_i\)</span>: 486 tokens become 48.</li>
+</ul>
+<p>▶ <strong>Output:</strong> 11 action dimensions (arm, gripper, base, mode), 256 bins each, at about 3 Hz.</p>
+</div><div class="column" style="width:36%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rt1-architecture.png" class="quarto-figure quarto-figure-center" height="530"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">RT-1: Robotics Transformer for Real-World Control at Scale.</span> Brohan et al.&nbsp;RSS 2023</p>
+</div>
+</section>
+<section id="what-rt-1-showed" class="slide level2">
+<h2>What RT-1 showed</h2>
+<div class="small-math arrow-bullets">
+<p>▶ One transformer can replace many task-specific policies and still run closed-loop.</p>
+<p>▶ Success: about 97% on seen tasks, 76% on unseen instructions, 83% with distractors, 59% in new backgrounds. <strong>More robot data bought robustness, not environment generalization.</strong></p>
+<p>▶ <strong>Task diversity beats repetition:</strong> removing <em>different tasks</em> hurt more than removing as many episodes of repeated tasks.</p>
+<p>▶ <strong>A bottleneck:</strong> 8 summaries per image can lose small objects and precise geometry.</p>
+<p>▶ <strong>Semantics come only from the robot data:</strong> RT-1 has no idea what a “Taylor Swift” is.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">RT-1: Robotics Transformer for Real-World Control at Scale.</span> Brohan et al.&nbsp;RSS 2023</p>
+</div>
+</section>
+<section id="palm-e-putting-a-robot-inside-a-language-model" class="slide level2">
+<h2>PaLM-E: putting a robot inside a language model</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/palme-overview.png" class="quarto-figure quarto-figure-center" style="width:95.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Idea:</strong> inject continuous observations into a pretrained LLM (PaLM) as if they were words. Images go through a ViT, robot state through an MLP, and both are projected into the token embedding space. Text and observations are interleaved into “multimodal sentences”.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">PaLM-E: An Embodied Multimodal Language Model.</span> Driess et al.&nbsp;ICML 2023</p>
+</div>
+</section>
+<section id="palm-e-training-and-whats-missing" class="slide level2">
+<h2>PaLM-E: training, and what’s missing</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Training:</strong> one model on web text, vision-language tasks and embodied tasks (planning, embodied question answering, affordance and failure prediction). Largest: 562B (PaLM 540B with ViT-22B).</p>
+<p>▶ <strong>Positive transfer:</strong> the mixture beats robot data alone, and the largest model keeps most of its language ability.</p>
+<p>▶ <strong>Output: language</strong>, such as plans (“1. go to the drawer, 2. open it, …”). <strong>What’s missing:</strong> it decodes no motor commands, so low-level policies, as in SayCan, must execute them.</p>
+<p>▶ RT-2 closes this gap; one of its two backbones is PaLM-E 12B.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">PaLM-E: An Embodied Multimodal Language Model.</span> Driess et al.&nbsp;ICML 2023</p>
+</div>
+</section>
+<section id="rt-2-actions-as-another-language" class="slide level2">
+<h2>RT-2: actions as another language</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rt2-overview.png" class="quarto-figure quarto-figure-center" style="width:95.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Trick:</strong> write the robot action as text. A VLM already answers “Which object is the dinosaur?” with “the green toy”. RT-2 answers “Pick up the dinosaur” with “128 91 241 5 101 127 217”: 8 numbers (terminate, <span class="math inline">\(\Delta\)</span>position, <span class="math inline">\(\Delta\)</span>rotation, gripper), each discretized into 256 bins.</p>
+<p>▶ <strong>Co-fine-tuning</strong> (left of the figure): keep web vision-language data in the mix while training on robot data, so the model doesn’t forget what it knew.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control.</span> Brohan et al.&nbsp;CoRL 2023 · <a href="https://robotics-transformer2.github.io/" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="rt-2-decoding-actions" class="slide level2">
+<h2>RT-2: decoding actions</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Autoregressive decoding</strong> over the action tokens, given the current image <span class="math inline">\(I\)</span> and instruction <span class="math inline">\(\ell\)</span>:</p>
+<p><span class="math display">\[
+p(a_1, \dots, a_8 \mid I, \ell) = \prod_{i=1}^{8} p(a_i \mid I, \ell, a_1, \dots, a_{i-1})
+\]</span></p>
+<p>so, for example, the <span class="math inline">\(y\)</span> translation can depend on the <span class="math inline">\(x\)</span> translation already chosen. Decoding is restricted to valid action tokens.</p>
+<p>▶ <strong>Which tokens?</strong> PaLI-X (5B, 55B) already has single tokens for integers up to 1000, so it reuses them. PaLM-E (12B) does not, so RT-2 overwrites 256 rarely used tokens and redefines them as action bins.</p>
+<p>▶ Too large to run on the robot: images were sent to a cloud TPU and actions came back at a few Hz.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control.</span> Brohan et al.&nbsp;CoRL 2023 · <a href="https://robotics-transformer2.github.io/" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="rt-2-what-transfer-looks-like" class="slide level2">
+<h2>RT-2: what transfer looks like</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:56%;">
+<p>▶ <strong>“Move the Coke can to Taylor Swift”:</strong> no Taylor Swift in the robot data, so RT-2 had to combine a web concept with the “move” skill. It did, slowly and awkwardly.</p>
+<p>▶ <strong>Emergent capabilities</strong> (about 6k trials): placing objects on a number or icon, picking the smallest object, picking an improvised hammer (a rock) with chain-of-thought.</p>
+<p>▶ <strong>Ablation:</strong> from scratch &lt; fine-tuned VLM &lt; co-fine-tuned with web data. RT-2 also coined the name <strong>vision-language-action model</strong>.</p>
+<p>▶ <strong>What did not transfer:</strong> new <em>motions</em>. RT-2 generalizes over objects and concepts, not skills absent from the robot data: later, the main argument for world-action models.</p>
+</div><div class="column" style="width:44%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rt2-emergent.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Success on emergent-skill evaluations: RT-2 with either backbone is far ahead of RT-1 and of a policy on pretrained visual features (VC-1).</span></p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control.</span> Brohan et al.&nbsp;CoRL 2023</p>
+</div>
+</section>
+<section id="how-fine-is-256-bins" class="slide level2">
+<h2>How fine is 256 bins?</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:55%;">
+<p>▶ An offline experiment from the blog: take recorded actions from three LIBERO demonstrations, round each dimension to the nearest bin, measure the translation error.</p>
+<p>▶ <strong>Resolution depends on both the number of bins and the range they cover.</strong> And smaller one-step errors need not give a smaller final error: per-step errors can reinforce or cancel over a trajectory.</p>
+</div><div class="column small-math" style="width:45%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Bins per dimension</th>
+<th>Full-range RMSE</th>
+<th>Clipped RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>16</td>
+<td>0.0324</td>
+<td>0.0290</td>
+</tr>
+<tr class="even">
+<td>64</td>
+<td>0.0075</td>
+<td>0.0126</td>
+</tr>
+<tr class="odd">
+<td>256</td>
+<td>0.0019</td>
+<td>0.0105</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">From RT-1 to MolmoAct 2: A brief history of VLAs.</span> <span class="citation" data-cites="starlitmatcha">@starlitmatcha</span>, blog post, 2026</p>
+</div>
+</section>
+<section id="fast-compress-then-tokenize" class="slide level2">
+<h2>FAST: compress, then tokenize</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Problem with binning chunks:</strong> bin every dimension at every step and a 1-second chunk becomes hundreds of tokens (700 for bimanual T-shirt folding at 50 Hz). Consecutive tokens are nearly identical, so each next token carries almost no information. With naive tokens, policies make no progress on 20 Hz bussing or 50 Hz shirt folding.</p>
+<p>▶ <strong>FAST</strong> (frequency-space action sequence tokenization): normalize the chunk, apply a <strong>discrete cosine transform (DCT) to each dimension</strong>, scale and round (most high-frequency coefficients become 0), flatten <strong>low frequencies first</strong>, then compress with <strong>Byte-Pair Encoding</strong>. The steps are invertible.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/fast-tokenizer.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">FAST: Efficient Action Tokenization for Vision-Language-Action Models.</span> Pertsch et al.&nbsp;RSS 2025</p>
+</div>
+</section>
+<section id="π0-fast-autoregressive-π0" class="slide level2">
+<h2>π0-FAST: autoregressive π0</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:58%;">
+<p>▶ FAST gives about <strong>30 tokens per arm</strong> per 1-second chunk, largely independent of the control rate.</p>
+<p>▶ <strong>π0-FAST:</strong> π0’s PaliGemma 3B backbone (flow-matching π0 comes later today) predicts FAST tokens autoregressively, without an action expert. Trained on the 10k-hour π0 mixture, it <strong>matches flow-matching π0</strong>, including laundry folding, with <strong>5x fewer GPU hours</strong>.</p>
+<p>▶ <strong>Cost:</strong> about 750 ms per chunk versus 100 ms for flow-matching π0 on a 4090. It decodes 30–60 tokens through the full language model instead of running 10 flow steps through a 300M expert.</p>
+<p>▶ <strong>FAST+:</strong> a universal tokenizer whose Byte-Pair Encoding is trained on 1M real robot action trajectories. It matches per-dataset tokenizers.</p>
+</div><div class="column small-math" style="width:42%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Dataset (rate)</th>
+<th>Naive</th>
+<th>FAST</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BridgeV2 (5 Hz)</td>
+<td>35</td>
+<td>20</td>
+</tr>
+<tr class="even">
+<td>DROID (15 Hz)</td>
+<td>105</td>
+<td>29</td>
+</tr>
+<tr class="odd">
+<td>Bussing (20 Hz)</td>
+<td>140</td>
+<td>28</td>
+</tr>
+<tr class="even">
+<td>Shirt fold (50 Hz, 2 arms)</td>
+<td>700</td>
+<td>53</td>
+</tr>
+</tbody>
+</table>
+<p><span class="grey-text tiny-font">Average tokens per 1-second chunk.</span></p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">FAST: Efficient Action Tokenization for Vision-Language-Action Models.</span> Pertsch et al.&nbsp;RSS 2025</p>
+</div>
+</section>
+<section id="open-x-embodiment-and-rt-x" class="slide level2">
+<h2>Open X-Embodiment and RT-X</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Can one robot’s demonstrations help another? <strong>Open X-Embodiment</strong> pools over 1M trajectories from 22 embodiments and 21 institutions, with actions mapped to a common 7-D space (frames and conventions still differ). Retraining on 9 embodiments gives <strong>RT-1-X</strong> and <strong>RT-2-X</strong>.</p>
+<p>▶ <strong>Transfer works:</strong> on five labs’ small datasets (below), RT-1-X beats both the lab’s own method and single-dataset RT-1 by 50% in mean success. On skills seen only in other labs’ data, RT-2-X succeeds about 3× as often as RT-2.</p>
+<p>▶ <strong>But it needs capacity:</strong> on the large Bridge and Google datasets, RT-1-X underfits; only the 55B RT-2-X improves.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/oxe-rtx1-small-data.png" class="quarto-figure quarto-figure-center" style="width:82.0%"></p>
+</figure>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Open X-Embodiment: Robotic Learning Datasets and RT-X Models.</span> Open X-Embodiment Collaboration. ICRA 2024</p>
+</div>
+</section>
+<section id="openvla-an-open-rt-2" class="slide level2">
+<h2>OpenVLA: an open RT-2</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/openvla-architecture.png" class="quarto-figure quarto-figure-center" style="width:62.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>7B, open weights</strong>, trained on 970k Open X-Embodiment episodes. Prismatic-7B: <strong>SigLIP</strong> (semantics) and <strong>DINOv2</strong> (spatial) features projected into <strong>Llama 2</strong>.</p>
+<p>▶ <strong>Actions:</strong> 7-D, one step at a time, autoregressive like RT-2. 256 bins per dimension over the 1st–99th percentile, written into Llama’s 256 least-used tokens.</p>
+<p>▶ <strong>Result:</strong> 16.5 points above the 55B RT-2-X on 29 tasks (WidowX and Google robots), though the training data differ.</p>
+<p>▶ <strong>Caveat:</strong> RT-2-X stays better on semantic tasks. Fine-tuning dropped web data, so <strong>better robot performance does not imply the web knowledge was kept.</strong></p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">OpenVLA: An Open-Source Vision-Language-Action Model.</span> Kim et al.&nbsp;CoRL 2024</p>
+</div>
+</section>
+<section id="octo-a-diffusion-action-head" class="slide level2">
+<h2>Octo: a diffusion action head</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/octo-architecture.png" class="quarto-figure quarto-figure-center" style="width:54.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Open generalist policy:</strong> pretrained on 800k trajectories from 25 Open X-Embodiment datasets. Octo-Small (27M) and Octo-Base (93M). Instruction (T5 encoder) <em>or</em> goal image, plus camera images.</p>
+<p>▶ <strong>Readout tokens</strong> collect information inside the transformer. A small diffusion head reads them and denoises a continuous <strong>action chunk</strong>. The transformer runs once per prediction; the repeated denoising happens in the small head.</p>
+<p>▶ <strong>Modular</strong> (bottom of the figure): new inputs or a new action head can be added at fine-tuning while keeping the pretrained transformer. Fine-tuned with ~100 demonstrations per task: 72% average success across six setups, versus 20% from scratch.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Octo: An Open-Source Generalist Robot Policy.</span> Octo Model Team. RSS 2024</p>
+</div>
+</section>
+<section id="why-a-diffusion-head-and-not-mse-regression" class="slide level2">
+<h2>Why a diffusion head and not MSE regression?</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Why not regress actions with MSE?</strong> To reach a cup behind an obstacle, half the demonstrations go left and half go right.</p>
+<p><span class="math display">\[
+\arg\min_{f} \; \mathbb{E}\big[\|a - f(o)\|^2\big] = \mathbb{E}[a \mid o]
+\]</span></p>
+<p>▶ The conditional mean of “left” and “right” is “straight into the obstacle”.</p>
+<p>▶ Diffusion and flow matching <strong>sample</strong> one mode instead of averaging them. Same argument as Diffusion Policy and implicit BC in Week 1.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Octo: An Open-Source Generalist Robot Policy.</span> Octo Model Team. RSS 2024</p>
+</div>
+</section>
+<section id="π0-a-vlm-plus-an-action-expert" class="slide level2">
+<h2>π0: a VLM plus an action expert</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pi0-overview.png" class="quarto-figure quarto-figure-center" style="width:94.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Backbone:</strong> PaliGemma, a 3B VLM. <strong>Action expert:</strong> a narrower, randomly initialized transformer (~300M) that follows Gemma’s architecture and attends to the VLM’s keys and values.</p>
+<p>▶ <strong>Inputs:</strong> multiple camera images, the instruction, and the robot state <span class="math inline">\(q_t\)</span>. <strong>Output:</strong> a chunk of 50 future continuous actions, for control up to 50 Hz.</p>
+<p>▶ <strong>Data:</strong> Internet-scale VLM pretraining, open robot datasets (OXE), and PI’s own dexterous data from many robot types. Pretrained once, then post-trained on specific tasks (laundry, bussing, box assembly).</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0: A Vision-Language-Action Flow Model for General Robot Control.</span> Black et al.&nbsp;RSS 2025</p>
+</div>
+</section>
+<section id="π0-flow-matching-for-action-chunks" class="slide level2">
+<h2>π0: flow matching for action chunks</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Flow matching:</strong> interpolate between noise <span class="math inline">\(\epsilon \sim \mathcal{N}(0, I)\)</span> and the true chunk <span class="math inline">\(A\)</span>, and regress the velocity:</p>
+<p><span class="math display">\[
+A^\tau = \tau A + (1-\tau)\,\epsilon, \qquad
+\mathcal{L}(\theta) = \mathbb{E}_{\tau, \epsilon}\left[\big\| v_\theta(A^\tau, \tau, o) - (A - \epsilon) \big\|^2\right]
+\]</span></p>
+<p>At inference, start from noise and integrate <span class="math inline">\(v_\theta\)</span> for about 10 steps. The VLM runs once; only the expert is iterated.</p>
+<p>▶ <strong>Open question the chunk creates:</strong> how much of the 50-step chunk to execute before predicting again. Executing more is smoother but uses older observations. Real-time chunking, two slides on, is one answer.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0: A Vision-Language-Action Flow Model for General Robot Control.</span> Black et al.&nbsp;RSS 2025</p>
+</div>
+</section>
+<section id="π0-autonomous-laundry-folding" class="slide level2">
+<h2>π0: autonomous laundry folding</h2>
+<iframe data-external="1" src="https://www.youtube.com/embed/Oa19cq_MxE0?rel=0" width="80%" height="65%" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0: A Vision-Language-Action Flow Model for General Robot Control.</span> Black et al.&nbsp;RSS 2025. Uncut autonomous rollout, Physical Intelligence.</p>
+</div>
+</section>
+<section id="chunks-under-latency" class="slide level2">
+<h2>Chunks under latency</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:50%;">
+<p>▶ A chunk takes longer than a control step to compute, so it arrives <span class="math inline">\(d\)</span> steps after inference starts. π0’s KV prefill alone takes 46 ms on a 4090; a step at 50 Hz is 20 ms.</p>
+<p>▶ <strong>Synchronous</strong> (the default): execute <span class="math inline">\(s\)</span> actions, stop, wait. Stopping changes the robot’s dynamics, a distribution shift.</p>
+<p>▶ <strong>Naive asynchronous:</strong> switch to the next chunk when it’s ready. It may pick another mode (below the obstacle, not above): a jump.</p>
+<p>▶ <strong>Temporal ensembling</strong> (ACT): averaging two modes heads into the obstacle, as with MSE regression.</p>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rtc-bifurcation.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Real-Time Execution of Action Chunking Flow Policies.</span> Black, Galliker, Levine. NeurIPS 2025</p>
+</div>
+</section>
+<section id="rtc-freeze-then-inpaint" class="slide level2">
+<h2>RTC: freeze, then inpaint</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rtc-soft-mask.png" class="quarto-figure quarto-figure-center" style="width:50.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Real-time chunking (RTC):</strong> generate the next chunk while executing the current one. The first <span class="math inline">\(d\)</span> actions are <strong>frozen</strong> (weight 1): they execute before the new chunk arrives. The rest of the overlap gets <strong>exponentially decaying</strong> weights; the last <span class="math inline">\(s\)</span> actions are free.</p>
+<p>▶ <strong>Inpainting by guidance:</strong> at each flow step, pull the predicted final chunk <span class="math inline">\(\hat A^1 = A^\tau + (1-\tau)\,v\)</span> toward the old chunk <span class="math inline">\(Y\)</span>, weighted by <span class="math inline">\(W\)</span>: <span class="math display">\[
+v \leftarrow v + \min\!\Big(\beta, \tfrac{1-\tau}{\tau\, r_\tau^2}\Big)\,(Y - \hat A^1)^\top \operatorname{diag}(W)\, \tfrac{\partial \hat A^1}{\partial A^\tau}
+\]</span> No retraining, for any diffusion or flow policy; the cost is a backward pass per flow step. The soft overlap matters when <span class="math inline">\(d\)</span> is small: a short frozen prefix can’t keep the new chunk on the same strategy.</p>
+<p><span class="grey-text small-math"><span class="math inline">\(\tau\)</span>: flow time (0 = noise, 1 = clean chunk); <span class="math inline">\(v\)</span>: the policy’s flow-matching velocity field; <span class="math inline">\(r_\tau^2 = \frac{(1-\tau)^2}{\tau^2 + (1-\tau)^2}\)</span>; <span class="math inline">\(\beta\)</span> caps the guidance weight (≈5), which is otherwise infinite at <span class="math inline">\(\tau = 0\)</span>.</span></p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Real-Time Execution of Action Chunking Flow Policies.</span> Black, Galliker, Levine. NeurIPS 2025</p>
+</div>
+</section>
+<section id="rtc-results-and-at-training-time" class="slide level2">
+<h2>RTC: results, and at training time</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:52%;">
+<p>▶ <strong>Real robot</strong> (π0.5 at 50 Hz, 6 bimanual tasks such as lighting a candle): with +100 or +200 ms of added latency, RTC’s throughput <strong>does not drop</strong>. Synchronous inference degrades linearly; temporal ensembling oscillates until the protective stop triggers.</p>
+<p>▶ <strong>Training-time RTC:</strong> simulate the delay in training. The first <span class="math inline">\(d\)</span> actions are given clean (<span class="math inline">\(\tau = 1\)</span>) and only the rest are denoised, with <span class="math inline">\(d\)</span> random. No new parameters, no backward pass at inference.</p>
+<p>▶ It beats inference-time RTC for <span class="math inline">\(d \geq 2\)</span> in simulation (bottom) and matches it on real π0.6 tasks at lower latency (108 vs.&nbsp;135 ms), but loses the soft overlap.</p>
+</div><div class="column" style="width:48%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rtc-real-throughput.png" class="nostretch quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rtc-training-time-sim.png" class="nostretch quarto-figure quarto-figure-center" style="width:62.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Real-Time Execution of Action Chunking Flow Policies.</span> Black et al.&nbsp;NeurIPS 2025. <span class="red">Training-Time Action Conditioning for Efficient Real-Time Chunking.</span> Black et al.&nbsp;2025</p>
+</div>
+</section>
+<section id="molmoact-reasoning-in-space" class="slide level2">
+<h2>MolmoAct: reasoning in space</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:50%;">
+<p>▶ <strong>MolmoAct:</strong> instead of mapping observations directly to actions, predict three things in sequence, all as tokens:</p>
+<ol type="1">
+<li><strong>Depth:</strong> a 10×10 grid of discrete codes (from Depth Anything v2, compressed by a VQ-VAE). Training targets only; no depth estimator runs at test time.</li>
+<li><strong>A visual trace:</strong> up to 5 image-space points for the intended end-effector path.</li>
+<li><strong>Actions:</strong> a chunk of 8 discretized actions.</li>
+</ol>
+<p>▶ The intermediate predictions can be inspected, and a user can steer the robot by drawing a different trace. But they add latency, and a plausible trace doesn’t guarantee correct execution.</p>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/molmoact-overview.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">MolmoAct: Action Reasoning Models that can Reason in Space.</span> Lee et al.&nbsp;2025</p>
+</div>
+</section>
+<section id="molmoact-2-making-it-deployable" class="slide level2">
+<h2>MolmoAct 2: making it deployable</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/molmoact2-architecture.png" class="quarto-figure quarto-figure-center" style="width:62.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<ul>
+<li><strong>Molmo2-ER</strong> backbone, specialized for spatial and embodied reasoning (3.3M-sample corpus).</li>
+<li>Pretraining predicts discrete action tokens (<strong>OpenFAST</strong>, an open FAST tokenizer; see the FAST slide). Post-training grafts a <strong>flow-matching DiT action expert</strong> with the same depth as the VLM (36 layers). Each expert layer cross-attends to the corresponding VLM layer’s keys and values.</li>
+<li><strong>MolmoAct2-Think:</strong> depth is re-predicted only for grid cells whose image content changed. The cost of reasoning scales with scene change, not with all 100 tokens.</li>
+<li><strong>Fully open:</strong> weights, code, and data, including 720 hours of bimanual YAM teleoperation.</li>
+</ul>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">MolmoAct2: Action Reasoning Models for Real-World Deployment.</span> Fang et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="π0.5-subtask-then-actions" class="slide level2">
+<h2>π0.5: subtask, then actions</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pi05-architecture.png" class="quarto-figure quarto-figure-center" style="width:92.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Hierarchical inference inside one network:</strong> at each step the model first writes the next subtask as text, <span class="math inline">\(\hat\ell_t \sim \pi_\theta(\cdot \mid o_t, \ell)\)</span>, then generates an action chunk conditioned on it, <span class="math inline">\(A_t \sim \pi_\theta(\cdot \mid o_t, \hat\ell_t)\)</span>.</p>
+<p>▶ <strong>Result:</strong> the first end-to-end learned system to clean kitchens and bedrooms in <strong>homes it has never seen</strong>: long-horizon, multi-stage tasks.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0.5: a Vision-Language-Action Model with Open-World Generalization.</span> Physical Intelligence (Black et al.). CoRL 2025</p>
+</div>
+</section>
+<section id="π0.5-its-the-data-mixture" class="slide level2">
+<h2>π0.5: it’s the data mixture</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:50%;">
+<p>▶ <strong>Same architecture family as π0.</strong> The change is <strong>co-training on heterogeneous data</strong>:</p>
+<ul>
+<li>~400 hours of mobile manipulators in ~100 homes</li>
+<li><strong>ME:</strong> static robots in many other environments</li>
+<li><strong>CE:</strong> cross-embodiment lab data</li>
+<li><strong>WD:</strong> web data (captions, question answering, detection)</li>
+<li>subtask labels (“pick up the pillow”) and verbal instructions from supervisors</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pi05-data-ablation.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Task progress in unseen homes when one data source is removed from training.</span></p>
+</div></div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Ablations:</strong> removing ME or CE hurts, and removing both is worst. Removing web data mainly hurts unseen object categories and subtask inference. Subtask labels help even when the model doesn’t predict subtasks at run time.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0.5: a Vision-Language-Action Model with Open-World Generalization.</span> Physical Intelligence (Black et al.). CoRL 2025</p>
+</div>
+</section>
+<section id="mem-memory-at-two-time-scales" class="slide level2">
+<h2>MEM: memory at two time scales</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mem-system.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Why memory:</strong> to resolve self-occlusion (where is the object my arm now hides?), to count (how many scoops?), and to track progress (which recipe steps are done?). Most VLAs, π0.5 included, see only the current frame; Week 5’s LSTMs were the classic answer. Stacking past frames into the backbone breaks the 300 ms real-time limit at 4 frames.</p>
+<p>▶ <strong>Factorize by time scale</strong>, reusing π0.5’s high-level/low-level split. The high-level policy writes the next subtask <span class="math inline">\(l_{t+1}\)</span> <em>and</em> rewrites a language memory <span class="math inline">\(m_{t+1}\)</span>; both see only <span class="math inline">\(K \ll T\)</span> recent frames: <span class="math display">\[
+\pi_{\text{HL}}(l_{t+1}, m_{t+1} \mid o_{t-K:t}, m_t, g), \qquad \pi_{\text{LL}}(a_{t:t+H} \mid o_{t-K:t}, l_{t+1}, g)
+\]</span> Short-term memory lives in pixels, long-term memory in text.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">MEM: Multi-Scale Embodied Memory for Vision Language Action Models.</span> Torne et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="mem-video-and-language-memory" class="slide level2">
+<h2>MEM: video and language memory</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:54%;">
+<p>▶ <strong>Video encoder</strong> (right, top): every 4th ViT layer attends across time for the same patch, costing <span class="math inline">\(O(Kn^2 + nK^2)\)</span> instead of <span class="math inline">\(O(n^2K^2)\)</span> for <span class="math inline">\(K\)</span> frames of <span class="math inline">\(n\)</span> patches. Upper layers keep only current-frame tokens, so the backbone sees no more tokens than a memoryless VLA: under 300 ms at 16 frames (right, bottom), and up to 54 s of history after post-training.</p>
+<p>▶ <strong>Language memory:</strong> the high-level policy rewrites its own compressed summary (“I placed three bowls in the top right cabinet”), trained on targets written by an LLM. Simply concatenating past subtasks works worse: long lists of repeats are out of distribution.</p>
+</div><div class="column" style="width:46%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mem-video-encoder.png" class="nostretch quarto-figure quarto-figure-center" style="width:82.0%"></p>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mem-latency.png" class="nostretch quarto-figure quarto-figure-center" style="width:74.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">MEM: Multi-Scale Embodied Memory for Vision Language Action Models.</span> Torne et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="mem-what-memory-buys" class="slide level2">
+<h2>MEM: what memory buys</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/mem-capabilities.png" class="quarto-figure quarto-figure-center" style="width:72.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Core memory tests</strong> (above): memoryless π0.6 guesses. Pooling past frames or keeping past robot states helps only on easy tasks; MEM is strong on all six (about 73% versus 29%).</p>
+<p>▶ <strong>Long tasks, up to 15 minutes</strong> (recipe setup, kitchen cleanup): task progress roughly doubles, from 35% to 70%. Removing either memory breaks them.</p>
+<p>▶ <strong>In-context adaptation:</strong> after a failed grasp or a fridge door that opens the other way, it changes strategy (+62 points on the fridge). <strong>No cost</strong> on tasks that need no memory. <strong>π0.7</strong> adopts this encoder and matches the MEM specialists out of the box.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">MEM: Multi-Scale Embodied Memory for Vision Language Action Models.</span> Torne et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="π0.7-steer-it-with-the-prompt" class="slide level2">
+<h2>π0.7: steer it with the prompt</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pi07-architecture.png" class="quarto-figure quarto-figure-center" style="width:76.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>About 5B parameters:</strong> Gemma 3 4B backbone, the MEM video-history encoder (previous slides; up to 6 past frames per camera, compressed to a fixed number of tokens), and an 860M flow-matching action expert. <strong>The architecture barely changes. The prompt does.</strong> Subtasks come from a high-level policy or a human; subgoal images come from a separate world model.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities.</span> Physical Intelligence. 2026</p>
+</div>
+</section>
+<section id="π0.7-what-goes-in-the-prompt" class="slide level2">
+<h2>π0.7: what goes in the prompt</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Besides the task <span class="math inline">\(\ell\)</span>, the context <span class="math inline">\(\mathcal{C}_t\)</span> can contain:</p>
+<ul>
+<li>a <strong>subtask instruction</strong> <span class="math inline">\(\hat\ell_t\)</span> (“open the fridge door”), from a high-level policy or a human coach</li>
+<li><strong>subgoal images</strong> of the near future, from a separate image-editing world model (initialized from BAGEL, 14B)</li>
+<li><strong>episode metadata:</strong> speed, quality (1–5), mistakes</li>
+<li>the <strong>control mode:</strong> joints or end-effector</li>
+</ul>
+<p><span class="math display">\[
+\max_\theta \; \mathbb{E}_{\mathcal{D}} \left[\log \pi_\theta\left(a_{t:t+H} \mid o_{t-T:t},\, \mathcal{C}_t\right)\right]
+\]</span></p>
+<p>▶ Each component is <strong>randomly dropped</strong> in training, so any subset works at test time.</p>
+<p>▶ <strong>A subgoal image makes it almost inverse dynamics</strong>, which is so much easier that subgoal images appear in only 25% of training examples.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities.</span> Physical Intelligence. 2026</p>
+</div>
+</section>
+<section id="π0.7-learning-from-failures" class="slide level2">
+<h2>π0.7: learning from failures</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:58%;">
+<p>▶ <strong>Train on almost everything:</strong> failed episodes, demonstrations with mistakes, autonomous rollouts, RL data from π*0.6, egocentric human video. Each episode is labeled with speed, quality and mistakes; at test time, prompt for “fast, quality 5, no mistakes”.</p>
+<p>▶ This is <strong>return-conditioned behavioral cloning</strong> (offline RL, Week 3), so don’t expect it to beat the best episodes in the data.</p>
+<p>▶ <strong>Reported (PI’s own evaluation):</strong> matches RL-fine-tuned specialists (e.g.&nbsp;an espresso machine) by distilling their rollouts; follows verbal coaching on new tasks; folds laundry zero-shot on a robot never trained on it.</p>
+</div><div class="column" style="width:42%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/pi07-prompts.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Two training episodes with their full context: subgoal images, subtask instructions, and metadata.</span></p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">π0.7: a Steerable Generalist Robotic Foundation Model with Emergent Capabilities.</span> Physical Intelligence. 2026</p>
+</div>
+</section>
+<section id="rho-robot-first-then-the-task" class="slide level2">
+<h2>Rho: robot first, then the task</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Open weights, about 5B:</strong> a 4.68B Phi VLM (<strong>Phi-Phy</strong>) plus a 542M flow-matching expert that outputs end-effector poses.</p>
+<p>▶ <strong>The key is the training schedule:</strong></p>
+<ol type="1">
+<li><strong>Pretrain</strong> on 3,200+ hours from a dozen-plus mostly dual-arm robots, plus 10% vision-language data.</li>
+<li><strong>Embodiment midtraining:</strong> ~300 hours of <em>one</em> robot: learn the robot, not a task.</li>
+<li><strong>Fine-tune</strong> on 100–300 target-task demonstrations.</li>
+</ol>
+<p>▶ <strong>Corrections after deployment</strong> (Week 9): a small <strong>latent policy</strong> picks the frozen expert’s initial noise from the observation, trained on as few as 15 corrected episodes.</p>
+<p>▶ Reported to match or beat π0.5, GR00T N1.7 and MolmoAct 2 on three robots (their evaluation).</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Rho: A Foundation for Efficiently Adaptable VLA Models.</span> Microsoft Research. 2026</p>
+</div>
+</section>
+<section id="rho-midtraining-halves-the-data" class="slide level2">
+<h2>Rho: midtraining halves the data</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rho-midtraining.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Controlled test in simulation (RoboTwin):</strong> midtrain on 45 tasks of one dual-arm robot, then fine-tune on 5 held-out tasks with 12.5% to 100% of their demonstrations.</p>
+<p>▶ <strong>Midtrained with 25% of the data ≈ base model with 50%.</strong> The gain is largest in the low-data regime and disappears once fine-tuning data is plentiful.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Rho: A Foundation for Efficiently Adaptable VLA Models.</span> Microsoft Research. 2026</p>
+</div>
+</section>
+<section id="the-vla-landscape" class="slide level2">
+<h2>The VLA landscape</h2>
+<div class="rep-table">
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>Backbone</th>
+<th>Action output</th>
+<th>Distinctive idea</th>
+<th>Open</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>RT-2</strong> (2023)</td>
+<td>PaLI-X 55B / PaLM-E 12B</td>
+<td>discrete tokens, 1 step</td>
+<td>actions as text, co-fine-tuning</td>
+<td>no</td>
+</tr>
+<tr class="even">
+<td><strong>OpenVLA</strong> (2024)</td>
+<td>Llama 2 7B, SigLIP + DINOv2</td>
+<td>discrete tokens, 1 step</td>
+<td>open RT-2 on OXE data</td>
+<td>yes</td>
+</tr>
+<tr class="odd">
+<td><strong>Octo</strong> (2024)</td>
+<td>small transformer, 27–93M</td>
+<td>diffusion chunk</td>
+<td>readout tokens, modular heads</td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td><strong>π0</strong> (2024)</td>
+<td>PaliGemma 3B</td>
+<td>flow expert, 50-step chunk</td>
+<td>VLM plus action expert</td>
+<td>yes</td>
+</tr>
+<tr class="odd">
+<td><strong>π0-FAST</strong> (2025)</td>
+<td>PaliGemma 3B</td>
+<td>FAST tokens, autoregressive</td>
+<td>frequency-space tokenization</td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td><strong>TRI LBM</strong> (2025)</td>
+<td>DiT on CLIP ViT-B/16 features</td>
+<td>diffusion chunk</td>
+<td>Diffusion Policy, blind A/B tests</td>
+<td>no</td>
+</tr>
+<tr class="odd">
+<td><strong>ManiFlow</strong> (2025)</td>
+<td>DiT-X from scratch, point clouds or images</td>
+<td>flow chunk, 1–2 steps</td>
+<td>consistency flow training</td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td><strong>π0.5</strong> (2025)</td>
+<td>π0 architecture</td>
+<td>subtask text, then flow</td>
+<td>heterogeneous co-training</td>
+<td>yes</td>
+</tr>
+<tr class="odd">
+<td><strong>MolmoAct 2</strong> (2026)</td>
+<td>Molmo2-ER</td>
+<td>flow DiT, per-layer KV</td>
+<td>adaptive depth reasoning, fully open data</td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td><strong>π0.6-MEM</strong> (2026)</td>
+<td>π0.6 (Gemma 3 4B)</td>
+<td>flow matching</td>
+<td>video and language memory, 15-minute tasks</td>
+<td>no</td>
+</tr>
+<tr class="odd">
+<td><strong>π0.7</strong> (2026)</td>
+<td>Gemma 3 4B, ~5B total</td>
+<td>flow matching</td>
+<td>prompt with subgoal images and metadata</td>
+<td>API</td>
+</tr>
+<tr class="even">
+<td><strong>Rho</strong> (2026)</td>
+<td>Phi-Phy 4.68B</td>
+<td>flow, end-effector poses</td>
+<td>embodiment midtraining, latent policy</td>
+<td>yes</td>
+</tr>
+<tr class="odd">
+<td><strong>GR00T N1.7</strong> (2026)</td>
+<td>Cosmos-Reason 2B</td>
+<td>diffusion-transformer head</td>
+<td>last VLA before GR00T 2</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="small-math arrow-bullets">
+
+</div>
+</section>
+<section id="tri-lbm-diffusion-policy-at-scale" class="slide level2">
+<h2>TRI LBM: Diffusion Policy at scale</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/lbm-architecture.jpg" class="quarto-figure quarto-figure-center" style="width:86.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Large Behavior Model (LBM):</strong> Week 1’s Diffusion Policy, made multitask. A Diffusion Transformer (8 blocks, width 768, DDIM) is conditioned through adaLN on CLIP ViT-B/16 image features, CLIP text features and the end-effector pose, over 2 observation steps. No VLM backbone.</p>
+<p>▶ <strong>Output:</strong> 16 steps of 20-D bimanual actions; it runs at 10 Hz and executes 8 steps before replanning.</p>
+<p>▶ <strong>Data:</strong> about 1,700 hours of demonstrations, more than 500 internal tasks plus a subset of Open X-Embodiment. <strong>Recipe:</strong> pretrain on everything, fine-tune per task, and compare with a single-task policy of the same architecture trained from scratch.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation.</span> TRI LBM Team. 2025</p>
+</div>
+</section>
+<section id="lbm-how-to-evaluate-a-policy" class="slide level2">
+<h2>LBM: how to evaluate a policy</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Blind A/B tests:</strong> the evaluator doesn’t know which policy runs. Each initial condition is run once per policy, in random order.</p>
+<p>▶ <strong>Reproducible starts:</strong> the operator matches the scene to an overlay of the target image (below). Binary rubric questions, re-checked by a second team.</p>
+<p>▶ <strong>Sample sizes:</strong> 50 real rollouts per task, policy and condition, 200 per simulated task, on tasks tuned to about 50% success. Results are Bayesian posteriors.</p>
+<p>▶ <strong>Why 50 isn’t a lot</strong> (our arithmetic): at <span class="math inline">\(p = 0.5\)</span> the standard error is <span class="math inline">\(\sqrt{0.25/50} \approx 0.07\)</span>, a 95% interval of <span class="math inline">\(\pm 14\)</span> points. The authors warn that many papers may be “measuring statistical noise”.</p>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/lbm-ic-overlay.jpg" class="quarto-figure quarto-figure-center" style="width:58.0%"></p>
+</figure>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation.</span> TRI LBM Team. 2025</p>
+</div>
+</section>
+<section id="lbm-what-pretraining-buys" class="slide level2">
+<h2>LBM: what pretraining buys</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:56%;">
+<p>▶ <strong>Seen tasks:</strong> the fine-tuned LBM is the same or better than single-task on 3/3 real and 15/16 simulated tasks; significantly better on 3/16 nominally but <strong>10/16 under distribution shift</strong>. The gain is mostly robustness.</p>
+<p>▶ <strong>Unseen tasks:</strong> better in aggregate. In simulation it matches from-scratch training with <strong>under 30% of the task data</strong> (dashed line, right).</p>
+<p>▶ <strong>More pretraining data helps</strong> (right), most when task data is scarce.</p>
+<p>▶ <strong>Caveats, as reported:</strong> without fine-tuning it doesn’t beat single-task policies in the real world, and a data-normalization bug was found after the evaluations.</p>
+</div><div class="column" style="width:44%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/lbm-data-fraction.jpg" class="quarto-figure quarto-figure-center" style="width:92.0%"></p>
+</figure>
+</div>
+<div class="grey-text tiny-font">
+<p>Task completion on 5 unseen simulated tasks against the fraction of task data. TRI-Ramen: TRI’s own data only; -50% and -25%: fewer pretraining tasks.</p>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation.</span> TRI LBM Team. 2025</p>
+</div>
+</section>
+<section id="maniflow-few-step-flow-no-vlm" class="slide level2">
+<h2>ManiFlow: few-step flow, no VLM</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/maniflow-architecture.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Like LBM, no VLM:</strong> an imitation policy trained per task from scratch, on 10–100 simulated demonstrations or about 50–80 real ones. Inputs: a 2D image (ResNet-18) or a <strong>3D point cloud</strong> (the DP3 encoder), plus language and robot state.</p>
+<p>▶ <strong>DiT-X:</strong> action tokens cross-attend to visual and language tokens. AdaLN-Zero, driven by the flow time <span class="math inline">\(t\)</span> and step size <span class="math inline">\(\Delta t\)</span>, scales and shifts the cross-attention too, not only self-attention as in DiT. It learns faster than DiT or MDT blocks on 10 MetaWorld tasks.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">ManiFlow: A General Robot Manipulation Policy via Consistency Flow Training.</span> Yan et al.&nbsp;CoRL 2025 · <a href="https://maniflow-policy.github.io" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="maniflow-consistency-flow-training" class="slide level2">
+<h2>ManiFlow: consistency flow training</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/maniflow-consistency.png" class="quarto-figure quarto-figure-center" style="width:68.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p><span class="math display">\[
+\mathcal{L} = \big\|v_\theta(x_t, t, 0) - (x_1 - x_0)\big\|^2 + \big\|v_\theta(x_t, t, \Delta t) - \tilde v\big\|^2, \quad \tilde v = \frac{\tilde x_1 - x_t}{1-t}, \quad \tilde x_1 = x_{t_1} + (1-t_1)\, v_{\theta^-}(x_{t_1}, t_1, \Delta t')
+\]</span></p>
+<p>▶ <strong>Step size as an input</strong>, as in shortcut models: the velocity from <span class="math inline">\(x_t\)</span> must land where an EMA copy <span class="math inline">\(\theta^-\)</span>, starting from the later point <span class="math inline">\(x_{t_1}\)</span>, says the chunk ends. This straightens the flow. <span class="math inline">\(\tilde x_1\)</span> is the same one-step estimate as RTC’s <span class="math inline">\(\hat A^1\)</span>.</p>
+<p>▶ <strong>No pretrained teacher</strong>, unlike Consistency Policy’s distillation. Flow time is sampled from a Beta distribution, as in π0.</p>
+<p>▶ On 5 bimanual RoboTwin tasks: <strong>1 step 63.7%</strong>, 10 steps 61.9%, against DP3 at 42.7% with 10 steps.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">ManiFlow: A General Robot Manipulation Policy via Consistency Flow Training.</span> Yan et al.&nbsp;CoRL 2025 · <a href="https://maniflow-policy.github.io" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="maniflow-real-robots" class="slide level2">
+<h2>ManiFlow: real robots</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/maniflow-real.png" class="quarto-figure quarto-figure-center" style="width:86.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>8 tasks on 3 platforms:</strong> a Franka with a gripper, bimanual xArms with Ability hands, and a Unitree H1 humanoid with dexterous hands; about 50–80 demonstrations per task on the arms.</p>
+<p>▶ <strong>69.6% versus DP3’s 35.1%</strong> on average (above). With unseen objects: 67.4% versus 31.1%.</p>
+<p>▶ DP3 is a point-cloud diffusion policy with the same inputs, so the comparison isolates the action generator: consistency flow and DiT-X against diffusion denoising.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">ManiFlow: A General Robot Manipulation Policy via Consistency Flow Training.</span> Yan et al.&nbsp;CoRL 2025 · <a href="https://maniflow-policy.github.io" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="maniflow-vs.-π0-small-data" class="slide level2">
+<h2>ManiFlow vs.&nbsp;π0: small data</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/maniflow-vs-pi0.png" class="quarto-figure quarto-figure-center" style="width:78.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>RoboTwin 2.0 with domain randomization</strong> (clutter, new objects, lighting, table height), 50 demonstrations per task: ManiFlow from scratch on point clouds beats fine-tuned π0 on 3 of 4 tasks (left; lift pot 64.7 vs.&nbsp;24.3).</p>
+<p>▶ <strong>Lift-pot scaling</strong> (right): 97.7% at 200 demonstrations; π0 reaches 94.0% at 500.</p>
+<p>▶ <strong>Caveats:</strong> simulation only; different inputs (point clouds vs.&nbsp;π0’s multi-view images); one policy per task. It fails on contact-rich, force-dependent tasks such as compliant insertion. Flex-π later uses it as its 3D baseline.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">ManiFlow: A General Robot Manipulation Policy via Consistency Flow Training.</span> Yan et al.&nbsp;CoRL 2025 · <a href="https://maniflow-policy.github.io" target="_blank">project page</a></p>
+</div>
+</section></section>
+<section>
+<section id="hierarchical-vlas" class="title-slide slide level1 center">
+<h1>Hierarchical VLAs</h1>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>The criterion:</strong> a high level breaks the task into subgoals a person could read (a skill name, a sentence), and a learned low-level policy executes each one at a faster rate. The two levels can be separate models (SayCan, Hi Robot, MEM) or one model that decodes twice (RT-H, π0.5).</p>
+</div>
+</section>
+<section id="saycan-an-llm-picks-a-skill" class="slide level2">
+<h2>SayCan: an LLM picks a skill</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/saycan-overview.png" class="quarto-figure quarto-figure-center" style="width:92.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Setup:</strong> a library of skills <span class="math inline">\(\{\pi_k\}\)</span>, each with a text description <span class="math inline">\(\ell_k\)</span> (“find a sponge”, “pick up the sponge”) and a value function from RL that estimates whether it would succeed from the current state <span class="math inline">\(s\)</span>.</p>
+<p>▶ <strong>Left:</strong> an LLM alone gives a sensible answer that this robot can’t execute. <strong>Right:</strong> SayCan scores each skill by how useful the LLM finds it <em>and</em> how likely the value function says it is to succeed.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Do As I Can, Not As I Say: Grounding Language in Robotic Affordances.</span> Ahn et al.&nbsp;CoRL 2022</p>
+</div>
+</section>
+<section id="saycan-useful-possible" class="slide level2">
+<h2>SayCan: useful × possible</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Choose the next skill</strong> by combining what is useful with what is possible:</p>
+<p><span class="math display">\[
+k^\star = \arg\max_k \; \underbrace{p_{\text{LLM}}(\ell_k \mid \text{instruction}, \text{steps so far})}_{\text{"Say": useful for the task}} \;\cdot\; \underbrace{p(\text{success} \mid s, \ell_k)}_{\text{"Can": affordance}}
+\]</span></p>
+</div>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:56%;">
+<p>▶ Execute <span class="math inline">\(\pi_{k^\star}\)</span>, append <span class="math inline">\(\ell_{k^\star}\)</span> to the history, repeat. “I spilled my drink, can you help?” becomes find a sponge, pick it up, go to the spill, …</p>
+<p>▶ With PaLM on 101 instructions in a real kitchen: 84% correct plans, 74% successful executions.</p>
+<p>▶ <strong>Limits:</strong> the robot can only do what is on the menu. The LLM never sees the image, only the affordance scores. Plans are open-loop with respect to what actually happened (Inner Monologue later adds feedback).</p>
+</div><div class="column" style="width:44%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/saycan-affordances.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">The “Can” term: value functions score every skill from the current image. Nothing graspable is in view, so the navigation skills score high.</span></p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Do As I Can, Not As I Say: Grounding Language in Robotic Affordances.</span> Ahn et al.&nbsp;CoRL 2022</p>
+</div>
+</section>
+<section id="rt-h-language-motions" class="slide level2">
+<h2>RT-H: language motions</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rth-overview.png" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Problem:</strong> “pick coke can” and “pour cup” share little at the task level, but they share low-level motions.</p>
+<p>▶ <strong>Language motions</strong> (“move arm forward”, “close gripper”). <strong>One model, two queries:</strong> predict the language motion from task and image, then the action from task, image and motion.</p>
+<p>▶ <strong>Interventions in language</strong> (middle): a human corrects the robot by saying the right motion. This beats training on teleoperated corrections.</p>
+<p>▶ Unlike SayCan, the intermediate language is low-level and comes from the same network as the actions.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">RT-H: Action Hierarchies Using Language.</span> Belkhale et al.&nbsp;RSS 2024</p>
+</div>
+</section>
+<section id="hi-robot-a-vlm-that-talks-to-a-vla" class="slide level2">
+<h2>Hi Robot: a VLM that talks to a VLA</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:60%;">
+<p>▶ <strong>Decompose the policy</strong> into a high-level VLM and a low-level VLA, communicating in language:</p>
+<p><span class="math display">\[
+\hat\ell_t \sim p^{\text{hi}}\big(\cdot \mid I_t^{1:n}, \ell_t\big), \qquad
+A_t \sim p^{\text{lo}}\big(\cdot \mid I_t^{1:n}, \hat\ell_t, q_t\big)
+\]</span></p>
+<p>▶ <span class="math inline">\(\ell_t\)</span> is an open-ended prompt or user feedback (“can you make me a vegetarian sandwich?”, “that’s not trash”). <span class="math inline">\(\hat\ell_t\)</span> is a short atomic command (“pick up the lettuce”). The low level is π0.</p>
+<p>▶ <strong>Two rates:</strong> the high level runs about once a second or immediately on new user input. The low level produces action chunks at high frequency. This is the figure’s “subgoal planning / VLA executes” loop.</p>
+</div><div class="column" style="width:40%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/hirobot-system.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models.</span> Shi et al.&nbsp;ICML 2025</p>
+</div>
+</section>
+<section id="hi-robot-training-the-high-level" class="slide level2">
+<h2>Hi Robot: training the high level</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Training data for the high level:</strong> demonstrations are segmented and labeled with atomic skills. A large VLM is then prompted to invent plausible user prompts and interjections that could have preceded each segment. The synthetic data is what makes it follow open-ended requests.</p>
+<p>▶ <strong>Result:</strong> over 40% higher instruction accuracy than using GPT-4o as the high-level policy with the same π0 low level, across table bussing, sandwich making, and grocery shopping.</p>
+<p>▶ <strong>Contrast with π0.5:</strong> there one network predicts both the subtask and the actions. Here they are two models running at different rates.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models.</span> Shi et al.&nbsp;ICML 2025</p>
+</div>
+</section>
+<section id="what-should-the-high-level-send-down" class="slide level2">
+<h2>What should the high level send down?</h2>
+<div class="small-math arrow-bullets">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Interface</th>
+<th>Example</th>
+<th>Precise?</th>
+<th>Who can produce it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Choice from a skill menu</td>
+<td>SayCan</td>
+<td>no</td>
+<td>any LLM</td>
+</tr>
+<tr class="even">
+<td>Language subgoal</td>
+<td>Hi Robot, π0.5</td>
+<td>no</td>
+<td>VLM, or a human coach</td>
+</tr>
+<tr class="odd">
+<td>Language motion</td>
+<td>RT-H</td>
+<td>somewhat</td>
+<td>the policy itself, or a human</td>
+</tr>
+<tr class="even">
+<td>Image-space trace, depth</td>
+<td>MolmoAct</td>
+<td>somewhat</td>
+<td>the policy itself</td>
+</tr>
+<tr class="odd">
+<td>Subgoal image</td>
+<td>π0.7</td>
+<td>yes</td>
+<td>an image-generation world model</td>
+</tr>
+<tr class="even">
+<td>Video plan</td>
+<td>UniPi (last family)</td>
+<td>yes</td>
+<td>a video generation model</td>
+</tr>
+</tbody>
+</table>
+<p>▶ Going down the table, the interface carries more information about <em>how</em>, and the low level gets closer to inverse dynamics. It also gets more expensive to produce, and harder for a human to write.</p>
+</div>
+</section></section>
+<section>
+<section id="code-as-policies-and-agentic-control" class="title-slide slide level1 center">
+<h1>Code as policies and agentic control</h1>
+
+</section>
+<section id="code-as-policies-write-the-policy" class="slide level2">
+<h2>Code as Policies: write the policy</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:55%;">
+<p>▶ A code-writing LLM, few-shot prompted with commands and their code, writes <strong>policy code</strong> for a new command.</p>
+<p>▶ The code calls <strong>perception APIs</strong> (<code>segment</code>, <code>point</code>) and <strong>control primitives</strong> (<code>move</code>, <code>grasp</code>), with loops, arithmetic, NumPy and Shapely.</p>
+<p>▶ <strong>Hierarchical code generation:</strong> the LLM writes any undefined function it calls, recursively.</p>
+<p>▶ <strong>What code gives you:</strong> geometric reasoning (“blocks in a line, 10 cm apart”), precise values for vague words (“faster”), reactive loops.</p>
+<p>▶ <strong>Dashed arrow:</strong> later systems feed execution errors back, and the model revises the program.</p>
+</div><div class="column" style="width:45%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/cap-overview.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Generated policy code calls perception and control APIs, and the undefined helpers (<code>is_empty</code>, <code>stack_objects</code>) are written by the LLM in turn.</span></p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Code as Policies: Language Model Programs for Embodied Control.</span> Liang et al.&nbsp;ICRA 2023 · <a href="https://code-as-policies.github.io/" target="_blank">project page and videos</a></p>
+</div>
+</section>
+<section id="where-code-stops-working" class="slide level2">
+<h2>Where code stops working</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Bounded by the APIs:</strong> it perceives only what the detectors describe and does only what the primitives allow.</p>
+<p>▶ <strong>No learning:</strong> behavior comes from the prompt; the robot doesn’t improve with practice.</p>
+<p>▶ <strong>No dexterity:</strong> nobody, human or LLM, knows the code for folding a shirt.</p>
+<p>▶ <strong>Week 5 connection:</strong> imitation as program induction, but the program comes from a language command, not from demonstrations.</p>
+<p>▶ <strong>Still the right tool</strong> for logic and geometry over known objects (“put the red blocks in the matching bowl”) and for orchestrating learned skills.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Code as Policies: Language Model Programs for Embodied Control.</span> Liang et al.&nbsp;ICRA 2023</p>
+</div>
+</section>
+<section id="agentic-control-emitting-targets" class="slide level2">
+<h2>Agentic control: emitting targets</h2>
+<div class="small-math arrow-bullets">
+<p>▶ In this column the foundation model <strong>is</strong> the policy, but it does not output joint commands. It outputs <strong>targets</strong> that a classical controller can track: points, poses, constraints.</p>
+<p>▶ <strong>Two examples:</strong> MOKA (the VLM picks points on a marked image) and ReKep (the VLM writes constraints on keypoints for an optimizer).</p>
+<p>▶ <strong>The 2026 trend:</strong> reasoning models now call <em>learned</em> policies as tools, instead of motion planners. GR00T 2 exposes an API that a reasoning model can call. The controller in this column is increasingly itself a foundation model.</p>
+</div>
+</section>
+<section id="moka-marked-image-prompting" class="slide level2">
+<h2>MOKA: marked-image prompting</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/moka-pipeline.png" class="quarto-figure quarto-figure-center" style="width:86.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>MOKA</strong> (marking open-vocabulary keypoint affordances): a VLM (GPT-4V) first splits the task into subtasks, then, on an image overlaid with candidate keypoints and a grid, chooses a <strong>grasp point</strong> on the object or tool, a <strong>function point</strong> where the tool acts (“the tip of the broom”), a <strong>target point</strong>, and waypoints between them.</p>
+<p>▶ The 2D choices are lifted to 3D with depth, and a motion planner executes them. Zero-shot, from a language instruction.</p>
+<p>▶ <strong>Why marks?</strong> VLMs are poor at outputting precise coordinates but good at choosing among labeled options: a visual prompt turns a regression problem into multiple choice.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">MOKA: Open-World Robotic Manipulation through Mark-Based Visual Prompting.</span> Liu, Fang, Abbeel, Levine. RSS 2024</p>
+</div>
+</section>
+<section id="rekep-vlm-written-constraints" class="slide level2">
+<h2>ReKep: VLM-written constraints</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/rekep-pipeline.png" class="quarto-figure quarto-figure-center" style="width:60.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Keypoints:</strong> candidate 3D keypoints are proposed automatically from the scene (DINOv2 features and SAM masks).</p>
+<p>▶ <strong>Relational keypoint constraints:</strong> a VLM (GPT-4o) writes, for each stage of the task, Python functions of the keypoints that return a cost. E.g. for pouring: “the spout keypoint is above the cup keypoint”.</p>
+<p>▶ <strong>An optimizer</strong> solves for end-effector poses that satisfy the current stage’s constraints. Keypoints are tracked and the optimization is re-solved continuously, so the robot reacts to disturbances.</p>
+<p>▶ <strong>Between Code as Policies and MOKA:</strong> the model writes code, but the code is a cost function for an optimizer, not a sequence of motions.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">ReKep: Spatio-Temporal Reasoning of Relational Keypoint Constraints for Robotic Manipulation.</span> Huang et al.&nbsp;CoRL 2024</p>
+</div>
+</section></section>
+<section>
+<section id="world-model-planning" class="title-slide slide level1 center">
+<h1>World-model planning</h1>
+
+</section>
+<section id="v-jepa-2-ac-a-latent-world-model" class="slide level2">
+<h2>V-JEPA 2-AC: a latent world model</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:62%;">
+<p>▶ <strong>Stage 1 (no actions):</strong> pretrain the V-JEPA 2 encoder on over 1M hours of internet video, predicting masked video <em>in representation space</em> (JEPA, Week 11).</p>
+<p>▶ <strong>Stage 2 (a little robot data):</strong> freeze it and train an <strong>action-conditioned predictor</strong> on 62 hours of DROID Franka video, with no rewards or task labels. It is autoregressive, with block-causal attention:</p>
+<p><span class="math display">\[
+\hat z_{k+1} = P_\phi\big(\hat z_{\le k},\, a_{\le k},\, s_{\le k}\big)
+\]</span></p>
+<p>▶ <strong>What it buys:</strong> dynamics that never reconstruct pixels, so capacity goes to what moves, not to texture.</p>
+</div><div class="column" style="width:38%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/vjepa2-ac-training.png" class="quarto-figure quarto-figure-center" height="500"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning.</span> Assran et al.&nbsp;2025</p>
+</div>
+</section>
+<section id="planning-with-v-jepa-2-ac" class="slide level2">
+<h2>Planning with V-JEPA 2-AC</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/vjepa2-ac-mpc.png" class="quarto-figure quarto-figure-center" style="width:90.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Goal as an image</strong> <span class="math inline">\(x_g\)</span>, encoded as <span class="math inline">\(z_g\)</span>. Plan actions that make the imagined future look like the goal:</p>
+<p><span class="math display">\[
+\mathcal{E}(\hat a_{1:T}) = \big\| P_\phi(\hat a_{1:T};\, z_k, s_k) - z_g \big\|_1
+\]</span></p>
+<p>▶ <strong>Cross-entropy method</strong> (Week 2): sample action sequences from Gaussians, keep the top ones, refit, repeat. Execute the first action, observe, replan.</p>
+<p>▶ This is the taxonomy figure’s <code>sample()</code>, <code>score()</code>, <code>select()</code>, <code>replan()</code> box.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning.</span> Assran et al.&nbsp;2025</p>
+</div>
+</section>
+<section id="v-jepa-2-ac-results-and-limits" class="slide level2">
+<h2>V-JEPA 2-AC: results and limits</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:55%;">
+<p>▶ <strong>Zero-shot</strong> on Franka arms in two labs that are not in DROID, with an uncalibrated monocular camera.</p>
+<p>▶ <strong>Speed:</strong> 16 seconds per action (800 samples, 10 iterations), versus 4 minutes per action when planning with a pixel-space video model (Cosmos).</p>
+</div><div class="column small-math arrow-bullets" style="width:45%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Task (Lab 2)</th>
+<th>V-JEPA 2-AC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reach</td>
+<td>100%</td>
+</tr>
+<tr class="even">
+<td>Grasp cup / box</td>
+<td>60% / 20%</td>
+</tr>
+<tr class="odd">
+<td>Pick-and-place cup / box</td>
+<td>80% / 50%</td>
+</tr>
+</tbody>
+</table>
+<p>▶ <strong>Limits:</strong></p>
+<ul>
+<li>Tasks are specified by goal images. Pick-and-place needs hand-given subgoal images.</li>
+<li>Predictions reach about 16 seconds into the future, so longer tasks need a hierarchy.</li>
+<li>The inferred action axes rotate with the camera position.</li>
+</ul>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning.</span> Assran et al.&nbsp;2025</p>
+</div>
+</section></section>
+<section>
+<section id="world-action-models" class="title-slide slide level1 center">
+<h1>World-action models</h1>
+
+</section>
+<section id="what-is-a-world-action-model" class="slide level2">
+<h2>What is a world-action model?</h2>
+<div class="small-math arrow-bullets">
+<p>▶ A <strong>VLA</strong> models <span class="math inline">\(p(a \mid o, \ell)\)</span>. A <strong>world model</strong> models <span class="math inline">\(p(o' \mid o, a)\)</span>. A <strong>world-action model</strong> (WAM) models the future and the action <em>together</em>, and the predicted future is part of how the action is produced:</p>
+<p><span class="math display">\[
+p_\Theta(o', a \mid o, \ell)
+\]</span></p>
+<p>▶ Three ways to factor it, which line up with the last three columns of the figure:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Factorization</th>
+<th>Meaning</th>
+<th>Family</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(p(o' \mid o, \ell)\; q(a \mid o, o')\)</span></td>
+<td>predict the future, then recover the action</td>
+<td>inverse dynamics (UniPi)</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(q(a \mid o, \ell)\; p(o' \mid o, a)\)</span></td>
+<td>propose an action, predict its consequence, score it</td>
+<td>world-model planning (V-JEPA 2-AC)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(p_\theta(o', a \mid o, \ell)\)</span>, one network</td>
+<td>predict both jointly</td>
+<td>world-action model</td>
+</tr>
+</tbody>
+</table>
+<p>▶ <strong>Why now:</strong> video generation models pretrained on web video carry priors about <em>motion and physics</em>. VLM backbones, pretrained on static image-text pairs, carry priors about <em>semantics</em>. RT-2 generalized over objects but not over new motions.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">World Action Models: A Survey.</span> 2026 · <span class="red">World Action Models are Zero-shot Policies.</span> Ye et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="the-historical-version-gr-1" class="slide level2">
+<h2>The historical version: GR-1</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:46%;">
+<p>▶ <strong>A small GPT-style transformer</strong> (about 21M policy parameters) with pretrained image and language encoders.</p>
+<p>▶ <strong>Pretraining:</strong> predict future Ego4D video frames, conditioned on language.</p>
+<p>▶ <strong>Fine-tuning:</strong> on robot data, predict the action <em>and</em> the future image, through separate readout tokens (ACT and OBS).</p>
+<p>▶ <strong>Result:</strong> on CALVIN’s hardest split (train on A, B, C; test on D), 3.06 of 5 chained tasks on average; earlier methods stayed below 1.</p>
+<p>▶ <strong>The lesson:</strong> predicting future frames shapes a better <em>policy</em> representation. Every WAM since scales this up on a pretrained video generation model.</p>
+</div><div class="column" style="width:54%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/gr1-overview.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Unleashing Large-Scale Video Generative Pre-training for Visual Robot Manipulation.</span> Wu et al.&nbsp;ICLR 2024</p>
+</div>
+</section>
+<section id="dreamzero-video-model-as-policy" class="slide level2">
+<h2>DreamZero: video model as policy</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/dreamzero-architecture.png" class="quarto-figure quarto-figure-center" style="width:92.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>14B parameters</strong>, initialized from the Wan 2.1 image-to-video diffusion model. One autoregressive diffusion transformer, trained with flow matching, <strong>denoises future video latents and action chunks together</strong>, conditioned on the instruction, proprioception, and past frames. There is no separate action head.</p>
+<p>▶ <strong>Making it closed-loop</strong> (right): after each chunk is executed, the predicted frames in the KV cache are replaced by the real observations, so prediction errors don’t compound. With a 38× inference speedup (decoupled video and action denoising, parallelism, caching, quantization), it produces action chunks at about <strong>7 Hz</strong>.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">World Action Models are Zero-shot Policies.</span> Ye et al.&nbsp;(NVIDIA) 2026</p>
+</div>
+</section>
+<section id="dreamzero-one-network-two-factors" class="slide level2">
+<h2>DreamZero: one network, two factors</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Their factorization ties this column to the next one:</strong></p>
+<p><span class="math display">\[
+\underbrace{\pi(o_{l:l+H},\, a_{l:l+H} \mid o_{0:l}, c, q_l)}_{\text{DreamZero}}
+=
+\underbrace{\pi(o_{l:l+H} \mid o_{0:l}, c, q_l)}_{\text{video prediction}}\;
+\underbrace{\pi(a_{l:l+H} \mid o_{0:l+H}, q_l)}_{\text{inverse dynamics}}
+\]</span></p>
+<p>Both factors live in one network and are sampled together.</p>
+<p>▶ <strong>How it fails:</strong> most failures are bad videos, not bad actions. <strong>The policy faithfully executes whatever future it imagines.</strong> Better video models should directly give better policies, and worse ones give worse policies.</p>
+<p>▶ Vanilla VLAs, by contrast, often reach for an object and try to grasp it regardless of the instruction: they fall back on the dominant training behavior.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">World Action Models are Zero-shot Policies.</span> Ye et al.&nbsp;(NVIDIA) 2026</p>
+</div>
+</section>
+<section id="dreamzero-results" class="slide level2">
+<h2>DreamZero: results</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/dreamzero-results.png" class="quarto-figure quarto-figure-center" style="width:84.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Seen tasks in new environments, versus GR00T N1.6 and π0.5, each trained from scratch or from their pretrained checkpoints.</span></p>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Learns from diverse, non-repetitive data</strong> (~500 hours of real robot data), instead of many repetitions of each task.</p>
+<p>▶ <strong>New tasks and new places:</strong> on AgiBot G1, 62% average task progress in new environments, versus 27% for the best pretrained VLA baseline. On 10 tasks entirely absent from training (untying shoelaces, ironing, shaking hands), 40% versus 16%.</p>
+<p>▶ <strong>Cross-embodiment from video only:</strong> 10–20 minutes of video of humans or another robot doing a task, <em>without actions</em>, improves the target robot on unseen tasks by over 42% (relative).</p>
+<p>▶ <strong>Real-world leaderboard:</strong> on RoboArena (April 2026 snapshot), 1750 versus 1622 for π0.5, trained on DROID alone.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">World Action Models are Zero-shot Policies.</span> Ye et al.&nbsp;(NVIDIA) 2026</p>
+</div>
+</section>
+<section id="gr00t-2-nvidia-moves-to-a-wam" class="slide level2">
+<h2>GR00T 2: NVIDIA moves to a WAM</h2>
+<div class="small-math arrow-bullets">
+<p>▶ NVIDIA’s previous GR00T models (up to N1.7) were VLAs. <strong>GR00T 2 is a world-action model</strong>, built on Cosmos and DreamZero research: it predicts future video and actions jointly.</p>
+<p>▶ <strong>Data:</strong> robot data plus about 100,000 hours of human egocentric video. Runs on parallel grippers, two 22-DoF dexterous hands, and humanoids.</p>
+<p>▶ <strong>GR00T 2 Turbo:</strong> a 2B video-action transformer with a more compressed video encoder, 124 ms per prediction on a Unitree G1’s onboard computer.</p>
+<p>▶ <strong>Caveat:</strong> announced November 9, 2026. The white paper and demos are out; code and weights are listed for December.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">GR00T 2: Scaling Robot Foundation Models for Generalization, Dexterity, and Adaptation.</span> NVIDIA, November 2026 · <a href="https://research.nvidia.com/labs/gear/gr00t-2/" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="gr00t-2-skills-from-humans" class="slide level2">
+<h2>GR00T 2: skills from humans</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/gr00t2-transfer.jpg" class="quarto-figure quarto-figure-center" style="width:60.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Top: the task shown by a human, with a handheld UMI gripper, and with a wearable DexUMI hand. Bottom: a robot that never practiced it doing the same task.</span></p>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Reported by NVIDIA:</strong></p>
+<ul>
+<li><strong>Skills transfer from humans and devices:</strong> tasks shown only by humans, with a handheld UMI gripper, or with a wearable DexUMI hand, carried over to robots that never practiced them.</li>
+<li><strong>Few-shot:</strong> on 50 tasks never seen on the target robot, 40% success zero-shot, 95% after five demonstrations per task.</li>
+<li><strong>Agentic control:</strong> a reasoning model calls GR00T 2 through an API and marks where to grasp on its camera image. Instruction following goes from 40% to 92%. This links the world-action column to the agentic one.</li>
+</ul>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">GR00T 2: Scaling Robot Foundation Models for Generalization, Dexterity, and Adaptation.</span> NVIDIA, November 2026 · <a href="https://research.nvidia.com/labs/gear/gr00t-2/" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="design-variant-cosmos-policy" class="slide level2">
+<h2>Design variant: Cosmos Policy</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/cosmos-policy-latents.png" class="quarto-figure quarto-figure-center" style="width:72.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>No architectural changes.</strong> Fine-tune the Cosmos-Predict2 2B video model so that its latent “frames” also carry the robot state, the action chunk, the future state, and its <strong>value</strong>. Each new quantity is normalized and copied to fill a latent frame. The video model treats them as more frames to denoise.</p>
+<ul>
+<li>As a direct policy: 98.5% on LIBERO, 67.1% on RoboCasa.</li>
+<li><strong>With planning:</strong> sample several candidate actions, imagine their futures, rank them by predicted value, execute the best. This is the world-model-planning column again, inside one network. It can also refine its world model and value from its own rollouts.</li>
+</ul>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Cosmos Policy: Fine-Tuning Video Models for Visuomotor Control and Planning.</span> Kim et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="design-variant-x-wam" class="slide level2">
+<h2>Design variant: X-WAM</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>X-WAM:</strong> a single diffusion transformer (from Wan 2.2) jointly denoises multi-view RGB video, depth, proprioception, and actions. Actions are predicted at 4 times the video frame rate and denoised on a faster schedule than the video. About 79% on RoboCasa-GR1, ahead of Cosmos Policy and DreamZero on that leaderboard.</p>
+<p>▶ <strong>The column is not settled:</strong> where the action goes in the video model, whether to keep a separate action expert, and whether to predict depth or values differ from paper to paper.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Unified 4D World Action Modeling from Video Priors with Asynchronous Denoising.</span> 2026</p>
+</div>
+</section>
+<section id="fast-wam-imagine-at-test-time" class="slide level2">
+<h2>Fast-WAM: imagine at test time?</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:42%;">
+<p>▶ <strong>The question:</strong> are WAMs good because they <em>generate</em> the future at test time, or because they were <em>trained</em> to predict it?</p>
+<p>▶ <strong>Architecture:</strong> the Wan 2.2 5B video diffusion transformer plus an action-expert transformer, sharing attention (a mixture of transformers).</p>
+<ul>
+<li><strong>Training:</strong> noisy future-video tokens are denoised alongside the action chunk. An attention mask stops action tokens from attending to future video, so no future information leaks into the actions.</li>
+<li><strong>Test time</strong> (C, bottom right): the future-video branch is removed. The current frame goes through the video backbone once, and the action expert reads its features.</li>
+</ul>
+</div><div class="column" style="width:58%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/fastwam-variants.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">The three variants compared: (A) joint video and action denoising, (B) video, then inverse dynamics, (C) Fast-WAM, with no future video at test time.</span></p>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Fast-WAM: Do World Action Models Need Test-time Future Imagination?</span> Yuan et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="fast-wam-what-matters" class="slide level2">
+<h2>Fast-WAM: what matters</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/fastwam-results.png" class="quarto-figure quarto-figure-center" style="width:54.0%"></p>
+</figure>
+</div>
+<p><span class="grey-text tiny-font">Real towel folding: success rate against completion time (upper left is better), and inference latency.</span></p>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Controlled comparison</strong> of the three variants:</p>
+<ul>
+<li>Dropping test-time imagination costs little.</li>
+<li>Dropping video co-training costs much more (bottom right of the left plot).</li>
+</ul>
+<p>▶ About 190 ms per chunk, over 4 times faster than imagine-then-execute WAMs, and competitive on LIBERO, RoboTwin and real tasks without embodied pretraining.</p>
+<p>▶ <strong>Connection to Week 11:</strong> here video prediction acts as a <strong>representation-learning objective</strong>, not a planner. Flex-π, next, makes test-time imagination a choice; Dyna-2 then tests the recipe at 1M hours.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Fast-WAM: Do World Action Models Need Test-time Future Imagination?</span> Yuan et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="flex-π-rgb-3d-and-dino-latents" class="slide level2">
+<h2>Flex-π: RGB, 3D and DINO latents</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/flexpi-architecture.png" class="quarto-figure quarto-figure-center" style="width:76.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Problem:</strong> WAMs predict RGB latents, which a VAE learned for pixel reconstruction. Nothing in them targets geometry or object semantics.</p>
+<p>▶ <strong>Three streams, all from the RGB cameras:</strong> RGB through the frozen Wan-2.2 VAE; Depth Anything 3 pointmaps through the <em>same</em> VAE, which reconstructs them almost losslessly despite never seeing depth; DINOv3 patch tokens, folded 2×2 to cut tokens by 4×. No new sensors.</p>
+<p>▶ <strong>Model:</strong> 6B parameters: a 5B mixture-of-transformers trunk initialized from Wan 2.2, plus a 1B action expert that reads the visual streams. Everything is trained by joint flow matching; pretraining is about 500 hours of AgiBot World.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Flex-π: A Multi-Stream World-Action Model with Compute Flexibility.</span> Yan et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="flex-π-imagination-as-a-dial" class="slide level2">
+<h2>Flex-π: imagination as a dial</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/flexpi-frontier.png" class="quarto-figure quarto-figure-center" style="width:70.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Training:</strong> randomly drop input streams and output streams (attention masks <span class="math inline">\(m^{\text{in}}, m^{\text{out}}\)</span>). <strong>Cross-modality forcing:</strong> still predict every future stream, observed or not. On 5 RoboTwin tasks this lifts success from about 45% to 66% (+47% relative).</p>
+<p>▶ <strong>Deployment:</strong> one checkpoint, 56 input/output combinations (7 non-empty input sets × 8 output sets). Action-only takes 60 ms, faster than π0.5 (66 ms); full joint generation takes 193 ms (RTX 5090).</p>
+<p>▶ <strong>The answer to Fast-WAM’s question:</strong> action-only, the Fast-WAM regime, already beats every baseline (76.4 task completion). Generating the futures adds more (83.0). Training on futures does most of the work; imagining them at test time is a paid extra.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Flex-π: A Multi-Stream World-Action Model with Compute Flexibility.</span> Yan et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="flex-π-the-dial-in-action" class="slide level2">
+<h2>Flex-π: the dial in action</h2>
+<video data-autoplay="" loop="" muted="" playsinline="" preload="auto" width="74%" poster="videos/flexpi-archviz.jpg" src="videos/flexpi-archviz.mp4" style="display:block; margin:0 auto;">
+</video>
+<div class="grey-text tiny-font">
+<p>From the project page. The same weights run four presets in turn: action-only, 3D future plus action, full joint generation, and 3D future generated without observing 3D (cross-modality forcing, ★). <span class="math inline">\(m^{\text{in}}\)</span> marks the observed streams and <span class="math inline">\(m^{\text{out}}\)</span> the generated ones; latency and real-robot task completion update with each.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Flex-π: A Multi-Stream World-Action Model with Compute Flexibility.</span> Yan et al.&nbsp;2026 · <a href="https://flex-pi.github.io" target="_blank">project page</a></p>
+</div>
+</section>
+<section id="flex-π-real-robot-results" class="slide level2">
+<h2>Flex-π: real-robot results</h2>
+<div class="rep-table">
+<table class="caption-top" style="width:100%;">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Task completion (%)</th>
+<th>Flex-π joint</th>
+<th>Flex-π action-only</th>
+<th>ManiFlow (3D input)</th>
+<th>π0.5</th>
+<th>Fast-WAM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Seen, 5 tasks</td>
+<td><strong>83.0</strong></td>
+<td>76.4</td>
+<td>58.0</td>
+<td>52.1</td>
+<td>31.7*</td>
+</tr>
+<tr class="even">
+<td>Unseen, 3 tasks</td>
+<td><strong>76.1</strong></td>
+<td>70.8</td>
+<td>31.5</td>
+<td>43.2</td>
+<td>16.9*</td>
+</tr>
+<tr class="odd">
+<td>Inference latency (ms)</td>
+<td>193</td>
+<td><strong>60</strong></td>
+<td>103</td>
+<td>66</td>
+<td>86</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Setup:</strong> bimanual YAM arms; “unseen” means new objects and heavy clutter. <strong>Self-repair of its own gripper</strong> (8 ordered stages, down to a 4 mm bit in a 4.5 mm socket): all stages in 11 of 20 runs; ManiFlow 1, π0.5 none.</p>
+<p>▶ <strong>Unseen soft bag:</strong> π0.5 drops from 42.8 to 17.2, Flex-π from 70.0 to 63.3. <strong>Half the data:</strong> action-only Flex-π matches π0.5 trained on all of it.</p>
+<p>▶ <strong>Caveats:</strong> 20 rollouts per task, about ±22 points at 50% success (LBM slide), so only the large gaps count. *Fast-WAM skipped the two hardest tasks. Simulation benchmarks are near saturation. Preprint.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Flex-π: A Multi-Stream World-Action Model with Compute Flexibility.</span> Yan et al.&nbsp;2026</p>
+</div>
+</section>
+<section id="dyna-2-a-wam-on-1m-human-hours" class="slide level2">
+<h2>Dyna-2: a WAM on 1M human hours</h2>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/dyna2-architecture.png" class="quarto-figure quarto-figure-center" style="width:64.0%"></p>
+</figure>
+</div>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>Model:</strong> a mixture of transformers on a video-diffusion backbone, with separate DiT layers for video and actions. The shallower action stream joins only the early video layers, which cuts latency.</p>
+<p>▶ <strong>Data:</strong> over 1M hours of egocentric human video, no robot data. Pseudo-actions come from 3D hand pose: the wrist pose, plus the thumb–index aperture as the grasp.</p>
+<p>▶ <strong>Loss:</strong> two flow-matching losses on a shared trunk, <span class="math inline">\(\mathcal{L}_{\text{co}} = \mathbb{E}\|u_\theta^{\text{vid}}(z_t; t, c) - (z - \varepsilon_z)\|^2 + \lambda\,\mathbb{E}\|u_\theta^{\text{act}}(a_t; t, c) - (a - \varepsilon_a)\|^2\)</span>. <span class="math inline">\(u^{\text{act}}\)</span> never sees the noised future video <span class="math inline">\(z_t\)</span>, so no frames are generated at test time: the Fast-WAM recipe.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models.</span> Dyna Robotics, August 2026 · <a href="https://www.dyna.co/dyna-2" target="_blank">post</a></p>
+</div>
+</section>
+<section id="dyna-2-human-to-robot-scaling" class="slide level2">
+<h2>Dyna-2: human-to-robot scaling</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:46%;">
+<p>▶ <strong>Nested subsets</strong> of 1k, 10k, 100k and 1M hours, same training configuration. Held-out human error follows a power law (MSE <span class="math inline">\(\approx 0.069\, D^{-0.018}\)</span>).</p>
+<p>▶ <strong>Zero-shot on robots</strong> (top): 39 unseen tasks on YAM arms. Every metric improves monotonically, with an inflection between 10k and 100k hours.</p>
+<p>▶ <strong>Post-trained</strong> (bottom) on at most 10 robot hours per task (14 tasks, 3 embodiments): lockbox key turning goes from 0% (up to 100k hours) to 90% at 1M; dexterous bottle-cap untwisting from 10% to 50%.</p>
+</div><div class="column" style="width:54%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/dyna2-robot-scaling.png" class="nostretch quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/dyna2-onrobot.png" class="nostretch quarto-figure quarto-figure-center" style="width:76.0%"></p>
+</figure>
+</div>
+<div class="grey-text tiny-font">
+<p>Top: zero-shot action MSE and accuracy on held-out robot data. Bottom: mean normalized on-robot score over 14 tasks after post-training.</p>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models.</span> Dyna Robotics, August 2026 · <a href="https://www.dyna.co/dyna-2" target="_blank">post</a></p>
+</div>
+</section>
+<section id="dyna-2-video-is-the-scaling-axis" class="slide level2">
+<h2>Dyna-2: video is the scaling axis</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:52%;">
+<p>▶ <strong>Objective ablation</strong> (right): joint video and action prediction beats action-only on 39 of 39 robot tasks, but only <strong>co-training on extra unlabeled video</strong> keeps improving with data.</p>
+<p>▶ <strong>Video-only scaling:</strong> at a fixed 50k action hours, more video-only hours lower zero-shot robot error (not human error).</p>
+<p>▶ <strong>WAM vs.&nbsp;VLA</strong> (Dyna-1, Qwen3-VL-4B), same data: 1.55× the success rate, and 87% versus 46% pass rate at unseen customer sites. Language following: 35% (action-only) to 96% (full corpus).</p>
+<p>▶ <strong>Caveats:</strong> a company post, not peer reviewed; offline accuracies are small (accuracy@0.5 about 0.16); the production model differs from the scaling-study models.</p>
+</div><div class="column" style="width:48%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/dyna2-objective.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+<div class="grey-text tiny-font">
+<p>Zero-shot robot error and accuracy against action-labelled human hours, for three training objectives.</p>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Dyna-2: A 1-Million-Hour Scaling Law for World-Action Models.</span> Dyna Robotics, August 2026 · <a href="https://www.dyna.co/dyna-2" target="_blank">post</a></p>
+</div>
+</section></section>
+<section>
+<section id="video-planning-with-inverse-dynamics-models" class="title-slide slide level1 center">
+<h1>Video planning with inverse dynamics models</h1>
+
+</section>
+<section id="unipi-plan-in-video-then-infer-actions" class="slide level2">
+<h2>UniPi: plan in video, then infer actions</h2>
+<div class="columns">
+<div class="column small-math arrow-bullets" style="width:63%;">
+<p>▶ <strong>Policy as text-conditioned video generation:</strong> a video diffusion model, given the current frame and the instruction, generates future frames <span class="math inline">\(I_{t+1}, \dots, I_{t+H}\)</span> of the robot doing the task.</p>
+<p>▶ <strong>An inverse dynamics model</strong> recovers the actions:</p>
+<p><span class="math display">\[
+a_t = \mathrm{idm}(I_t, I_{t+1})
+\]</span></p>
+<p>It is small and needs only modest action-labeled data; the video model can use video <em>without actions</em>.</p>
+<p>▶ <strong>Why it generalizes:</strong> video is shared across tasks and bodies, and language composition carries over to new object–goal combinations.</p>
+<p>▶ <strong>Failure modes:</strong> plans can be <strong>physically unrealizable</strong> for this robot; IDM errors <strong>accumulate</strong>, with no replanning unless you regenerate; video generation is slow.</p>
+</div><div class="column" style="width:37%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/unipi-overview.png" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div></div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Learning Universal Policies via Text-Guided Video Generation.</span> Du et al.&nbsp;NeurIPS 2023</p>
+</div>
+</section>
+<section id="inverse-dynamics-vs.-world-action-models" class="slide level2">
+<h2>Inverse dynamics vs.&nbsp;world-action models</h2>
+<div class="small-math arrow-bullets">
+<p>▶ Same factorization, different training:</p>
+<p><span class="math display">\[
+p(o_{t+1:t+H} \mid o_t, \ell)\;\; q\big(a_t \mid o_t, o_{t+1}\big)
+\]</span></p>
+<ul>
+<li><strong>Inverse dynamics (UniPi):</strong> two separately trained models; the video model never learns what this robot can do.</li>
+<li><strong>World-action model (DreamZero):</strong> one network, trained jointly, re-grounded on real frames after every chunk.</li>
+</ul>
+<p>▶ <strong>Elsewhere:</strong> Track2Act, Gen2Act and Dreamitate (Week 10) map generated human video or point tracks to robot actions. Veo-Act (2026) plans with a frontier video model, follows it with an IDM, and hands off to a VLA for contact.</p>
+<p>▶ Inside a VLA: π0.7 with a subgoal image is inverse dynamics over one future frame.</p>
+</div>
+<div class="tiny-font absolute" style="left: 0px; bottom: 0px; ">
+<p><span class="red">Learning Universal Policies via Text-Guided Video Generation.</span> Du et al.&nbsp;NeurIPS 2023 · <span class="red">Veo-Act: Enhancing VLA Policies with Frontier Video Models.</span> 2026</p>
+</div>
+</section>
+<section id="comparing-the-six-families" class="slide level2">
+<h2>Comparing the six families</h2>
+<div class="rep-table">
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Family</th>
+<th>Where the foundation model sits</th>
+<th>Output across the interface</th>
+<th>Data needed</th>
+<th>What could break</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Hierarchical VLA</strong><br><span class="grey-text">SayCan, Hi Robot, π0.5</span></td>
+<td>above a VLA</td>
+<td>language subgoals</td>
+<td>robot demos with subtask labels, web data, synthetic prompts</td>
+<td>the low-level VLA; subgoals it can’t execute</td>
+</tr>
+<tr class="even">
+<td><strong>Code as Policies</strong><br><span class="grey-text">CaP</span></td>
+<td>writes the policy</td>
+<td>a program</td>
+<td>none beyond prompts and APIs</td>
+<td>anything the APIs can’t express; dexterity</td>
+</tr>
+<tr class="odd">
+<td><strong>Agentic control</strong><br><span class="grey-text">MOKA, ReKep</span></td>
+<td>is the policy</td>
+<td>points, poses, constraints</td>
+<td>none (zero-shot)</td>
+<td>precision of VLM outputs; contact-rich tasks</td>
+</tr>
+<tr class="even">
+<td><strong>World-model planning</strong><br><span class="grey-text">V-JEPA 2-AC</span></td>
+<td>world model inside MPC</td>
+<td>predicted futures and scores</td>
+<td>lots of video, a little unlabeled robot video</td>
+<td>slow planning; specifying goals; long horizons</td>
+</tr>
+<tr class="odd">
+<td><strong>World-action model</strong><br><span class="grey-text">DreamZero, GR00T 2, Fast-WAM, Flex-π, Dyna-2</span></td>
+<td>is world model and policy</td>
+<td>actions, with the predicted future</td>
+<td>robot data plus video, possibly without actions</td>
+<td>wrong imagined futures, executed faithfully; compute</td>
+</tr>
+<tr class="even">
+<td><strong>Inverse dynamics</strong><br><span class="grey-text">UniPi</span></td>
+<td>plans video above an IDM</td>
+<td>future frames</td>
+<td>video without actions, a little labeled data for the IDM</td>
+<td>unrealizable video plans; accumulating IDM errors</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<div class="small-math arrow-bullets">
+<p>▶ <strong>VLAs</strong> turned a vision-language model into a policy: actions as tokens (RT-2, OpenVLA), then as continuous chunks from a diffusion head (Octo) or a flow-matching action expert (π0 and nearly everything since).</p>
+<p>▶ <strong>The 2025–2026 VLA story is about data and adaptation</strong>, not architecture: heterogeneous co-training (π0.5), training on failures with metadata (π0.7), embodiment midtraining and learning from corrections (Rho), fully open data (MolmoAct 2).</p>
+<p>▶ <strong>Hierarchies</strong> differ in what the high level sends down: a skill choice, a language subgoal, a language motion, a trace, a subgoal image, a video. More detail means a low level closer to inverse dynamics.</p>
+<p>▶ <strong>Code and agentic control</strong> use foundation models zero-shot, with no robot data, but stop where APIs and controllers stop: at dexterity.</p>
+<p>▶ <strong>Predicting the future</strong> is the newest bet: as a planner’s model (V-JEPA 2-AC), jointly with actions (DreamZero, GR00T 2), or as a training signal only (Fast-WAM). Its argument: video carries priors about motion that image-text pretraining lacks.</p>
+<p>▶ <strong>None of this removes the questions from earlier weeks:</strong> compounding errors (Week 1), when to replan (Week 2), learning from bad data (Week 3), learning from human corrections (Week 9), and what representation the policy should learn (Week 11).</p>
+</div>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="https://csc2626.github.io/2026F_website/" target="_blank" style="font-size:0.8em; bottom: -5px;">↩︎ Back to Course Website</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true,"src":"chalkboard.json","boardmarkerWidth":2,"chalkWidth":2,"chalkEffect":1},
+'smaller': true,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg-full.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+    window.document.addEventListener("DOMContentLoaded", function (event) {
+      const toggleBodyColorMode = (bsSheetEl) => {
+        const mode = bsSheetEl.getAttribute("data-mode");
+        const bodyEl = window.document.querySelector("body");
+        if (mode === "dark") {
+          bodyEl.classList.add("quarto-dark");
+          bodyEl.classList.remove("quarto-light");
+        } else {
+          bodyEl.classList.add("quarto-light");
+          bodyEl.classList.remove("quarto-dark");
+        }
+      }
+      const toggleBodyColorPrimary = () => {
+        const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+        if (bsSheetEl) {
+          toggleBodyColorMode(bsSheetEl);
+        }
+      }
+      toggleBodyColorPrimary();  
+      const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+      tabsets.forEach(function(tabset) {
+        const tabby = new Tabby('#' + tabset.id);
+      });
+      const isCodeAnnotation = (el) => {
+        for (const clz of el.classList) {
+          if (clz.startsWith('code-annotation-')) {                     
+            return true;
+          }
+        }
+        return false;
+      }
+      const onCopySuccess = function(e) {
+        // button target
+        const button = e.trigger;
+        // don't keep focus
+        button.blur();
+        // flash "checked"
+        button.classList.add('code-copy-button-checked');
+        var currentTitle = button.getAttribute("title");
+        button.setAttribute("title", "Copied!");
+        let tooltip;
+        if (window.bootstrap) {
+          button.setAttribute("data-bs-toggle", "tooltip");
+          button.setAttribute("data-bs-placement", "left");
+          button.setAttribute("data-bs-title", "Copied!");
+          tooltip = new bootstrap.Tooltip(button, 
+            { trigger: "manual", 
+              customClass: "code-copy-button-tooltip",
+              offset: [0, -8]});
+          tooltip.show();    
+        }
+        setTimeout(function() {
+          if (tooltip) {
+            tooltip.hide();
+            button.removeAttribute("data-bs-title");
+            button.removeAttribute("data-bs-toggle");
+            button.removeAttribute("data-bs-placement");
+          }
+          button.setAttribute("title", currentTitle);
+          button.classList.remove('code-copy-button-checked');
+        }, 1000);
+        // clear code selection
+        e.clearSelection();
+      }
+      const getTextToCopy = function(trigger) {
+          const codeEl = trigger.previousElementSibling.cloneNode(true);
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+      }
+      const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+        text: getTextToCopy
+      });
+      clipboard.on('success', onCopySuccess);
+      if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+        const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+          text: getTextToCopy,
+          container: window.document.getElementById('quarto-embedded-source-code-modal')
+        });
+        clipboardModal.on('success', onCopySuccess);
+      }
+        var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+        var mailtoRegex = new RegExp(/^mailto:/);
+          var filterRegex = new RegExp("https:\/\/csc2626\.github\.io\/2026F_website\/");
+        var isInternal = (href) => {
+            return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+        }
+        // Inspect non-navigation links and adorn them if external
+     	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+        for (var i=0; i<links.length; i++) {
+          const link = links[i];
+          if (!isInternal(link.href)) {
+            // undo the damage that might have been done by quarto-nav.js in the case of
+            // links that we want to consider external
+            if (link.dataset.originalHref !== undefined) {
+              link.href = link.dataset.originalHref;
+            }
+          }
+        }
+      function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+        const config = {
+          allowHTML: true,
+          maxWidth: 500,
+          delay: 100,
+          arrow: false,
+          appendTo: function(el) {
+              return el.closest('section.slide') || el.parentElement;
+          },
+          interactive: true,
+          interactiveBorder: 10,
+          theme: 'light-border',
+          placement: 'bottom-start',
+        };
+        if (contentFn) {
+          config.content = contentFn;
+        }
+        if (onTriggerFn) {
+          config.onTrigger = onTriggerFn;
+        }
+        if (onUntriggerFn) {
+          config.onUntrigger = onUntriggerFn;
+        }
+          config['offset'] = [0,0];
+          config['maxWidth'] = 700;
+        window.tippy(el, config); 
+      }
+      const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+      for (var i=0; i<noterefs.length; i++) {
+        const ref = noterefs[i];
+        tippyHover(ref, function() {
+          // use id or data attribute instead here
+          let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+          try { href = new URL(href).hash; } catch {}
+          const id = href.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note) {
+            return note.innerHTML;
+          } else {
+            return "";
+          }
+        });
+      }
+      const findCites = (el) => {
+        const parentEl = el.parentElement;
+        if (parentEl) {
+          const cites = parentEl.dataset.cites;
+          if (cites) {
+            return {
+              el,
+              cites: cites.split(' ')
+            };
+          } else {
+            return findCites(el.parentElement)
+          }
+        } else {
+          return undefined;
+        }
+      };
+      var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+      for (var i=0; i<bibliorefs.length; i++) {
+        const ref = bibliorefs[i];
+        const citeInfo = findCites(ref);
+        if (citeInfo) {
+          tippyHover(citeInfo.el, function() {
+            var popup = window.document.createElement('div');
+            citeInfo.cites.forEach(function(cite) {
+              var citeDiv = window.document.createElement('div');
+              citeDiv.classList.add('hanging-indent');
+              citeDiv.classList.add('csl-entry');
+              var biblioDiv = window.document.getElementById('ref-' + cite);
+              if (biblioDiv) {
+                citeDiv.innerHTML = biblioDiv.innerHTML;
+              }
+              popup.appendChild(citeDiv);
+            });
+            return popup.innerHTML;
+          });
+        }
+      }
+    });
+    </script>
+    <script type="text/javascript" src="../custom_curtain.js"></script>
+    <script type="text/javascript" src="../mathjax-layout-fix.js"></script>
+    
+
+</body></html>
